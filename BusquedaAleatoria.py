@@ -1,13 +1,29 @@
 import random
+import numpy as np
 
-NPuntos = int(input("Introduce numero de puntos de la serie: "))
-KSegmentos = int(input("Introduce numero K de segmentos: "))
+def readSeries(filename) -> list: # Función para crear la lista que define la serie
+    data = np.loadtxt(filename).tolist()
+    return data
 
-print("Empezamos búsqueda aleatoria con", NPuntos, "puntos y", KSegmentos, "segmentos\n")
+def getBreakingPoints(n_points, k_segments): # Función de búsqueda aleatoria
+    
+    breaking_points = [0,n_points-1]
 
-# Creamos un vector con KSegmentos-1 elementos aleatorios entre 0 y NPuntos
-vector = [random.randint(0, NPuntos) for _ in range(KSegmentos - 1)]
+    for _ in range(k_segments -1):
+        n = random.randint(0,n_points-1)
+        
+        while n in breaking_points:
+            n = random.randint(0,n_points-1)
+        
+        breaking_points.append(n)
+    
+    breaking_points.sort()
 
-#Imprimir (no hace falta pero es para visualizarlo)
-for i, val in enumerate(vector):
-    print(f"vector[{i}] = {val}")
+    return breaking_points
+
+def avgError(series: list, start_point, end_point): # Función para calcular el error medio de cada segmento
+    
+
+def randomSearch(series: list, k_segments):
+
+    
