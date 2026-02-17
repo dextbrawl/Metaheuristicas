@@ -1,2 +1,2 @@
-# Metaheur-sticas-
+# Metaheurísticas
 Practicas Metaheurísticas 
