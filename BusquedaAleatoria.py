@@ -38,7 +38,7 @@ def readSeries(filename) -> list: # Función para crear la lista que define la s
     data = np.loadtxt(filename).tolist()
     return data
 
-def getBreakingPoints(n_points, k_segments): # Función de búsqueda aleatoria
+def getBreakingPoints(n_points, k_segments): # Función para generar puntos de corte aleatorios
     breaking_points = [0,n_points-1]
 
     for _ in range(k_segments -1):
@@ -66,15 +66,19 @@ def randomSearch(series: list, k_segments):
         print("     [",breaking_points[i],",",breaking_points[i+1],"]")
     print("Average MSE: ", avg_mse)
 
-    for _ in range(100000):
+    for _ in range(50000):
         new_breaking_points = getBreakingPoints(size, k_segments)
-        new_avg_mse = avgMSE(series,breaking_points)
+        new_avg_mse = avgMSE(series,new_breaking_points)
 
         if new_avg_mse < avg_mse :
             breaking_points = new_breaking_points
             avg_mse = new_avg_mse
             clear_screen()
             print(" -- RANDOM SEARCH --")
-            
+           
+            print("SEGMENTS")
+            for i in range(k_segments-1):
+                print("     [",breaking_points[i],",",breaking_points[i+1],"]")
+            print("Average MSE: ", avg_mse)
 
 randomSearch(readSeries("TS1.txt"),9)
