@@ -2,8 +2,27 @@ import random
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt #Para pintar las curvas
 
 # Funciones auxiliares
+def draw(filename,breaking_points):
+    #Codigo de draw
+    Y=readSeries(filename)
+    X=list(range(len(Y)))
+    plt.plot(X,Y,color='blue',label='Serie')
+
+    #Marcar segmentos
+    if breaking_points:
+        X_cuts = breaking_points
+        Y_cuts = [Y[i] for i in breaking_points]
+        plt.scatter(X_cuts, Y_cuts, color='red', s=50, label='Puntos de corte', zorder=5)
+
+    plt.title(filename)
+    plt.xlabel("Eje X")
+    plt.ylabel("Eje Y")
+    plt.grid(True)
+    plt.legend()
+    plt.show()
 
 def segmentMSE(breaking_points):
     breaking_points = np.array(breaking_points)
@@ -66,7 +85,7 @@ def randomSearch(series: list, k_segments):
         print("     [",breaking_points[i],",",breaking_points[i+1],"]")
     print("Average MSE: ", avg_mse)
 
-    for _ in range(50000):
+    for _ in range(10):
         new_breaking_points = getBreakingPoints(size, k_segments)
         new_avg_mse = avgMSE(series,new_breaking_points)
 
@@ -80,5 +99,8 @@ def randomSearch(series: list, k_segments):
             for i in range(k_segments-1):
                 print("     [",breaking_points[i],",",breaking_points[i+1],"]")
             print("Average MSE: ", avg_mse)
+    #Hago return de los puntos para usarlos en draw
+    return breaking_points
 
-randomSearch(readSeries("TS1.txt"),9)
+best_breaking_points =randomSearch(readSeries("TS1.txt"),9)
+draw("TS1.txt",best_breaking_points)
