@@ -1,145 +1,51 @@
-import random
-import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt #Para pintar las curvas
-
-
-# Funciones auxiliares
-#Funcion seleccionar serie
-def select_series(series_dict):
-    print("Tenemos estas series con sus k segmentos: ")
-    for i, name in enumerate(series_dict.keys(), 1):
-        print(f"{i}. {name} ({series_dict[name]} segmentos)")
-
-    while True:
-        try:
-            opcion = int(input("Introduce serie (1-4): "))
-            if 1 <= opcion <= len(series_dict):
-                filename = list(series_dict.keys())[opcion-1]
-                k_segments = series_dict[filename]
-                return filename, k_segments
-            else:
-                print("Opcion invalida crack.")
-        except ValueError:
-            print("Pon un numero que sirva.")
-
-#Funcion graficar la serie
-def draw(filename,breaking_points):
-    Y=readSeries(filename)
-    X=list(range(len(Y)))
-    plt.plot(X,Y,color='blue',label='Serie')
-
-    #Marcar segmentos
-    if breaking_points:
-        X_cuts = breaking_points
-        Y_cuts = [Y[i] for i in breaking_points]
-        plt.scatter(X_cuts, Y_cuts, color='red', s=50, label='Puntos de corte', zorder=5)
-
-        # Dibujar las rectas de regresión por segmento
-        for i in range(len(breaking_points)-1):
-            start = breaking_points[i]
-            end = breaking_points[i+1]
-
-            # Crear X segmentada y reshape para LinearRegression
-            X_seg = np.arange(start, end).reshape(-1, 1)
-            y_seg = np.array(Y[start:end]).reshape(-1, 1)
-
-            model = LinearRegression()
-            model.fit(X_seg, y_seg)
-            y_pred = model.predict(X_seg)
-
-            # Dibujar la recta de regresión
-            plt.plot(X_seg, y_pred, color='orange', linewidth=2, label='Regresión' if i==0 else None)
-
-    plt.title(filename)
-    plt.xlabel("Eje X")
-    plt.ylabel("Eje Y")
-    plt.grid(True)
-    #plt.legend(loc='upper left', bbox_to_anchor=(1,1))  # Fuera a la derecha
-    plt.show()
-
-def segmentMSE(breaking_points):
-    breaking_points = np.array(breaking_points)
-    n = len(breaking_points)
-    X = np.arange(n).reshape(-1, 1) # Para ponerlo en forma de columna y que lo pille sklearn
-    y = breaking_points.reshape(-1, 1)
-
-    model = LinearRegression()
-    model.fit(X, y)
-    prediction = model.predict(X)
-
-    mse = mean_squared_error(y, prediction)
-
-    return mse
-
-def avgMSE(temp_series, breaking_points):
-    segment_errs = []
-
-    for i in range(len(breaking_points) - 1):
-        start = breaking_points[i]
-        end = breaking_points[i+1]
-
-        segment = temp_series[start:end]
-        segment_mse = segmentMSE(segment)
-        segment_errs.append(segment_mse)
-
-    mse_mean = np.mean(segment_errs)
-
-    return mse_mean
-
-# Función para crear la lista que define la serie
-def readSeries(filename) -> list: 
-    data = np.loadtxt(filename).tolist()
-    return data
-
-# Función para generar puntos de corte aleatorios
-def getBreakingPoints(n_points, k_segments): 
-    breaking_points = [0,n_points-1]
-
-    for _ in range(k_segments -1):
-        n = random.randint(0,n_points-1)
-        while n in breaking_points:
-            n = random.randint(0,n_points-1)
-        breaking_points.append(n)
-    breaking_points.sort()
-
-    return breaking_points
-
-#Funcion para limpiar pantalla? codigos ASCII peruanillos
-def clear_screen():
-    print('\033[2J\033[H', end='')
+import metrics as me
 
 #Heuristica aleatoria
 def randomSearch(series: list, k_segments):
-    clear_screen()
+    max_iterations = int(input("Introduce el número máximo de iteraciones: "))
+    me.clear_screen()
     print(" -- RANDOM SEARCH --")
     size = len(series)
     
-    breaking_points = getBreakingPoints(size,k_segments)
-    avg_mse = avgMSE(series,breaking_points)
+    breaking_points = me.getBreakingPoints(size,k_segments)
+    avg_mse = me.avgMSE(series,breaking_points)
     
     print("SEGMENTS")
     for i in range(k_segments-1):
         print("     [",breaking_points[i],",",breaking_points[i+1],"]")
-    print("Average MSE: ", avg_mse)
-
-    #Cuantas iteraciones?
-    for _ in range(1000):
-        new_breaking_points = getBreakingPoints(size, k_segments)
-        new_avg_mse = avgMSE(series,new_breaking_points)
+    print("Average MSE: ", avg_mse) 
+    c = 0
+    for _ in range(max_iterations):
+        new_breaking_points = me.getBreakingPoints(size, k_segments)
+        new_avg_mse = me.avgMSE(series,new_breaking_points)
 
         if new_avg_mse < avg_mse :
+            c = 0
             breaking_points = new_breaking_points
             avg_mse = new_avg_mse
-            clear_screen()
+            me.clear_screen()
             print(" -- RANDOM SEARCH --")
            
             print("SEGMENTS")
             for i in range(k_segments-1):
                 print("     [",breaking_points[i],",",breaking_points[i+1],"]")
             print("Average MSE: ", avg_mse)
+
+        if c == max_iterations/2:
+            me.clear_screen()
+            print("STOP:Too may interactions without improving.")
+            print(" -- RANDOM SEARCH --")
+           
+            print("SEGMENTS")
+            for i in range(k_segments-1):
+                print("     [",breaking_points[i],",",breaking_points[i+1],"]")
+            print("Average MSE: ", avg_mse)
+            return breaking_points
+
+
+
     #Hago return de los puntos para usarlos en draw
+    c = c + 1
     return breaking_points
 
 #Definimos para nuestra practica, "Fichero": K
@@ -147,7 +53,7 @@ series_dict = {
     "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
 }
 
-filename, k_segments = select_series(series_dict)
+filename, k_segments = me.select_series(series_dict)
 
-best_breaking_points =randomSearch(readSeries(filename),k_segments)
-draw(filename,best_breaking_points)
+best_breaking_points =randomSearch(me.readSeries(filename),k_segments)
+me.draw(filename,best_breaking_points)
