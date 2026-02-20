@@ -3,7 +3,8 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 import random
-
+import statistics
+import math
 # Función para generar puntos de corte aleatorios
 def getBreakingPoints(n_points, k_segments): 
     breaking_points = [0,n_points-1]
@@ -111,3 +112,12 @@ def avgMSE(temp_series, breaking_points):
 
     return mse_mean
 
+def calculateVariance(data):
+    return statistics.variance(data)
+
+def calculateStandardDesviation(data):
+    return math.sqrt(calculateVariance(data))
+
+def calculateErrorMean(data):
+    data = np.array(data)
+    return np.mean(data)

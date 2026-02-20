@@ -1,3 +1,4 @@
+from statistics import variance
 import metrics as me
 
 #Heuristica aleatoria
@@ -15,6 +16,8 @@ def randomSearch(series: list, k_segments):
         print("     [",breaking_points[i],",",breaking_points[i+1],"]")
     print("Average MSE: ", avg_mse) 
     c = 0
+    errors = []
+    errors.append(avg_mse)
     for _ in range(max_iterations):
         new_breaking_points = me.getBreakingPoints(size, k_segments)
         new_avg_mse = me.avgMSE(series,new_breaking_points)
@@ -30,8 +33,9 @@ def randomSearch(series: list, k_segments):
             for i in range(k_segments-1):
                 print("     [",breaking_points[i],",",breaking_points[i+1],"]")
             print("Average MSE: ", avg_mse)
+            errors.append(avg_mse)
 
-        if c == max_iterations/2:
+        if c == (max_iterations/2):
             me.clear_screen()
             print("STOP:Too may interactions without improving.")
             print(" -- RANDOM SEARCH --")
@@ -46,6 +50,12 @@ def randomSearch(series: list, k_segments):
 
     #Hago return de los puntos para usarlos en draw
     c = c + 1
+    errors_mean = me.calculateErrorMean(errors)
+    print(f"Average of errors: ", errors_mean)
+    error_variance = me.calculateVariance(errors)
+    print(f"variance of errors: ", error_variance)
+    standard_desviation = me.calculateStandardDesviation(errors)
+    print(f"Standard desviation of errors: ", standard_desviation)
     return breaking_points
 
 #Definimos para nuestra practica, "Fichero": K
