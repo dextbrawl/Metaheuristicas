@@ -1,4 +1,3 @@
-from statistics import variance
 import metrics as me
 
 #Heuristica aleatoria

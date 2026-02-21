@@ -1,5 +1,3 @@
-from re import error
-from numpy import append
 import metrics as me
 def print_segments(breaking_points):
     for i in range(len(breaking_points) - 1):
