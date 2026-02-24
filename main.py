@@ -16,12 +16,12 @@ def random_search():
         print("\n--> ¿Cómo quieres hacer el estudio?")
         print("1. Serie")
         print("2. Paralelo")
-        print("3. Salir")
+        print("3. Volver")
         opcion = input("\nSelecciona una opción (1-3): ")
 
         if opcion == '1':
             print(f"Llamada a random_search en serie")
-            subprocess.run(["python"], "BusquedaAleatoria.py")
+            subprocess.run(["python", "BusquedaAleatoria.py"])
         elif opcion == '2':
             print(f"Llamada a random_search en paralelo")
         elif opcion == '3':
@@ -34,7 +34,7 @@ def hill_climbing():
     print("\n--> Ejecutando el método Hill Climbing.")
     subprocess.run(["python"], "HillClimbing.py")
 
-def accion_tres():
+def simulated_annealing():
     print("\n--> Ejecutando el método Simulated Annealing.")
     # subprocess.run(["python"], "")
 
@@ -46,9 +46,9 @@ def main():
         if opcion == '1':
             random_search()
         elif opcion == '2':
-            accion_dos()
+            hill_climbing()
         elif opcion == '3':
-            accion_tres()
+            simulated_annealing()
         elif opcion == '4':
             print("\nSaliendo del programa... ¡Hasta luego!")
             break
