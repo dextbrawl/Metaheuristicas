@@ -1,7 +1,4 @@
 import metrics as me
-def print_segments(breaking_points):
-    for i in range(len(breaking_points) - 1):
-        print(f'[{breaking_points[i]}][{breaking_points[i+1]}]')
 
 def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos puntos vecinos que sean mejores que los anteriores
     errors = []
@@ -12,8 +9,8 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos
         while i < k_segments :
             prev_mean_mse = me.avgMSE(series,prev_breaking_points)
             me.clear_screen()
-            print('-- HILL CLIMBING SEARCH --')
-            print_segments(prev_breaking_points)
+            print('\n-- HILL CLIMBING SEARCH --')
+            print(prev_breaking_points)
             print(f'Average MSE: {me.avgMSE(series,prev_breaking_points)}')
             inc_breaking_points = prev_breaking_points.copy()
             if prev_breaking_points[i] + 1 < prev_breaking_points[i+1]:
