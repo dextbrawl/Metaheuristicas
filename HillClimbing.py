@@ -50,9 +50,3 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos
     print(f"Standard desviation of errors: ", standard_desviation)
 
     return prev_breaking_points
-
-series = me.readSeries('TS1.txt')
-k_segments = 9
-prev_breaking_points = me.getBreakingPoints(len(series),k_segments)
-best_breaking_points = hillClimbingSearch(series,k_segments,prev_breaking_points)
-                

@@ -11,8 +11,6 @@ def randomSearch(series: list, k_segments):
     avg_mse = me.avgMSE(series,breaking_points)
     
     print("SEGMENTS")
-    for i in range(k_segments-1):
-        print("     [",breaking_points[i],",",breaking_points[i+1],"]")
     print("Average MSE: ", avg_mse) 
     c = 0
     errors = []
@@ -27,10 +25,6 @@ def randomSearch(series: list, k_segments):
             avg_mse = new_avg_mse
             me.clear_screen()
             print(" -- RANDOM SEARCH --")
-           
-            print("SEGMENTS")
-            for i in range(k_segments-1):
-                print("     [",breaking_points[i],",",breaking_points[i+1],"]")
             print("Average MSE: ", avg_mse)
             errors.append(avg_mse)
 
@@ -38,10 +32,6 @@ def randomSearch(series: list, k_segments):
             me.clear_screen()
             print("STOP:Too may interactions without improving.")
             print(" -- RANDOM SEARCH --")
-           
-            print("SEGMENTS")
-            for i in range(k_segments-1):
-                print("     [",breaking_points[i],",",breaking_points[i+1],"]")
             print("Average MSE: ", avg_mse)
             return breaking_points
 
@@ -57,12 +47,3 @@ def randomSearch(series: list, k_segments):
     print(f"Standard desviation of errors: ", standard_desviation)
     return breaking_points
 
-#Definimos para nuestra practica, "Fichero": K
-series_dict = {
-    "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
-}
-
-filename, k_segments = me.select_series(series_dict)
-
-best_breaking_points =randomSearch(me.readSeries(filename),k_segments)
-me.draw(filename,best_breaking_points)
