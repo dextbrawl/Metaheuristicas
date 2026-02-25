@@ -16,8 +16,6 @@ def getBreakingPoints(n_points, k_segments):
         breaking_points.append(n)
     breaking_points.sort()
 
-    print(f"the breaking_points are: ", breaking_points)
-
     return breaking_points
 
 #Funcion para limpiar pantalla? codigos ASCII peruanillos
@@ -25,22 +23,25 @@ def clear_screen():
     print('\033[2J\033[H', end='')
 
 # Función para seleccionar la serie para hacer la regresión
-def select_series(series_dict):                              
-    print("Tenemos estas series con sus k segmentos: ")      
-    for i, name in enumerate(series_dict.keys(), 1):         
+def select_series():
+    series_dict = {
+        "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
+    }
+    print("Tenemos estas series con sus k segmentos: ")
+    for i, name in enumerate(series_dict.keys(), 1):
         print(f"{i}. {name} ({series_dict[name]} segmentos)")
-                                                             
-    while True:                                              
-        try:                                                 
-            opcion = int(input("Introduce serie (1-4): "))   
-            if 1 <= opcion <= len(series_dict):              
+
+    while True:
+        try:
+            opcion = int(input("Introduce serie (1-4): "))
+            if 1 <= opcion <= len(series_dict):
                 filename = list(series_dict.keys())[opcion-1]
-                k_segments = series_dict[filename]           
-                return filename, k_segments                  
-            else:                                            
-                print("Opcion invalida crack.")              
-        except ValueError:                                   
-            print("Pon un numero que sirva.")                
+                k_segments = series_dict[filename]
+                return filename, k_segments
+            else:
+                print("Opcion invalida crack.")
+        except ValueError:
+            print("Pon un numero que sirva.")
 
 # Función para crear la lista que define la serie
 def readSeries(filename) -> list: 
@@ -48,8 +49,7 @@ def readSeries(filename) -> list:
     return data
 
 #Funcion graficar la serie
-def draw(filename,breaking_points):
-    Y=readSeries(filename)
+def draw(Y,breaking_points):
     X=list(range(len(Y)))
     plt.plot(X,Y,color='blue',label='Serie')
 
