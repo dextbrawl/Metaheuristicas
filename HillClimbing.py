@@ -3,6 +3,7 @@ import metrics as me
 def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos puntos vecinos que sean mejores que los anteriores
     errors = []
     improved = True 
+    neighbour_distance = int(len(series) * 0.005)
     while improved:
         i = 1
         improved = False
@@ -13,11 +14,11 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos
             print(prev_breaking_points)
             print(f'Average MSE: {me.avgMSE(series,prev_breaking_points)}')
             inc_breaking_points = prev_breaking_points.copy()
-            if prev_breaking_points[i] + 1 < prev_breaking_points[i+1]:
-                inc_breaking_points[i] += 1
+            if prev_breaking_points[i] + neighbour_distance < prev_breaking_points[i+1]:
+                inc_breaking_points[i] += neighbour_distance
             dec_breaking_points = prev_breaking_points.copy()
-            if prev_breaking_points[i] - 1 > prev_breaking_points[i-1]:
-                dec_breaking_points[i] -= 1
+            if prev_breaking_points[i] - neighbour_distance > prev_breaking_points[i-1]:
+                dec_breaking_points[i] -= neighbour_distance
             mean_mse_inc = me.avgMSE(series,inc_breaking_points)
             mean_mse_dec = me.avgMSE(series,dec_breaking_points)
 
@@ -55,4 +56,4 @@ series = me.readSeries('TS1.txt')
 k_segments = 9
 prev_breaking_points = me.getBreakingPoints(len(series),k_segments)
 best_breaking_points = hillClimbingSearch(series,k_segments,prev_breaking_points)
-                
+me.draw('TS1.txt', best_breaking_points)
