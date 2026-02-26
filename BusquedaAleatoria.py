@@ -1,7 +1,7 @@
 import metrics as me
 
 #Heuristica aleatoria
-def randomSearch(series: list, k_segments):
+def serialRandomSearch(series: list, k_segments):
     max_iterations = int(input("Introduce el número máximo de iteraciones: "))
     me.clear_screen()
     print(" -- RANDOM SEARCH --")
@@ -57,6 +57,9 @@ def randomSearch(series: list, k_segments):
     print(f"Standard desviation of errors: ", standard_desviation)
     return breaking_points
 
+def paralelRandomSearch(series: list, k_segments):
+    
+    return 
 #Definimos para nuestra practica, "Fichero": K
 series_dict = {
     "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
@@ -64,5 +67,5 @@ series_dict = {
 
 filename, k_segments = me.select_series(series_dict)
 
-best_breaking_points =randomSearch(me.readSeries(filename),k_segments)
+best_breaking_points = serialRandomSearch(me.readSeries(filename),k_segments)
 me.draw(filename,best_breaking_points)
