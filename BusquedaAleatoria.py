@@ -13,8 +13,6 @@ def serialRandomSearch(series: list, k_segments):
     avg_mse = me.avgMSE(series,breaking_points)
     
     print("SEGMENTS")
-    for i in range(k_segments-1):
-        print("     [",breaking_points[i],",",breaking_points[i+1],"]")
     print("Average MSE: ", avg_mse) 
     c = 0
     errors = []
@@ -30,20 +28,12 @@ def serialRandomSearch(series: list, k_segments):
             avg_mse = new_avg_mse
             me.clear_screen()
             print(" -- RANDOM SEARCH --")
-           
-            print("SEGMENTS")
-            for i in range(k_segments-1):
-                print("     [",breaking_points[i],",",breaking_points[i+1],"]")
             print("Average MSE: ", avg_mse)
 
         if c == (max_iterations/2):
             me.clear_screen()
             print("STOP:Too may interactions without improving.")
             print(" -- RANDOM SEARCH --")
-           
-            print("SEGMENTS")
-            for i in range(k_segments-1):
-                print("     [",breaking_points[i],",",breaking_points[i+1],"]")
             print("Average MSE: ", avg_mse)
             break
 
