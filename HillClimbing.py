@@ -52,8 +52,9 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos
 
     return prev_breaking_points
 
-series = me.readSeries('TS1.txt')
-k_segments = 9
-prev_breaking_points = me.getBreakingPoints(len(series),k_segments)
-best_breaking_points = hillClimbingSearch(series,k_segments,prev_breaking_points)
-me.draw('TS1.txt', best_breaking_points)
+if __name__ == '__main__':
+    filename, k_segments = me.select_series()
+
+    series_data = me.readSeries(filename)
+    best_breaking_points = hillClimbingSearch(me.readSeries(filename),k_segments)
+    me.draw(series_data,best_breaking_points, filename)

@@ -5,6 +5,8 @@ from sklearn.metrics import mean_squared_error
 import random
 import statistics
 import math
+import os
+
 # Función para generar puntos de corte aleatorios
 def getBreakingPoints(n_points, k_segments): 
     breaking_points = [0,n_points-1]
@@ -49,7 +51,7 @@ def readSeries(filename) -> list:
     return data
 
 #Funcion graficar la serie
-def draw(Y,breaking_points, filename):
+def draw(Y,breaking_points, filename, title="Regresión por Segmentos"):
     X=list(range(len(Y)))
     plt.plot(X,Y,color='blue',label='Serie')
 
@@ -121,3 +123,20 @@ def calculateStandardDesviation(data):
 def calculateErrorMean(data):
     data = np.array(data)
     return np.mean(data)
+
+def save_statistics(filename_log, method_name, series_name, k, exec_time, mse, avg_error, variance, std_dev):
+    """
+    Guarda los resultados de la ejecución en un archivo CSV por columnas.
+    """
+    file_exists = os.path.isfile(filename_log)
+    
+    with open(filename_log, mode='a', encoding='utf-8') as f:
+        # Si el archivo es nuevo, escribimos la cabecera
+        if not file_exists:
+            header = "Metodo,Serie,K,Tiempo_s,MSE,Avg_Error,Varianza,Std_Dev\n"
+            f.write(header)
+        
+        # Escribimos los datos
+        line = f"{method_name},{series_name},{k},{exec_time:.6f},{mse:.6f},{avg_error:.6f},{variance:.6f},{std_dev:.6f}\n"
+        f.write(line)
+    print(f"--> Estadísticas guardadas en: {filename_log}")
