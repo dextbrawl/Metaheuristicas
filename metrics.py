@@ -49,12 +49,12 @@ def readSeries(filename) -> list:
     return data
 
 #Funcion graficar la serie
-def draw(Y,breaking_points):
+def draw(Y,breaking_points, filename):
     X=list(range(len(Y)))
     plt.plot(X,Y,color='blue',label='Serie')
 
     #Marcar segmentos
-    if breaking_points:
+    if breaking_points is not None:
         X_cuts = breaking_points
         Y_cuts = [Y[i] for i in breaking_points]
         plt.scatter(X_cuts, Y_cuts, color='red', s=50, label='Puntos de corte', zorder=5)
