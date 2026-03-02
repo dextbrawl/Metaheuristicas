@@ -49,7 +49,7 @@ def readSeries(filename) -> list:
     return data
 
 #Funcion graficar la serie
-def draw(Y,breaking_points):
+def draw(Y,breaking_points, filename):
     X=list(range(len(Y)))
     plt.plot(X,Y,color='blue',label='Serie')
 

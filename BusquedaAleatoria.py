@@ -130,11 +130,8 @@ def paralelRandomSearch(series: list, k_segments):
     return best_breaking_points 
 #Definimos para nuestra practica, "Fichero": K
 if __name__ == '__main__':
-    series_dict = {
-        "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
-    }
+    filename, k_segments = me.select_series()
 
-    filename, k_segments = me.select_series(series_dict)
-
+    series_data = me.readSeries(filename)
     best_breaking_points = paralelRandomSearch(me.readSeries(filename),k_segments)
-    me.draw(filename,best_breaking_points)
+    me.draw(series_data,best_breaking_points, filename)
