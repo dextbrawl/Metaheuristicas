@@ -11,6 +11,16 @@ def logarithmCooling(initialTemperature, i):
     T = initialTemperature / (1 + math.log(i))
     return T
 
+# M es max_iter, el número máximo de iteraciones que queremos que corra el algoritmo.
+def geometricCooling(initialTemperature, i, finalTemperature, M):
+    alpha = (finalTemperature / initialTemperature) ** (1 / M)
+    T = (alpha ** i) * initialTemperature
+    return T
+
+def cauchyCooling(initialTemperature, i):
+    T = initialTemperature / (1 + i)
+    return T
+
 def generateNeighbour(breaking_points, step_size: int):
     neighbour = list(breaking_points)
     tam_s = len(neighbour)
@@ -82,7 +92,7 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
         if i >= max_iter:
             break
         
-        T = logarithmCooling(T0, i)
+        T = geometricCooling(T0, i, Tf, max_iter)
         print(f"TEMPERATURE: ", T)
 
     return best_bp, best_mse
@@ -98,6 +108,6 @@ if __name__ == '__main__':
     sol_mse = sol[1]
 
     print("THE SOLUTION IS: \n")
-    print(f"AVERAGE MSE: ", sol_mse)
+    print(f"BEST AVERAGE MSE: ", sol_mse)
     print(f"BEST BREAKING POINTS: ", sol_bp)
     me.draw(series, sol_bp, filename)
