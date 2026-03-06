@@ -1,59 +1,72 @@
-import subprocess
+import time
+import metrics as me
+from BusquedaAleatoria import serialRandomSearch, paralelRandomSearch
+from HillClimbing import hillClimbingSearch
 
-def mostrar_menu():
-    """Imprime las opciones del menú en la pantalla."""
-    print("\n" + "="*25)
-    print("      MENÚ PRINCIPAL      ")
-    print("="*25)
-    print("1. RandomSearch")
-    print("2. HillClimbing")
-    print("3. Simulated Annealing")
-    print("4. Salir")
-    print("="*25)
+def mostrar_menu_principal():
+    me.clear_screen()
+    print("==============================")
+    print("    ESTUDIO METAHEURÍSTICAS   ")
+    print("==============================")
+    print("1. Random Search (Serie)")
+    print("2. Random Search (Paralelo)")
+    print("3. Hill Climbing")
+    print("4. Simulated Annealing (Próximamente)")
+    print("5. Salir")
+    print("==============================")
 
-def random_search():
-    while True:
-        print("\n--> ¿Cómo quieres hacer el estudio?")
-        print("1. Serie")
-        print("2. Paralelo")
-        print("3. Volver")
-        opcion = input("\nSelecciona una opción (1-3): ")
+def ejecutar_algoritmo(algoritmo_func, nombre, series_data, k_segments, filename, **kwargs):
+    print(f"\n--> Ejecutando {nombre}...")
+    
+    # Medición de tiempo
+    start_time = time.time()
+    
+    # Ejecución (Pasamos los argumentos necesarios según el algoritmo)
+    if nombre == "Hill Climbing":
+        # Hill Climbing necesita puntos iniciales
+        puntos_iniciales = me.getBreakingPoints(len(series_data), k_segments)
+        puntos_optimos = algoritmo_func(series_data, k_segments, puntos_iniciales)
+    else:
+        puntos_optimos = algoritmo_func(series_data, k_segments)
+    
+    end_time = time.time()
+    tiempo_total = end_time - start_time
 
-        if opcion == '1':
-            print(f"Llamada a random_search en serie")
-            subprocess.run(["python", "BusquedaAleatoria.py"])
-        elif opcion == '2':
-            print(f"Llamada a random_search en paralelo")
-        elif opcion == '3':
-            print("\nVolviendo al menú principal... ¡Nos vemos!")
-            break
-        else:
-            print("\n Opción no válida. Por favor, introduce un número del 1 al 3.")
-
-def hill_climbing():
-    print("\n--> Ejecutando el método Hill Climbing.")
-    subprocess.run(["python"], "HillClimbing.py")
-
-def simulated_annealing():
-    print("\n--> Ejecutando el método Simulated Annealing.")
-    # subprocess.run(["python"], "")
+    print(f"\n[RESULTADOS {nombre.upper()}]")
+    print(f"Tiempo de ejecución: {tiempo_total:.4f} segundos")
+    
+    # Llamada a la gráfica (Asegúrate de que metrics.draw reciba la serie, no el nombre)
+    print("Generando gráfica...")
+    me.draw(series_data, puntos_optimos, filename, title=f"{nombre} - Tiempo: {tiempo_total:.2f}s")
 
 def main():
     while True:
-        mostrar_menu()
-        opcion = input("\nSelecciona una opción (1-4): ")
+        mostrar_menu_principal()
+        opcion = input("\nSelecciona una opción (1-5): ")
 
-        if opcion == '1':
-            random_search()
-        elif opcion == '2':
-            hill_climbing()
-        elif opcion == '3':
-            simulated_annealing()
-        elif opcion == '4':
-            print("\nSaliendo del programa... ¡Hasta luego!")
+        if opcion == '5':
+            print("Saliendo del programa...")
             break
-        else:
-            print("\n Opción no válida. Por favor, introduce un número del 1 al 4.")
+
+        if opcion in ['1', '2', '3', '4']:
+            if opcion == '4':
+                print("\n[!] Simulated Annealing aún no está implementado.")
+                time.sleep(2)
+                continue
+
+            # 1. Seleccionar la serie y cargar datos una sola vez
+            filename, k_segments = me.select_series()
+            series_data = me.readSeries(filename)
+
+            # 2. Ejecutar según la opción
+            if opcion == '1':
+                ejecutar_algoritmo(serialRandomSearch, "Random Search Serie", series_data, k_segments, filename)
+            elif opcion == '2':
+                ejecutar_algoritmo(paralelRandomSearch, "Random Search Paralelo", series_data, k_segments, filename)
+            elif opcion == '3':
+                ejecutar_algoritmo(hillClimbingSearch, "Hill Climbing", series_data, k_segments, filename)
+            
+            input("\nPresiona Enter para volver al menú...")
 
 if __name__ == "__main__":
     main()
