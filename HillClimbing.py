@@ -2,21 +2,26 @@ import metrics as me
 import random 
 def neighbourhood(breaking_points, step):
     neighbourhood = []
-    for i in range(1,len(breaking_points) - 1):
-        if breaking_points[i] < breaking_points[i+1] - step:
-            new_breaking_points_up = breaking_points.copy()
-            new_breaking_points_up[i] += random.randint(1,step)
-            neighbourhood.append(new_breaking_points_up)
-        if breaking_points[i] > breaking_points[i-1] + step:
-            new_breaking_points_down = breaking_points.copy()
-            new_breaking_points_down[i] -= random.randint(1,step)
-            neighbourhood.append(new_breaking_points_down)
+    
+    for i in range(1, len(breaking_points) - 1): #El primero y el ultimo no se pueden alterar
+        for s in range(1, step + 1):
+            if breaking_points[i] + s < breaking_points[i+1]:
+                new_points = breaking_points.copy()
+                new_points[i] += s
+                neighbourhood.append(new_points)
+        
+        for s in range(1, step + 1):
+            if breaking_points[i] - s > breaking_points[i-1]:
+                new_points = breaking_points.copy()
+                new_points[i] -= s
+                neighbourhood.append(new_points)
+    
     return neighbourhood
 
 def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos puntos vecinos que sean mejores que los anteriores
     errors = []
     improved = True
-    step = 1
+    step = 1 #Esto?
     best_breaking_points = prev_breaking_points.copy()
     best_MSE =me.avgMSE(series,prev_breaking_points)
     print(prev_breaking_points)
@@ -38,7 +43,7 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos
     # standard_deviation = me.calculateStandardDesviation(errors)
     # print(f"Standard deviation of errors: ", standard_deviation)
     print("MSE: ", me.avgMSE(series,best_breaking_points))
-    return prev_breaking_points
+    return best_breaking_points
 
 if __name__ == '__main__':
     filename, k_segments = me.select_series()
