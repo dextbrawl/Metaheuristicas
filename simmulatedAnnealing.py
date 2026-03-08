@@ -6,7 +6,7 @@ import math
 # podiendo así pasarlas como parámetro.
 
 def linealCooling(initialTemperature, finalTemperature, i, max_iter):
-    beta = (initialTemperature - finalTemperature) / nIterations
+    beta = (initialTemperature - finalTemperature) / max_iter
     temperature = initialTemperature - i * beta
     return temperature
 
