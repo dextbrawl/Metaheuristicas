@@ -51,15 +51,18 @@ def readSeries(filename) -> list:
     return data
 
 #Funcion graficar la serie
-def draw(Y,breaking_points, filename, title="Regresión por Segmentos"):
-    X=list(range(len(Y)))
-    plt.plot(X,Y,color='blue',label='Serie')
+def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
+    X = list(range(len(Y)))
+    plt.plot(X, Y, color='blue', label='Serie')
 
-    #Marcar segmentos
+    # Marcar puntos de corte con líneas verticales discontinuas
     if breaking_points:
-        X_cuts = breaking_points
-        Y_cuts = [Y[i] for i in breaking_points]
-        plt.scatter(X_cuts, Y_cuts, color='red', s=50, label='Puntos de corte', zorder=5)
+        # Obtener el rango del eje Y para las líneas verticales
+        y_min, y_max = plt.ylim()
+        
+        for bp in breaking_points:
+            plt.axvline(x=bp, color='red', linestyle='--', linewidth=1, alpha=0.7, 
+                       label='Puntos de corte' if bp == breaking_points[0] else None)
 
         # Dibujar las rectas de regresión por segmento
         for i in range(len(breaking_points)-1):
@@ -81,15 +84,15 @@ def draw(Y,breaking_points, filename, title="Regresión por Segmentos"):
     plt.xlabel("Eje X")
     plt.ylabel("Eje Y")
     plt.grid(True)
-    #plt.legend(loc='upper left', bbox_to_anchor=(1,1))  # Fuera a la derecha
+    plt.legend(loc='upper left', bbox_to_anchor=(1,1))  # Fuera a la derecha
     plt.show()
 
-
-def segmentMSE(breaking_points):
-    breaking_points = np.array(breaking_points)
-    n = len(breaking_points)
+#Funcion hallar MSE de un segmento respecto a un intervalo de la serie
+def segmentMSE(segment):
+    segment = np.array(segment)
+    n = len(segment)
     X = np.arange(n).reshape(-1, 1) # Para ponerlo en forma de columna y que lo pille sklearn
-    y = breaking_points.reshape(-1, 1)
+    y = segment.reshape(-1, 1)
 
     model = LinearRegression()
     model.fit(X, y)
@@ -99,6 +102,7 @@ def segmentMSE(breaking_points):
 
     return mse
 
+#Funcion que hace la media de los MSE de todos los intervalos
 def avgMSE(temp_series, breaking_points):
     segment_errs = []
 
@@ -114,16 +118,20 @@ def avgMSE(temp_series, breaking_points):
 
     return mse_mean
 
+#Funcion hallar varianza
 def calculateVariance(data):
     return statistics.variance(data)
 
+#Funcion hallar desviacion tipica
 def calculateStandardDesviation(data):
     return math.sqrt(calculateVariance(data))
 
+#Funcion hallar media del error
 def calculateErrorMean(data):
     data = np.array(data)
     return np.mean(data)
 
+#Funcion para guardar las metricas en un CSV
 def save_statistics(filename_log, method_name, series_name, k, exec_time, mse, avg_error, variance, std_dev):
     """
     Guarda los resultados de la ejecución en un archivo CSV por columnas.

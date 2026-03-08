@@ -20,7 +20,7 @@ def serialRandomSearch(series: list, k_segments):
     for _ in range(max_iterations):
         new_breaking_points = me.getBreakingPoints(size, k_segments)
         new_avg_mse = me.avgMSE(series,new_breaking_points)
-        errors.append(avg_mse)
+        errors.append(new_avg_mse) #Aqui metemos el NUEVO error 
 
         if new_avg_mse < avg_mse :
             c = 0
@@ -29,8 +29,10 @@ def serialRandomSearch(series: list, k_segments):
             me.clear_screen()
             print(" -- RANDOM SEARCH --")
             print("Average MSE: ", avg_mse)
+        else:
+            c = c + 1 #Aqui sumo al contador sin mejora
 
-        if c == (max_iterations/2):
+        if c >= (max_iterations/2):
             me.clear_screen()
             print("STOP:Too may interactions without improving.")
             print(" -- RANDOM SEARCH --")
@@ -40,7 +42,6 @@ def serialRandomSearch(series: list, k_segments):
 
 
     #Hago return de los puntos para usarlos en draw
-    c = c + 1
     errors_mean = me.calculateErrorMean(errors)
     print(f"Average of errors: ", errors_mean)
     error_variance = me.calculateVariance(errors)
