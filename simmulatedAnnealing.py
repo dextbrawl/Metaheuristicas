@@ -2,22 +2,25 @@ import random
 import metrics as me
 import math
 
-def linealCooling(initialTemperature, finalTemperature, i, nIterations):
+# En algunas funciones de enfriamiento, se pasan valores no usados para estandarizar las funciones
+# podiendo así pasarlas como parámetro.
+
+def linealCooling(initialTemperature, finalTemperature, i, max_iter):
     beta = (initialTemperature - finalTemperature) / nIterations
     temperature = initialTemperature - i * beta
     return temperature
 
-def logarithmCooling(initialTemperature, i):
+def logarithmCooling(initialTemperature, i, finalTemperature, max_iter):
     T = initialTemperature / (1 + math.log(i))
     return T
 
 # M es max_iter, el número máximo de iteraciones que queremos que corra el algoritmo.
-def geometricCooling(initialTemperature, i, finalTemperature, M):
-    alpha = (finalTemperature / initialTemperature) ** (1 / M)
+def geometricCooling(initialTemperature, i, finalTemperature, max_iter):
+    alpha = (finalTemperature / initialTemperature) ** (1 / max_iter)
     T = (alpha ** i) * initialTemperature
     return T
 
-def cauchyCooling(initialTemperature, i):
+def cauchyCooling(initialTemperature, i, finalTemperature, max_iter):
     T = initialTemperature / (1 + i)
     return T
 
@@ -39,7 +42,7 @@ def generateNeighbour(breaking_points, step_size: int):
     return neighbour
 
 
-def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: float):
+def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: float, coolingFunction):
     print("-- SIMMULATED ANNEALING --")
     
     size = len(series)
@@ -86,13 +89,10 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
             print(f"BREAKING POINTS: ", initial_bp)
 
         i += 1
-
-        # T = linealCooling(T0, Tf, i, max_iter)
-        
         if i >= max_iter:
             break
         
-        T = geometricCooling(T0, i, Tf, max_iter)
+        T = coolingFunction(T0, i, Tf, max_iter)
         print(f"TEMPERATURE: ", T)
 
     return best_bp, best_mse
@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
     series = me.readSeries(filename)
 
-    sol = simmulatedAnnealing(series, k_segments, 100, 30, 10.5)
+    sol = simmulatedAnnealing(series, k_segments, 100, 30, 10.5, geometricCooling)
 
     sol_bp = sol[0]
     sol_mse = sol[1]
