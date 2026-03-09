@@ -53,19 +53,18 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
     
     T = T0
     i = 0
-    errors = [] # Añadimos la lista para guardar el historial
+    errors = []
     errors.append(initial_mse)
 
     while T >= Tf:
         for count in range(L):
             s_cand = generateNeighbour(initial_bp, step_size)
             new_mse = me.avgMSE(series, s_cand)
-            errors.append(new_mse) # Guardamos cada error evaluado
+            errors.append(new_mse)
 
             delta = new_mse - initial_mse
             U = random.random()
             exponent = (-delta / T)
-            # Evitamos desbordamientos matemáticos (overflow) si el exponente es muy alto
             try:
                 probability = math.exp(exponent)
             except OverflowError:
@@ -91,7 +90,6 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
         
         T = geometricCooling(T0, i, Tf, max_iter)
 
-    # Imprimimos las estadísticas al finalizar
     errors_mean = me.calculateErrorMean(errors)
     print(f"Average of errors: ", errors_mean)
     
@@ -104,7 +102,7 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
         print("variance of errors: 0.0")
         print("Standard desviation of errors: 0.0")
 
-    return best_bp # IMPORTANTE: Devolvemos solo los puntos para que main.py pinte la gráfica bien
+    return best_bp
 
 if __name__ == '__main__':
     filename, k_segments = me.select_series()
