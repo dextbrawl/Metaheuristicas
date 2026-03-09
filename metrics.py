@@ -91,15 +91,18 @@ def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
 def segmentMSE(segment):
     segment = np.array(segment)
     n = len(segment)
-    X = np.arange(n).reshape(-1, 1) # Para ponerlo en forma de columna y que lo pille sklearn
-    y = segment.reshape(-1, 1)
 
-    model = LinearRegression()
-    model.fit(X, y)
-    prediction = model.predict(X)
+    if n < 2:
+        return 0.0
 
-    mse = mean_squared_error(y, prediction)
+    x = np.arange(n)
 
+    x_matrix = np.vstack([x, np.ones(n)]).T
+    _, ssr, _, _ = np.linalg.lstsq(x_matrix, segment, rcond=None)
+
+    if len(ssr) == 0:
+        return 0.0
+    mse = ssr[0] / n
     return mse
 
 #Funcion que hace la media de los MSE de todos los intervalos
