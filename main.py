@@ -2,7 +2,7 @@ import time
 import metrics as me
 from BusquedaAleatoria import serialRandomSearch, paralelRandomSearch
 from HillClimbing import hillClimbingSearch
-from simmulatedAnnealing import simmulatedAnnealing
+from simmulatedAnnealing import geometricCooling, simmulatedAnnealing
 
 def mostrar_menu_principal():
     me.clear_screen()
@@ -43,7 +43,7 @@ def ejecutar_estudio_parametrico(algoritmo_func, nombre, series_data, k_segments
                 elif nombre == "Random Search Paralelo":
                     ptos = algoritmo_func(series_data, k_segments, max_iters, batch=5)
                 elif nombre == "Simulated Annealing":
-                    ptos = algoritmo_func(series_data, k_segments, 100, 30, 10.5, max_iters)
+                    ptos, _ = algoritmo_func(series_data, k_segments, 100, 30, 0.01, geometricCooling ,max_iters)
                 else: 
                     ptos_ini = me.getBreakingPoints(len(series_data), k_segments)
                     ptos = algoritmo_func(series_data, k_segments, ptos_ini)
@@ -126,7 +126,7 @@ def ejecutar_comparativa_global(series_data, k_segments, filename, repeticiones,
                 elif nombre == "Random Search Paralelo":
                     ptos = func(series_data, k_segments, max_iters, batch=5)
                 elif nombre == "Simulated Annealing":
-                    ptos = func(series_data, k_segments, 100, 30, 10.5, max_iters)
+                    ptos, _ = func(series_data, k_segments, 100, 30, 0.01, geometricCooling, max_iters)
                 tiempos_act.append(time.time() - start)
                 mses_act.append(me.avgMSE(series_data, ptos))
             
