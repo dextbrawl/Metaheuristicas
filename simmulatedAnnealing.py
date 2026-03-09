@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
     series = me.readSeries(filename)
 
-    sol = simmulatedAnnealing(series, k_segments, 100, 30, 10.5, geometricCooling)
+    sol = simmulatedAnnealing(series, k_segments, 100, 30, 0.01, geometricCooling)
 
     sol_bp = sol[0]
     sol_mse = sol[1]
