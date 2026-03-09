@@ -2,10 +2,7 @@ import metrics as me
 import concurrent.futures
 import os
 
-#Heuristica aleatoria
-def serialRandomSearch(series: list, k_segments):
-    max_iterations = int(input("Introduce el número máximo de iteraciones: "))
-    me.clear_screen()
+def serialRandomSearch(series: list, k_segments, max_iterations):
     print(" -- RANDOM SEARCH --")
     size = len(series)
     
@@ -56,10 +53,7 @@ def evalParalelSolutions(args):
     mse = me.avgMSE(series, breaking_points)
     return breaking_points, mse
 
-def paralelRandomSearch(series: list, k_segments):
-    max_iterations = int(input("Introduce el número máximo de iteraciones: "))
-    batch = int(input("Introduce el número máximo del conjunto a generar en cada iteración: "))
-    me.clear_screen()
+def paralelRandomSearch(series: list, k_segments, max_iterations, batch=5):
     print(" -- PARALEL RANDOM SEARCH --")
     size = len(series)
     

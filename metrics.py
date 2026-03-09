@@ -148,3 +148,54 @@ def save_statistics(filename_log, method_name, series_name, k, exec_time, mse, a
         line = f"{method_name},{series_name},{k},{exec_time:.6f},{mse:.6f},{avg_error:.6f},{variance:.6f},{std_dev:.6f}\n"
         f.write(line)
     print(f"--> Estadísticas guardadas en: {filename_log}")
+
+# Añade esto al final de metrics.py
+def draw_multiple_stats_regression(ejecuciones, stats_dict, algorithm_name, filename_series):
+    X = np.array(ejecuciones).reshape(-1, 1)
+    num_stats = len(stats_dict)
+    
+    fig, axs = plt.subplots(num_stats, 1, figsize=(10, 5 * num_stats))
+    
+    # Si solo hay 1 estadística, axs no es un array, lo convertimos a lista
+    if num_stats == 1:
+        axs = [axs]
+        
+    for ax, (stat_name, Y) in zip(axs, stats_dict.items()):
+        Y_arr = np.array(Y).reshape(-1, 1)
+        
+        # Modelo de regresión lineal
+        model = LinearRegression()
+        model.fit(X, Y_arr)
+        y_pred = model.predict(X)
+        
+        ax.scatter(X, Y, color='blue', alpha=0.6, label=f'{stat_name} real')
+        ax.plot(X, y_pred, color='red', linewidth=2, label='Tendencia (Regresión)')
+        
+        ax.set_title(f"Evolución de {stat_name} - {algorithm_name} ({filename_series})")
+        ax.set_xlabel("Número de Ejecución")
+        ax.set_ylabel(stat_name)
+        ax.grid(True)
+        ax.legend()
+        
+    plt.tight_layout()
+    plt.show()
+    
+def draw_iterations_study(iteraciones_list, mses_medios, nombre, filename):
+    X = np.array(iteraciones_list).reshape(-1, 1)
+    Y = np.array(mses_medios).reshape(-1, 1)
+    
+    # Regresión lineal para ver la tendencia
+    model = LinearRegression()
+    model.fit(X, Y)
+    y_pred = model.predict(X)
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(X, Y, marker='o', color='blue', linewidth=2, label='MSE Medio Real')
+    plt.plot(X, y_pred, color='red', linestyle='--', label='Tendencia (Regresión)')
+    
+    plt.title(f"Convergencia: MSE Medio vs N.º de Iteraciones\n{nombre} ({filename})")
+    plt.xlabel("Número Máximo de Iteraciones")
+    plt.ylabel("MSE Medio")
+    plt.grid(True)
+    plt.legend()
+    plt.show()

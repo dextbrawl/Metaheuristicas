@@ -1,0 +1,36 @@
+=========================================
+ ESTUDIO DE CONVERGENCIA: SIMULATED ANNEALING
+=========================================
+Fichero: TS1.txt | K=9
+Repeticiones por bloque: 3
+--------------------------------------------------
+
+[ Max Iteraciones: 5 ]
+MSE Medio:           1.700722
+Varianza MSE:        0.063626
+Desviación MSE:      0.252242
+Tiempo Medio:        0.563387 s
+
+[ Max Iteraciones: 15 ]
+MSE Medio:           1.652940
+Varianza MSE:        0.052116
+Desviación MSE:      0.228290
+Tiempo Medio:        1.698607 s
+
+[ Max Iteraciones: 25 ]
+MSE Medio:           1.518315
+Varianza MSE:        0.021681
+Desviación MSE:      0.147246
+Tiempo Medio:        2.842515 s
+
+[ Max Iteraciones: 35 ]
+MSE Medio:           1.450006
+Varianza MSE:        0.050008
+Desviación MSE:      0.223625
+Tiempo Medio:        3.986551 s
+
+[ Max Iteraciones: 45 ]
+MSE Medio:           1.337752
+Varianza MSE:        0.001452
+Desviación MSE:      0.038100
+Tiempo Medio:        5.109801 s

@@ -18,31 +18,40 @@ def neighbourhood(breaking_points, step):
     
     return neighbourhood
 
-def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos puntos vecinos que sean mejores que los anteriores
+def hillClimbingSearch(series, k_segments, prev_breaking_points):
     errors = []
     improved = True
-    step = 1 #Esto?
+    step = 1 
     best_breaking_points = prev_breaking_points.copy()
-    best_MSE =me.avgMSE(series,prev_breaking_points)
-    print(prev_breaking_points)
+    best_MSE = me.avgMSE(series, prev_breaking_points)
+    
+    errors.append(best_MSE)
+    
     while improved:
-        nbh = neighbourhood(best_breaking_points,step)
+        nbh = neighbourhood(best_breaking_points, step)
         improved = False
         for a in nbh:
-            print(a)
-            curr_MSE = me.avgMSE(series,a)
+            curr_MSE = me.avgMSE(series, a)
+            
+            errors.append(curr_MSE) 
+            
             if curr_MSE < best_MSE:
                 best_breaking_points = a.copy()
                 best_MSE = curr_MSE
                 improved = True
 
-    # errors_mean = me.calculateErrorMean(errors)
-    # print(f"Average of errors: ", errors_mean)
-    # error_variance = me.calculateVariance(errors)
-    # print(f"variance of errors: ", error_variance)
-    # standard_deviation = me.calculateStandardDesviation(errors)
-    # print(f"Standard deviation of errors: ", standard_deviation)
-    print("MSE: ", me.avgMSE(series,best_breaking_points))
+    errors_mean = me.calculateErrorMean(errors)
+    print(f"Average of errors: ", errors_mean)
+
+    if len(errors) > 1:
+        error_variance = me.calculateVariance(errors)
+        print(f"variance of errors: ", error_variance)
+        standard_deviation = me.calculateStandardDesviation(errors)
+        print(f"Standard desviation of errors: ", standard_deviation)
+    else:
+        print("variance of errors: 0.0")
+        print("Standard desviation of errors: 0.0")
+
     return best_breaking_points
 
 if __name__ == '__main__':
