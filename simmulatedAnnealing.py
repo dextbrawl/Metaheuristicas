@@ -48,29 +48,31 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
     size = len(series)
     initial_bp = me.getBreakingPoints(size, k_segments)
     initial_mse = me.avgMSE(series, initial_bp)
-    print("THE CURRENT SOLUTION IS: \n")
-    print(f"AVERAGE MSE: ", initial_mse)
-    print(f"BREAKING POINTS: ", initial_bp)
-    print(f"INITIAL TEMPERATURE: ", T0)
-
+    
     best_bp = initial_bp
     best_mse = initial_mse
 
     step_size = int(0.01 * size)
-
-    max_iter = int(input("Introduzca el maximo número de iteraciones que desea realizar: "))
-
+    
     T = T0
-
     i = 0
+    errors = []
+    errors.append(initial_mse)
+
     while T >= Tf:
         for count in range(L):
             s_cand = generateNeighbour(initial_bp, step_size)
             new_mse = me.avgMSE(series, s_cand)
+            errors.append(new_mse)
+
             delta = new_mse - initial_mse
-            U = random.random() # número aleatorio entre 0 y 1 ---> U(0, 1)
+            U = random.random()
             exponent = (-delta / T)
-            probability = math.exp(exponent)
+            try:
+                probability = math.exp(exponent)
+            except OverflowError:
+                probability = 0 
+                
             accept = False
 
             if delta < 0:
@@ -84,9 +86,6 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
                 if initial_mse < best_mse:
                     best_mse = initial_mse
                     best_bp = list(initial_bp)
-            print("THE CURRENT SOLUTION IS: \n")
-            print(f"AVERAGE MSE: ", initial_mse)
-            print(f"BREAKING POINTS: ", initial_bp)
 
         i += 1
         if i >= max_iter:
@@ -95,7 +94,19 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
         T = coolingFunction(T0, i, Tf, max_iter)
         print(f"TEMPERATURE: ", T)
 
-    return best_bp, best_mse
+    errors_mean = me.calculateErrorMean(errors)
+    print(f"Average of errors: ", errors_mean)
+    
+    if len(errors) > 1:
+        error_variance = me.calculateVariance(errors)
+        print(f"variance of errors: ", error_variance)
+        standard_desviation = me.calculateStandardDesviation(errors)
+        print(f"Standard desviation of errors: ", standard_desviation)
+    else:
+        print("variance of errors: 0.0")
+        print("Standard desviation of errors: 0.0")
+
+    return best_bp
 
 if __name__ == '__main__':
     filename, k_segments = me.select_series()
