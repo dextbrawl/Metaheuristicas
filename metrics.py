@@ -1,260 +1,127 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error
 import random
 import statistics
 import math
 import os
 
-# Función para generar puntos de corte aleatorios
-def getBreakingPoints(n_points, k_segments): 
-    breaking_points = [0,n_points-1]
+# --- LÓGICA DE SEGMENTACIÓN ---
 
-    for _ in range(k_segments -1):
-        n = random.randint(0,n_points-1)
+def getBreakingPoints(n_points, k_segments): 
+    breaking_points = [0, n_points-1]
+    for _ in range(k_segments - 1):
+        n = random.randint(0, n_points-1)
         while n in breaking_points:
-            n = random.randint(0,n_points-1)
+            n = random.randint(0, n_points-1)
         breaking_points.append(n)
     breaking_points.sort()
-
     return breaking_points
 
-#Funcion para limpiar pantalla? codigos ASCII peruanillos
 def clear_screen():
     print('\033[2J\033[H', end='')
 
-# Función para seleccionar la serie para hacer la regresión
 def select_series():
-    series_dict = {
-        "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
-    }
-    print("Tenemos estas series con sus k segmentos: ")
+    series_dict = {"TS1.txt": 9, "TS2.txt": 10, "TS3.txt": 20, "TS4.txt": 50}
+    print("\nSeries disponibles para segmentar:")
     for i, name in enumerate(series_dict.keys(), 1):
         print(f"{i}. {name} ({series_dict[name]} segmentos)")
-
     while True:
         try:
-            opcion = int(input("Introduce serie (1-4): "))
+            opcion = int(input("Seleccione serie (1-4): "))
             if 1 <= opcion <= len(series_dict):
                 filename = list(series_dict.keys())[opcion-1]
-                k_segments = series_dict[filename]
-                return filename, k_segments
-            else:
-                print("Opcion invalida crack.")
+                return filename, series_dict[filename]
+            print("Opción inválida.")
         except ValueError:
-            print("Pon un numero que sirva.")
+            print("Introduzca un número válido.")
 
-# Función para crear la lista que define la serie
-def readSeries(filename) -> list: 
-    data = np.loadtxt(filename).tolist()
-    return data
+def readSeries(filename): 
+    return np.loadtxt(filename).tolist()
 
-#Funcion graficar la serie
-def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
-    X = list(range(len(Y)))
-    plt.plot(X, Y, color='blue', label='Serie')
-
-    # Marcar puntos de corte con líneas verticales discontinuas
-    if breaking_points:
-        # Obtener el rango del eje Y para las líneas verticales
-        y_min, y_max = plt.ylim()
-        
-        for bp in breaking_points:
-            plt.axvline(x=bp, color='red', linestyle='--', linewidth=1, alpha=0.7, 
-                       label='Puntos de corte' if bp == breaking_points[0] else None)
-
-        # Dibujar las rectas de regresión por segmento
-        for i in range(len(breaking_points)-1):
-            start = breaking_points[i]
-            end = breaking_points[i+1]
-
-            # Crear X segmentada y reshape para LinearRegression
-            X_seg = np.arange(start, end).reshape(-1, 1)
-            y_seg = np.array(Y[start:end]).reshape(-1, 1)
-
-            model = LinearRegression()
-            model.fit(X_seg, y_seg)
-            y_pred = model.predict(X_seg)
-
-            # Dibujar la recta de regresión
-            plt.plot(X_seg, y_pred, color='orange', linewidth=2, label='Regresión' if i==0 else None)
-
-    plt.title(filename)
-    plt.xlabel("Eje X")
-    plt.ylabel("Eje Y")
-    plt.grid(True)
-    plt.legend(loc='upper left', bbox_to_anchor=(1,1))  # Fuera a la derecha
-    plt.show()
-
-#Funcion hallar MSE de un segmento respecto a un intervalo de la serie
 def segmentMSE(segment):
     segment = np.array(segment)
     n = len(segment)
-
-    if n < 2:
-        return 0.0
-
+    if n < 2: return 0.0
     x = np.arange(n)
-
     x_matrix = np.vstack([x, np.ones(n)]).T
     _, ssr, _, _ = np.linalg.lstsq(x_matrix, segment, rcond=None)
+    return ssr[0] / n if len(ssr) > 0 else 0.0
 
-    if len(ssr) == 0:
-        return 0.0
-    mse = ssr[0] / n
-    return mse
-
-#Funcion que hace la media de los MSE de todos los intervalos
 def avgMSE(temp_series, breaking_points):
     segment_errs = []
-
     for i in range(len(breaking_points) - 1):
-        start = breaking_points[i]
-        end = breaking_points[i+1]
+        segment = temp_series[breaking_points[i]:breaking_points[i+1]]
+        segment_errs.append(segmentMSE(segment))
+    return np.mean(segment_errs)
 
-        segment = temp_series[start:end]
-        segment_mse = segmentMSE(segment)
-        segment_errs.append(segment_mse)
+# --- ESTADÍSTICAS Y PERSISTENCIA ---
 
-    mse_mean = np.mean(segment_errs)
-
-    return mse_mean
-
-#Funcion hallar varianza
 def calculateVariance(data):
-    return statistics.variance(data)
+    return statistics.variance(data) if len(data) > 1 else 0.0
 
-#Funcion hallar desviacion tipica
 def calculateStandardDesviation(data):
     return math.sqrt(calculateVariance(data))
 
-#Funcion hallar media del error
 def calculateErrorMean(data):
-    data = np.array(data)
     return np.mean(data)
 
-#Funcion para guardar las metricas en un CSV
-def save_statistics(filename_log, method_name, series_name, k, exec_time, mse, avg_error, variance, std_dev):
-    """
-    Guarda los resultados de la ejecución en un archivo CSV por columnas.
-    """
+def save_statistics(filename_log, method_name, series_name, k, iters, exec_time, mse, variance, std_dev):
     file_exists = os.path.isfile(filename_log)
-    
     with open(filename_log, mode='a', encoding='utf-8') as f:
-        # Si el archivo es nuevo, escribimos la cabecera
         if not file_exists:
-            header = "Metodo,Serie,K,Tiempo_s,MSE,Avg_Error,Varianza,Std_Dev\n"
-            f.write(header)
-        
-        # Escribimos los datos
-        line = f"{method_name},{series_name},{k},{exec_time:.6f},{mse:.6f},{avg_error:.6f},{variance:.6f},{std_dev:.6f}\n"
-        f.write(line)
-    print(f"--> Estadísticas guardadas en: {filename_log}")
+            f.write("Metodo,Serie,K,Iteraciones,Tiempo_s,MSE_Medio,Varianza,Std_Dev\n")
+        f.write(f"{method_name},{series_name},{k},{iters},{exec_time:.6f},{mse:.6f},{variance:.6f},{std_dev:.6f}\n")
 
-# Añade esto al final de metrics.py
-def draw_multiple_stats_regression(ejecuciones, stats_dict, algorithm_name, filename_series):
-    X = np.array(ejecuciones).reshape(-1, 1)
-    num_stats = len(stats_dict)
-    
-    fig, axs = plt.subplots(num_stats, 1, figsize=(10, 5 * num_stats))
-    
-    # Si solo hay 1 estadística, axs no es un array, lo convertimos a lista
-    if num_stats == 1:
-        axs = [axs]
-        
-    for ax, (stat_name, Y) in zip(axs, stats_dict.items()):
-        Y_arr = np.array(Y).reshape(-1, 1)
-        
-        # Modelo de regresión lineal
-        model = LinearRegression()
-        model.fit(X, Y_arr)
-        y_pred = model.predict(X)
-        
-        ax.scatter(X, Y, color='blue', alpha=0.6, label=f'{stat_name} real')
-        ax.plot(X, y_pred, color='red', linewidth=2, label='Tendencia (Regresión)')
-        
-        ax.set_title(f"Evolución de {stat_name} - {algorithm_name} ({filename_series})")
-        ax.set_xlabel("Número de Ejecución")
-        ax.set_ylabel(stat_name)
-        ax.grid(True)
-        ax.legend()
-        
-    plt.tight_layout()
-    plt.show()
+# --- GRÁFICAS ---
 
-def draw_iterations_study(iteraciones_list, stats_dict, nombre, filename):
-    X = np.array(iteraciones_list).reshape(-1, 1)
-    num_stats = len(stats_dict)
-    
-    # Creamos una figura con tantos subgráficos como estadísticas haya
-    fig, axs = plt.subplots(num_stats, 1, figsize=(10, 3.5 * num_stats), sharex=True)
-    if num_stats == 1:
-        axs = [axs]
-        
-    fig.suptitle(f"Estudio de Convergencia Paramétrica\n{nombre} ({filename})", fontsize=14, fontweight='bold')
-    
-    for ax, (stat_name, Y_list) in zip(axs, stats_dict.items()):
-        Y = np.array(Y_list).reshape(-1, 1)
-        
-        # Regresión lineal para ver la tendencia
-        model = LinearRegression()
-        model.fit(X, Y)
-        y_pred = model.predict(X)
-        
-        ax.plot(X, Y, marker='o', color='blue', linewidth=2, label=f'{stat_name} Real')
-        ax.plot(X, y_pred, color='red', linestyle='--', label='Tendencia (Regresión)')
-        
-        ax.set_ylabel(stat_name, fontweight='bold')
-        ax.grid(True, linestyle='--', alpha=0.7)
-        ax.legend(loc='upper right')
-        
-    # Solo le ponemos la etiqueta del eje X al último gráfico de abajo
-    axs[-1].set_xlabel("Número Máximo de Iteraciones", fontweight='bold')
-    
-    plt.tight_layout()
-    plt.show()
-
-def draw_single_stat_study(iteraciones_list, Y_list, stat_name, nombre, filename):
-    X = np.array(iteraciones_list).reshape(-1, 1)
-    Y = np.array(Y_list).reshape(-1, 1)
-    
-    # Regresión lineal para ver la tendencia
-    model = LinearRegression()
-    model.fit(X, Y)
-    y_pred = model.predict(X)
-    
+def draw_single_stat_with_variance(iteraciones, medias, desviaciones, titulo, algoritmo, filename):
     plt.figure(figsize=(10, 6))
-    plt.plot(X, Y, marker='o', color='blue', linewidth=2, label=f'{stat_name} Real')
-    plt.plot(X, y_pred, color='red', linestyle='--', label='Tendencia (Regresión)')
-    
-    plt.title(f"Evolución de {stat_name}\n{nombre} ({filename})", fontsize=14, fontweight='bold')
-    plt.xlabel("Número Máximo de Iteraciones", fontweight='bold')
-    plt.ylabel(stat_name, fontweight='bold')
+    plt.plot(iteraciones, medias, label='MSE Medio', color='blue', marker='o')
+    plt.fill_between(iteraciones, np.array(medias) - np.array(desviaciones), 
+                     np.array(medias) + np.array(desviaciones), 
+                     color='red', alpha=0.2, label='Desviación Típica (±1σ)')
+    plt.title(f"{titulo} (Precisión) - {algoritmo}\nArchivo: {filename}")
+    plt.xlabel("Iteraciones")
+    plt.ylabel("MSE")
+    plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(loc='upper right')
-    plt.tight_layout()
     plt.show()
 
-def draw_comparison_study(iteraciones_list, comparativa_dict, stat_name, filename, baseline_val=None, baseline_name="Hill Climbing (Baseline)"):
-    X = np.array(iteraciones_list).reshape(-1, 1)
-    
+def draw_variance_std_study(iteraciones, varianzas, desviaciones, nombre, filename):
     plt.figure(figsize=(10, 6))
-    colores = ['blue', 'green', 'orange', 'purple']
+    plt.plot(iteraciones, varianzas, label='Varianza', color='purple', marker='s', linestyle='--')
+    plt.plot(iteraciones, desviaciones, label='Desviación Típica', color='orange', marker='^')
+    plt.title(f"Evolución de Estabilidad - {nombre}\nArchivo: {filename}")
+    plt.xlabel("Iteraciones")
+    plt.ylabel("Valor")
+    plt.legend()
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.show()
+
+def analizar_distribucion_cuartiles(matriz_mse, nombre, filename):
+    todos_los_datos = np.array([item for sublist in matriz_mse for item in sublist])
+    mse_min, mse_max = np.min(todos_los_datos), np.max(todos_los_datos)
+    bins = np.linspace(mse_min, mse_max, 5)
+    counts, _ = np.histogram(todos_los_datos, bins=bins)
     
-    # Dibujamos las curvas de los algoritmos iterativos
-    for (algo_name, Y_list), color in zip(comparativa_dict.items(), colores):
-        Y = np.array(Y_list).reshape(-1, 1)
-        plt.plot(X, Y, marker='o', color=color, linewidth=2, label=algo_name)
-        
-    # Dibujamos Hill Climbing como una línea base horizontal (si existe)
-    if baseline_val is not None:
-        plt.axhline(y=baseline_val, color='red', linestyle='--', linewidth=2, label=f"{baseline_name}: {baseline_val:.4f}")
-        
-    plt.title(f"Comparativa Global: {stat_name}\n({filename})", fontsize=14, fontweight='bold')
-    plt.xlabel("Número Máximo de Iteraciones", fontweight='bold')
-    plt.ylabel(stat_name, fontweight='bold')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(loc='best')
-    plt.tight_layout()
+    etiquetas = ['Q1 (Mejores)', 'Q2', 'Q3', 'Q4 (Peores)']
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(etiquetas, counts, color=['#2ca02c', '#94df94', '#ffcc00', '#d62728'], edgecolor='black')
+    for bar in bars:
+        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1, int(bar.get_height()), ha='center')
+
+    plt.title(f"Frecuencia por Rango de Calidad\nRango: [{mse_min:.4f} - {mse_max:.4f}]\nAlgoritmo: {nombre}")
+    plt.ylabel("Nº Soluciones")
+    plt.show()
+
+def draw_convergence_best(history, nombre):
+    plt.figure(figsize=(10, 6))
+    plt.plot(history, color='green', linewidth=2, label='Mejor MSE encontrado')
+    plt.title(f"Convergencia hacia el Óptimo - {nombre}")
+    plt.xlabel("Iteraciones Totales")
+    plt.ylabel("MSE")
+    plt.yscale('log') # Escala logarítmica para ver mejor las mejoras pequeñas
+    plt.legend()
+    plt.grid(True, which="both", ls="-", alpha=0.2)
     plt.show()
