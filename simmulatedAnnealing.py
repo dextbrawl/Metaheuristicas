@@ -1,6 +1,7 @@
 import random
 import metrics as me
 import math
+import time
 
 # En algunas funciones de enfriamiento, se pasan valores no usados para estandarizar las funciones
 # podiendo así pasarlas como parámetro.
@@ -42,16 +43,11 @@ def generateNeighbour(breaking_points, step_size: int):
     return neighbour
 
 
-def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: float, coolingFunction, max_iter):
-    print("-- SIMMULATED ANNEALING --")
-    
+def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: float, coolingFunction, max_iter):    
+    start = time.time()
     size = len(series)
     initial_bp = me.getBreakingPoints(size, k_segments)
     initial_mse = me.avgMSE(series, initial_bp)
-    print("THE CURRENT SOLUTION IS: \n")
-    print(f"AVERAGE MSE: ", initial_mse)
-    print(f"BREAKING POINTS: ", initial_bp)
-    print(f"INITIAL TEMPERATURE: ", T0)
 
     best_bp = initial_bp
     best_mse = initial_mse
@@ -82,18 +78,16 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
                 if initial_mse < best_mse:
                     best_mse = initial_mse
                     best_bp = list(initial_bp)
-            print("THE CURRENT SOLUTION IS: \n")
-            print(f"AVERAGE MSE: ", initial_mse)
-            print(f"BREAKING POINTS: ", initial_bp)
 
         i += 1
         if i >= max_iter:
             break
         
         T = coolingFunction(T0, i, Tf, max_iter)
-        print(f"TEMPERATURE: ", T)
-
-    return best_bp, best_mse
+    
+    end = time.time()
+    time_elapsed = (end - start)
+    return best_bp, best_mse, time_elapsed
 
 if __name__ == '__main__':
     filename, k_segments = me.select_series()
