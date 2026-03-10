@@ -86,7 +86,6 @@ def save_statistics(filename_log, method_name, series_name, k, iters, exec_time,
 def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
     X = list(range(len(Y)))
     plt.plot(X, Y, color='blue', label='Serie')
-
     # Marcar puntos de corte con líneas verticales discontinuas
     if breaking_points:
         for bp in breaking_points:
@@ -118,7 +117,7 @@ def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
     plt.ylabel("Eje Y")
     plt.grid(True)
     plt.legend(loc='upper left', bbox_to_anchor=(1,1))  # Fuera a la derecha
-    plt.show()
+    plt.savefig(filename[:-3] + 'png',dpi=300,bbox_inches='tight')
 
 def draw_single_stat_with_variance(iteraciones, medias, desviaciones, titulo, algoritmo, filename):
     plt.figure(figsize=(10, 6))
