@@ -5,6 +5,7 @@ import random
 import statistics
 import math
 import os
+from pathlib import Path
 
 # --- LÓGICA DE SEGMENTACIÓN ---
 
@@ -83,41 +84,67 @@ def save_statistics(filename_log, method_name, series_name, k, iters, exec_time,
 
 # --- GRÁFICAS ---
 #Funcion graficar la serie
-def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
+def draw(Y, breaking_points, filename, title="Regresión por Segmentos"): 
     X = list(range(len(Y)))
-    plt.plot(X, Y, color='blue', label='Serie')
-    # Marcar puntos de corte con líneas verticales discontinuas
-    if breaking_points:
-        for bp in breaking_points:
-            plt.axvline(x=bp, color='red', linestyle='--', linewidth=1, alpha=0.7, 
-                       label='Puntos de corte' if bp == breaking_points[0] else None)
-
-        # Dibujar las rectas de regresión por segmento
-        for i in range(len(breaking_points)-1):
-            start = breaking_points[i]
-            end = breaking_points[i+1]
-
-            # Crear X segmentada,e y segmentada
-            X_seg = np.arange(start, end)
-            y_seg = np.array(Y[start:end])
-
-            A = np.vstack([X_seg, np.ones(len(X_seg))]).T
-
-            rect, _, _, _ = np.linalg.lstsq(A, y_seg, rcond=None)
-            m, c = rect
-
-            # Predecimos con la ecuación de la recta y = mx + c
-            y_pred = m * X_seg + c
-
-            # Dibujar la recta de regresión
-            plt.plot(X_seg, y_pred, color='orange', linewidth=2, label='Regresión' if i==0 else None)
-
-    plt.title(filename)
-    plt.xlabel("Eje X")
-    plt.ylabel("Eje Y")
-    plt.grid(True)
-    plt.legend(loc='upper left', bbox_to_anchor=(1,1))  # Fuera a la derecha
-    plt.savefig(filename[:-3] + 'png',dpi=300,bbox_inches='tight')
+    
+    plt.figure(figsize=(12, 6))
+    plt.plot(X, Y, color='blue', label='Serie', linewidth=1)
+    
+    if breaking_points and len(breaking_points) > 0:
+        for i, bp in enumerate(breaking_points):
+            if i == 0:
+                plt.axvline(x=bp, color='red', linestyle='--', 
+                           linewidth=1, alpha=0.7, label='Puntos de corte')
+            else:
+                plt.axvline(x=bp, color='red', linestyle='--', 
+                           linewidth=1, alpha=0.7)
+        
+        
+        segmentos = [0] + breaking_points + [len(Y)]
+        
+        for i in range(len(segmentos)-1):
+            start = segmentos[i]
+            end = segmentos[i+1]
+            
+            if end - start >= 2:
+               
+                X_seg = np.arange(start, end)
+                y_seg = np.array(Y[start:end])
+                
+                A = np.vstack([X_seg, np.ones(len(X_seg))]).T
+                try:
+                    rect, _, _, _ = np.linalg.lstsq(A, y_seg, rcond=None)
+                    m, c = rect
+                    y_pred = m * X_seg + c
+                    
+                    if i == 0:
+                        plt.plot(X_seg, y_pred, color='orange', 
+                               linewidth=2, label='Regresión lineal')
+                    else:
+                        plt.plot(X_seg, y_pred, color='orange', linewidth=2)
+                        
+                except:
+                    print(f"Advertencia: No se pudo calcular regresión para segmento {i}")
+    
+    plt.title(filename if filename else title)
+    plt.xlabel("Índice")
+    plt.ylabel("Valor")
+    plt.grid(True, alpha=0.3)
+    
+    handles, labels = plt.gca().get_legend_handles_labels()
+    by_label = dict(zip(labels, handles)) 
+    plt.legend(by_label.values(), by_label.keys(), 
+              loc='upper left', bbox_to_anchor=(1,1))
+    
+    os.makedirs("HCOutput", exist_ok=True)
+    nombre_archivo = os.path.basename(filename)
+    nombre_base = os.path.splitext(nombre_archivo)[0]
+    ruta_guardado = os.path.join("HCOutput", f"{nombre_base}.png")
+    
+    plt.tight_layout()
+    plt.savefig(ruta_guardado, dpi=300, bbox_inches='tight')
+    
+    
 
 def draw_single_stat_with_variance(iteraciones, medias, desviaciones, titulo, algoritmo, filename):
     plt.figure(figsize=(10, 6))
