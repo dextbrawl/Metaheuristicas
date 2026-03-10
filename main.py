@@ -2,7 +2,7 @@ import time
 import metrics as me
 from BusquedaAleatoria import serialRandomSearch, paralelRandomSearch
 from HillClimbing import hillClimbingSearch
-from simmulatedAnnealing import simmulatedAnnealing
+from simmulatedAnnealing import geometricCooling, simmulatedAnnealing
 
 def mostrar_menu_principal():
     me.clear_screen()
@@ -23,7 +23,10 @@ def ejecutar_estudio_parametrico(algoritmo_func, nombre, series_data, k_segments
     
     nombre_seguro = nombre.replace(' ', '_')
     serie_limpia = filename.replace('.txt', '')
-    nombre_fichero = f"Estudio_{nombre_seguro}_{serie_limpia}.txt"
+    nombre_fichero = f"./test_files/Estudio_{nombre_seguro}_{serie_limpia}.txt"
+    
+    best_sol = []
+    best_mse = float('inf')
 
     with open(nombre_fichero, "w", encoding="utf-8") as f:
         f.write(f"=== ESTUDIO DE CONVERGENCIA: {nombre.upper()} ===\n")
@@ -43,13 +46,18 @@ def ejecutar_estudio_parametrico(algoritmo_func, nombre, series_data, k_segments
                 elif nombre == "Random Search Paralelo":
                     ptos = algoritmo_func(series_data, k_segments, max_iters, batch=5)
                 elif nombre == "Simulated Annealing":
-                    ptos = algoritmo_func(series_data, k_segments, 100, 30, 10.5, max_iters)
+                    ptos, _ = algoritmo_func(series_data, k_segments, 100, 30, 0.01, geometricCooling ,max_iters)
                 else: 
                     ptos_ini = me.getBreakingPoints(len(series_data), k_segments)
                     ptos = algoritmo_func(series_data, k_segments, ptos_ini)
                     
                 exec_time = time.time() - start_time
                 mses_act.append(me.avgMSE(series_data, ptos))
+                
+                if(mses_act[i-1] < best_mse):
+                    best_mse = mses_act[i-1]
+                    best_sol = ptos
+                
                 tiempos_act.append(exec_time)
             
             mse_med = me.calculateErrorMean(mses_act)
@@ -63,6 +71,9 @@ def ejecutar_estudio_parametrico(algoritmo_func, nombre, series_data, k_segments
             tiempos_list.append(tiempo_med)
 
             f.write(f"\n[ Max Iters: {max_iters} ] MSE: {mse_med:.6f} | Var: {var_mse:.6f} | T: {tiempo_med:.6f}s\n")
+            f.write(f"\n[Best Solution: {best_sol}]")
+            
+            me.draw(series_data, best_sol, "Best_Solution")
     
     print("\n" + "="*50)
     print(f"ESTUDIO TERMINADO. Datos guardados en: {nombre_fichero}")
@@ -126,7 +137,7 @@ def ejecutar_comparativa_global(series_data, k_segments, filename, repeticiones,
                 elif nombre == "Random Search Paralelo":
                     ptos = func(series_data, k_segments, max_iters, batch=5)
                 elif nombre == "Simulated Annealing":
-                    ptos = func(series_data, k_segments, 100, 30, 10.5, max_iters)
+                    ptos, _ = func(series_data, k_segments, 100, 30, 0.01, geometricCooling, max_iters)
                 tiempos_act.append(time.time() - start)
                 mses_act.append(me.avgMSE(series_data, ptos))
             
