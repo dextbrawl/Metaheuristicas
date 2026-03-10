@@ -1,59 +1,63 @@
 import metrics as me
+import random 
+def neighbourhood(breaking_points, step):
+    neighbourhood = []
+    
+    for i in range(1, len(breaking_points) - 1): #El primero y el ultimo no se pueden alterar
+        for s in range(1, step + 1):
+            if breaking_points[i] + s < breaking_points[i+1]:
+                new_points = breaking_points.copy()
+                new_points[i] += s
+                neighbourhood.append(new_points)
+        
+        for s in range(1, step + 1):
+            if breaking_points[i] - s > breaking_points[i-1]:
+                new_points = breaking_points.copy()
+                new_points[i] -= s
+                neighbourhood.append(new_points)
+    
+    return neighbourhood
 
-def hillClimbingSearch(series, k_segments, prev_breaking_points): # Sacar nuevos puntos vecinos que sean mejores que los anteriores
+def hillClimbingSearch(series, k_segments, prev_breaking_points):
     errors = []
-    improved = True 
-    neighbour_distance = int(len(series) * 0.005)
+    improved = True
+    step = 1 
+    best_breaking_points = prev_breaking_points.copy()
+    best_MSE = me.avgMSE(series, prev_breaking_points)
+    
+    errors.append(best_MSE)
+    
     while improved:
-        i = 1
+        nbh = neighbourhood(best_breaking_points, step)
         improved = False
-        while i < k_segments :
-            prev_mean_mse = me.avgMSE(series,prev_breaking_points)
-            me.clear_screen()
-            print('\n-- HILL CLIMBING SEARCH --')
-            print(prev_breaking_points)
-            print(f'Average MSE: {me.avgMSE(series,prev_breaking_points)}')
-            inc_breaking_points = prev_breaking_points.copy()
-            if prev_breaking_points[i] + neighbour_distance < prev_breaking_points[i+1]:
-                inc_breaking_points[i] += neighbour_distance
-            dec_breaking_points = prev_breaking_points.copy()
-            if prev_breaking_points[i] - neighbour_distance > prev_breaking_points[i-1]:
-                dec_breaking_points[i] -= neighbour_distance
-            mean_mse_inc = me.avgMSE(series,inc_breaking_points)
-            mean_mse_dec = me.avgMSE(series,dec_breaking_points)
-
-            if mean_mse_inc < prev_mean_mse and mean_mse_dec >= prev_mean_mse: # Mejora incrementando y empeora decrementando
-                prev_breaking_points = inc_breaking_points
+        for a in nbh:
+            curr_MSE = me.avgMSE(series, a)
+            
+            errors.append(curr_MSE) 
+            
+            if curr_MSE < best_MSE:
+                best_breaking_points = a.copy()
+                best_MSE = curr_MSE
                 improved = True
-                errors.append(mean_mse_inc)
 
-            elif mean_mse_inc >= prev_mean_mse and mean_mse_dec < prev_mean_mse: # Mejora decrementando y empeora incrementando
-                prev_breaking_points = dec_breaking_points
-                improved = True
-                errors.append(mean_mse_dec)
-
-            elif mean_mse_inc < prev_mean_mse and mean_mse_dec < prev_mean_mse: # Mejora en los dos casos
-                if mean_mse_inc < mean_mse_dec: #Mejora más incrementando
-                    prev_breaking_points = inc_breaking_points
-                    improved = True
-                    errors.append(mean_mse_inc)
-                else: # Mejora más (o igual) decrementando
-                    prev_breaking_points = dec_breaking_points
-                    improved = True
-                    errors.append(mean_mse_dec)
-            else: # Empeora en ambos casos
-                i += 1
     errors_mean = me.calculateErrorMean(errors)
     print(f"Average of errors: ", errors_mean)
-    error_variance = me.calculateVariance(errors)
-    print(f"variance of errors: ", error_variance)
-    standard_desviation = me.calculateStandardDesviation(errors)
-    print(f"Standard desviation of errors: ", standard_desviation)
 
-    return prev_breaking_points
+    if len(errors) > 1:
+        error_variance = me.calculateVariance(errors)
+        print(f"variance of errors: ", error_variance)
+        standard_deviation = me.calculateStandardDesviation(errors)
+        print(f"Standard desviation of errors: ", standard_deviation)
+    else:
+        print("variance of errors: 0.0")
+        print("Standard desviation of errors: 0.0")
 
-series = me.readSeries('TS1.txt')
-k_segments = 9
-prev_breaking_points = me.getBreakingPoints(len(series),k_segments)
-best_breaking_points = hillClimbingSearch(series,k_segments,prev_breaking_points)
-me.draw('TS1.txt', best_breaking_points)
+    return best_breaking_points
+
+if __name__ == '__main__':
+    filename, k_segments = me.select_series()
+
+    series_data = me.readSeries(filename)
+    breaking_points = me.getBreakingPoints(len(series_data),k_segments)
+    best_breaking_points = hillClimbingSearch(me.readSeries(filename),k_segments,breaking_points)
+    me.draw(series_data,best_breaking_points, filename)
