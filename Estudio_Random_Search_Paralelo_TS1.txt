@@ -1,0 +1,15 @@
+=== ESTUDIO DE CONVERGENCIA: RANDOM SEARCH PARALELO ===
+Fichero: TS1.txt | K=9 | Repeticiones: 100
+--------------------------------------------------
+
+[ Max Iters: 10 ] MSE: 1.167313 | Var: 0.040169 | T: 0.097702s
+
+[ Max Iters: 20 ] MSE: 1.073309 | Var: 0.031500 | T: 0.178199s
+
+[ Max Iters: 30 ] MSE: 1.007666 | Var: 0.028927 | T: 0.268016s
+
+[ Max Iters: 40 ] MSE: 0.980955 | Var: 0.028421 | T: 0.359659s
+
+[ Max Iters: 50 ] MSE: 0.939472 | Var: 0.021079 | T: 0.434043s
+
+[ Max Iters: 60 ] MSE: 0.908738 | Var: 0.037362 | T: 0.522118s

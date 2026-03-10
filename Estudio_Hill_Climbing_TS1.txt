@@ -1,0 +1,7 @@
+=== ESTUDIO DE CONVERGENCIA: HILL CLIMBING ===
+Fichero: TS1.txt | K=9 | Repeticiones: 30
+--------------------------------------------------
+
+[ Max Iters: 1 ] MSE: 0.843829 | Var: 0.168656 | T: 0.101732s
+
+[Best Solution: [0, 13, 38, 63, 88, 113, 138, 163, 188, 199]]
