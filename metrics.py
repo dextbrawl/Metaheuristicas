@@ -1,5 +1,5 @@
+from enum import show_flag_values
 import numpy as np
-from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import random
 import statistics
@@ -46,7 +46,12 @@ def segmentMSE(segment):
     x = np.arange(n)
     x_matrix = np.vstack([x, np.ones(n)]).T
     _, ssr, _, _ = np.linalg.lstsq(x_matrix, segment, rcond=None)
-    return ssr[0] / n if len(ssr) > 0 else 0.0
+   
+    if len(ssr) > 0:
+        return ssr[0] / n
+    
+    else:
+        return 0.0
 
 def avgMSE(temp_series, breaking_points):
     segment_errs = []
@@ -58,7 +63,10 @@ def avgMSE(temp_series, breaking_points):
 # --- ESTADÍSTICAS Y PERSISTENCIA ---
 
 def calculateVariance(data):
-    return statistics.variance(data) if len(data) > 1 else 0.0
+    if len(data) > 1:
+        return statistics.variance(data) 
+    else:
+        return 0.0
 
 def calculateStandardDesviation(data):
     return math.sqrt(calculateVariance(data))
@@ -74,6 +82,43 @@ def save_statistics(filename_log, method_name, series_name, k, iters, exec_time,
         f.write(f"{method_name},{series_name},{k},{iters},{exec_time:.6f},{mse:.6f},{variance:.6f},{std_dev:.6f}\n")
 
 # --- GRÁFICAS ---
+#Funcion graficar la serie
+def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
+    X = list(range(len(Y)))
+    plt.plot(X, Y, color='blue', label='Serie')
+
+    # Marcar puntos de corte con líneas verticales discontinuas
+    if breaking_points:
+        for bp in breaking_points:
+            plt.axvline(x=bp, color='red', linestyle='--', linewidth=1, alpha=0.7, 
+                       label='Puntos de corte' if bp == breaking_points[0] else None)
+
+        # Dibujar las rectas de regresión por segmento
+        for i in range(len(breaking_points)-1):
+            start = breaking_points[i]
+            end = breaking_points[i+1]
+
+            # Crear X segmentada,e y segmentada
+            X_seg = np.arange(start, end)
+            y_seg = np.array(Y[start:end])
+
+            A = np.vstack([X_seg, np.ones(len(X_seg))]).T
+
+            rect, _, _, _ = np.linalg.lstsq(A, y_seg, rcond=None)
+            m, c = rect
+
+            # Predecimos con la ecuación de la recta y = mx + c
+            y_pred = m * X_seg + c
+
+            # Dibujar la recta de regresión
+            plt.plot(X_seg, y_pred, color='orange', linewidth=2, label='Regresión' if i==0 else None)
+
+    plt.title(filename)
+    plt.xlabel("Eje X")
+    plt.ylabel("Eje Y")
+    plt.grid(True)
+    plt.legend(loc='upper left', bbox_to_anchor=(1,1))  # Fuera a la derecha
+    plt.show()
 
 def draw_single_stat_with_variance(iteraciones, medias, desviaciones, titulo, algoritmo, filename):
     plt.figure(figsize=(10, 6))

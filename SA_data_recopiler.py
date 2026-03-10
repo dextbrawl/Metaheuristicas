@@ -3,6 +3,7 @@ import numpy as np
 import csv
 import os
 import simmulatedAnnealing as sa
+import metrics as me
 
 # Podría añadirse el número de la iteración en la que realmente ha parado cada uno por sus criterios de parada independientes
 def save_data(csv_file,algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction,execution, MSE, time):
