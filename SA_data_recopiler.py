@@ -4,13 +4,14 @@ import csv
 import os
 
 # Podría añadirse el número de la iteración en la que realmente ha parado cada uno por sus criterios de parada independientes
-def save_data(csv_file,algorithm, series_filename, max_iter, execution, MSE, time):
+def save_data(csv_file,algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction,execution, MSE, time):
     filexist = os.path.isfile(csv_file)
     with open("csv_file", mode= "a", newline= "") as f:
         writer = csv.writer(f)
 
         if not filexist:
-            writer.writerow(["Algorithm", "Series", "Iterations", "Execution", "MSE", "Time"])
+            writer.writerow(["Algorithm", "Series", "Iterations", "T0", "Tf", "L", "coolingFunction","Execution", "MSE", "Time"])
 
         writer.writerow([algorithm, series_filename, max_iter, execution, MSE, time])
 
+if __name__ == "__main__"
