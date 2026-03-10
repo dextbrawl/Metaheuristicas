@@ -23,7 +23,7 @@ def ejecutar_estudio_parametrico(algoritmo_func, nombre, series_data, k_segments
     
     nombre_seguro = nombre.replace(' ', '_')
     serie_limpia = filename.replace('.txt', '')
-    nombre_fichero = f"Estudio_{nombre_seguro}_{serie_limpia}.txt"
+    nombre_fichero = f"./test_files/Estudio_{nombre_seguro}_{serie_limpia}.txt"
     
     best_sol = []
     best_mse = float('inf')

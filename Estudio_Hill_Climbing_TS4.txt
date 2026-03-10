@@ -1,3 +1,0 @@
-=== ESTUDIO DE CONVERGENCIA: HILL CLIMBING ===
-Fichero: TS4.txt | K=50 | Repeticiones: 100
---------------------------------------------------
