@@ -23,6 +23,7 @@ def ejecutar_busqueda_alta_precision(algoritmo_func, nombre, series_data, k_segm
     
     paciencia_max = 10000
     mejor_mse = float('inf')
+    mejores_ptos = [] # Guardamos los puntos del mejor resultado
     iters_sin_mejora = 0
     iteracion_total = 0
     historial_mejores = []
@@ -33,7 +34,6 @@ def ejecutar_busqueda_alta_precision(algoritmo_func, nombre, series_data, k_segm
         while iters_sin_mejora < paciencia_max:
             iteracion_total += 1
             
-            # Realizamos una búsqueda (batch pequeño para paralelo)
             if "Paralelo" in nombre:
                 ptos = algoritmo_func(series_data, k_segments, 1, batch=10)
             else:
@@ -41,9 +41,9 @@ def ejecutar_busqueda_alta_precision(algoritmo_func, nombre, series_data, k_segm
             
             mse_actual = me.avgMSE(series_data, ptos)
             
-            # Si hay CUALQUIER mejora, por mínima que sea
             if mse_actual < mejor_mse:
                 mejor_mse = mse_actual
+                mejores_ptos = ptos # Actualizamos los mejores puntos
                 iters_sin_mejora = 0
                 print(f"  [*] ¡Mejora! Iter {iteracion_total}: MSE = {mejor_mse:.6f}          ", end="\r")
             else:
@@ -61,12 +61,25 @@ def ejecutar_busqueda_alta_precision(algoritmo_func, nombre, series_data, k_segm
     print(f"\n\n¡PROCESO FINALIZADO!")
     print(f"Iteraciones totales: {iteracion_total}")
     print(f"Mejor MSE alcanzado: {mejor_mse:.6f}")
-    print(f"Tiempo empleado: {total_time:.2f} segundos")
     
     # Guardar en CSV el resultado final
     me.save_statistics("resultados_rs.csv", nombre + "_MAX", filename, k_segments, iteracion_total, total_time, mejor_mse, 0, 0)
     
-    me.draw_convergence_best(historial_mejores, nombre)
+    while True:
+        print(f"\n--- RESULTADOS ALTA PRECISIÓN ---")
+        print("1. Ver Curva de Convergencia")
+        print("2. Ver mejor segmentación (Gráfica)")
+        print("3. Volver al menú principal")
+        op = input("Selecciona: ")
+        
+        if op == '1':
+            me.draw_convergence_best(historial_mejores, nombre)
+        elif op == '2':
+            print(f"Generando gráfica de la serie con {k_segments} segmentos...")
+            me.draw(series_data, mejores_ptos, filename, title=f"Mejor RS: {mejor_mse:.6f}")
+            print(f"Gráfica guardada en HCOutput/{filename.split('.')[0]}.png")
+        elif op == '3':
+            break
 
 def ejecutar_estudio_completo(algoritmo_func, nombre, series_data, k_segments, filename):
     print("\n--- CONFIGURACIÓN DEL EXPERIMENTO ---")
@@ -78,6 +91,10 @@ def ejecutar_estudio_completo(algoritmo_func, nombre, series_data, k_segments, f
     iteraciones_list = list(range(it_inicio, it_fin + 1, it_paso))
     mses_medios, desviaciones, varianzas, tiempos = [], [], [], []
     matriz_para_cuartiles = []
+    
+    # Variables para capturar el mejor absoluto de todo el estudio
+    mejor_mse_global = float('inf')
+    mejores_ptos_global = []
 
     for max_iters in iteraciones_list:
         mses_actuales, tiempos_actuales = [], []
@@ -89,7 +106,14 @@ def ejecutar_estudio_completo(algoritmo_func, nombre, series_data, k_segments, f
             else:
                 ptos = algoritmo_func(series_data, k_segments, max_iters)
             tiempos_actuales.append(time.time() - start)
-            mses_actuales.append(me.avgMSE(series_data, ptos))
+            
+            mse_val = me.avgMSE(series_data, ptos)
+            mses_actuales.append(mse_val)
+            
+            # Guardamos el mejor absoluto encontrado en cualquier repetición
+            if mse_val < mejor_mse_global:
+                mejor_mse_global = mse_val
+                mejores_ptos_global = ptos
         
         m_mse, v_mse, s_mse = me.calculateErrorMean(mses_actuales), me.calculateVariance(mses_actuales), me.calculateStandardDesviation(mses_actuales)
         m_t = me.calculateErrorMean(tiempos_actuales)
@@ -101,12 +125,25 @@ def ejecutar_estudio_completo(algoritmo_func, nombre, series_data, k_segments, f
 
     while True:
         print(f"\n--- RESULTADOS: {nombre} ---")
-        print("1. MSE Medio + Desviación (Área) | 2. Cuartiles por Rango | 3. Gráfica Varianza/Std | 4. Volver")
+        print("1. MSE Medio + Desviación (Área)")
+        print("2. Frecuencia por Calidad (Cuartiles por Rango)")
+        print("3. Gráfica Varianza/Std")
+        print("4. Ver mejor segmentación encontrada (Gráfica)")
+        print("5. Volver al menú")
         op = input("Selecciona: ")
-        if op == '1': me.draw_single_stat_with_variance(iteraciones_list, mses_medios, desviaciones, "MSE Medio", nombre, filename)
-        elif op == '2': me.analizar_distribucion_cuartiles(matriz_para_cuartiles, nombre, filename)
-        elif op == '3': me.draw_variance_std_study(iteraciones_list, varianzas, desviaciones, nombre, filename)
-        elif op == '4': break
+
+        if op == '1':
+            me.draw_single_stat_with_variance(iteraciones_list, mses_medios, desviaciones, "MSE Medio", nombre, filename)
+        elif op == '2':
+            me.analizar_distribucion_cuartiles(matriz_para_cuartiles, nombre, filename)
+        elif op == '3':
+            me.draw_variance_std_study(iteraciones_list, varianzas, desviaciones, nombre, filename)
+        elif op == '4':
+            print(f"Mejor MSE global del estudio: {mejor_mse_global:.6f}")
+            me.draw(series_data, mejores_ptos_global, filename, title=f"Estudio RS Mejor: {mejor_mse_global:.6f}")
+            print(f"Gráfica guardada en HCOutput/{filename.split('.')[0]}.png")
+        elif op == '5':
+            break
 
 def main():
     while True:
@@ -129,8 +166,7 @@ def main():
                 nom = "RS Serie" if sub == '1' else "RS Paralelo"
                 ejecutar_busqueda_alta_precision(func, nom, series_data, k_segments, filename)
             elif opcion == '4':
-                print("Lanzando comparativa de distribuciones...")
-                # Aquí se puede añadir lógica adicional de comparación si se desea
+                print("Funcionalidad de comparativa global: Se recomienda realizar estudios individuales por ahora.")
 
             input("\nPresiona Enter para continuar...")
 
