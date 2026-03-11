@@ -60,4 +60,4 @@ def generateCSV(n_repetitions):
         writer.writerows(data)
 
     
-generateCSV(2)
+generateCSV(20)
