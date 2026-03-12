@@ -21,7 +21,8 @@ def neighbourhood(breaking_points, step):
 def hillClimbingSearch(series, k_segments, prev_breaking_points):
     errors = []
     improved = True
-    step = 1 
+    n = int(len(series))
+    step = int(0.01 * n) 
     best_breaking_points = prev_breaking_points.copy()
     best_MSE = me.avgMSE(series, prev_breaking_points)
     

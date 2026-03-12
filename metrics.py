@@ -136,10 +136,10 @@ def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
     plt.legend(by_label.values(), by_label.keys(), 
               loc='upper left', bbox_to_anchor=(1,1))
     
-    os.makedirs("HCOutput", exist_ok=True)
+    os.makedirs("test_files", exist_ok=True)
     nombre_archivo = os.path.basename(filename)
     nombre_base = os.path.splitext(nombre_archivo)[0]
-    ruta_guardado = os.path.join("HCOutput", f"{nombre_base}.png")
+    ruta_guardado = os.path.join("test_files", f"{nombre_base}.png")
     
     plt.tight_layout()
     plt.savefig(ruta_guardado, dpi=300, bbox_inches='tight')
