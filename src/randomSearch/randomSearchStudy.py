@@ -2,7 +2,7 @@ import time
 import csv
 import os
 import metrics as me
-from BusquedaAleatoria import serialRandomSearch, paralelRandomSearch
+from randomSearch import serialRandomSearch, paralelRandomSearch
 
 def save_data(csv_file, algorithm, series_filename, max_iter, execution, MSE, time_elapsed):
     os.makedirs(os.path.dirname(csv_file) if os.path.dirname(csv_file) else ".", exist_ok=True)

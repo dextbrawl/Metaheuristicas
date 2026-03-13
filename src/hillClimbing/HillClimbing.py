@@ -1,5 +1,4 @@
-import metrics as me
-import random 
+import ../aux/metrics
 def neighbourhood(breaking_points, step):
     neighbourhood = []
     
