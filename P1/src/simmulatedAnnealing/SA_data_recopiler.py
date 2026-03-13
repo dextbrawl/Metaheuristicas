@@ -1,45 +1,62 @@
 import csv
 import os
-import simmulatedAnnealing as sa
-import metrics as me
 import itertools
+import simmulatedAnnealing as sa
+import sys
+aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aux'))
+sys.path.append(aux_path)
+import metrics as me
 
-# Podría añadirse el número de la iteración en la que realmente ha parado cada uno por sus criterios de parada independientes
-def save_data(csv_file,algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction, execution, MSE, time):
+def save_data(csv_file, algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction, execution, MSE, time_elapsed):
+    os.makedirs(os.path.dirname(csv_file) if os.path.dirname(csv_file) else ".", exist_ok=True)
     filexist = os.path.isfile(csv_file)
-    with open("./test_files/SA_results.csv", mode= "a", newline= "") as f:
+    
+    with open(csv_file, mode="a", newline="") as f:
         writer = csv.writer(f)
 
         if not filexist:
-            writer.writerow(["Algorithm", "Series", "Iterations", "T0", "Tf", "L", "coolingFunction","Execution", "MSE", "Time"])
+            writer.writerow(["Algorithm", "Series", "Iterations", "T0", "Tf", "L", "coolingFunction", "Execution", "MSE", "Time"])
 
-        writer.writerow([algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction, execution, MSE, time])
+        writer.writerow([algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction, execution, MSE, time_elapsed])
 
 if __name__ == "__main__":
+    T0_values = [50.0, 10.0, 1.0]
+    Tf_values = [1.0, 0.1, 0.001]
+    L_factors = [0.5, 2.0, 5.0] 
 
-    T0_values = [200, 50, 10]
-    Tf_values = [10, 1, 0.01]
-    L_values = [10, 30, 50]
+    coolingFunctions = [(sa.geometricCooling, "Geometric")]
 
-    coolingFunctions = [ (sa.linealCooling, "Linear"), (sa.logarithmCooling, "Logarithm"), (sa.geometricCooling, "Geometric")]
+    combinations = list(itertools.product(T0_values, Tf_values, L_factors, coolingFunctions))
 
-    combinations = list(itertools.product(T0_values, Tf_values, L_values, coolingFunctions))
+    series_list = [
+        ("TS1.txt", 9),
+        ("TS2.txt", 15), 
+        ("TS3.txt", 25), 
+        ("TS4.txt", 50)  
+    ]
 
-    filename = "TS1.txt"            
-    k_segments = 9                  
-                                
-    series = me.readSeries(filename)
-    c = 0
-    for T0, Tf, L, (coolingFunction, function_name) in combinations:
-        for i in range(20):
-            c += 1
-            max_iter = 200
+    csv_path = "./test_files/SA_hiperparametros.csv"
+    repeticiones = 20
 
-            algorithm_name = f"SA_{function_name}Cooling"
+    contador = 0
+    for filename, k_segments in series_list:
+        series = me.readSeries(filename)
+        vecindario = 2 * k_segments
+        
+        print(f"\n--- Analizando {filename} (Vecindario: {vecindario}) ---")
 
-            breaking_points, mse, time_elapsed = sa.simmulatedAnnealing(series, k_segments, T0, L, Tf, coolingFunction, max_iter)
+        for T0, Tf, factor_L, (coolingFunction, function_name) in combinations:
+            L_real = int(factor_L * vecindario)
 
-            print(f" línea: {c} Config: T0={T0:<3d} | Tf={Tf:<5.2f} | L={L:<2d} | Cool={function_name:<9s} --> Rep {i+1:02d} | Tiempo: {time_elapsed:.2f}s")
+            for i in range(repeticiones):
+                contador += 1
+                max_iter = 200
+                algorithm_name = f"SA_{function_name}Cooling"
 
-            save_data("SA_results", algorithm_name, filename, max_iter, T0, Tf, L, function_name, (i+1), mse, time_elapsed)
+                breaking_points, mse, time_elapsed = sa.simmulatedAnnealing(
+                    series, k_segments, T0, L_real, Tf, coolingFunction, max_iter
+                )
 
+                save_data(csv_path, algorithm_name, filename, max_iter, T0, Tf, L_real, function_name, (i+1), mse, time_elapsed)
+
+                print(f"Config: T0={T0:<4.1f} | Tf={Tf:<5.3f} | L_factor={factor_L} (L_real={L_real}) --> MSE: {mse:.4f}")
