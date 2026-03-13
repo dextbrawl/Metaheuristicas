@@ -4,7 +4,10 @@ import os
 import metrics as me
 from randomSearch import serialRandomSearch, paralelRandomSearch
 
+"""Almacena en un archivo csv todos los datos que se pasan por argumento"""
 def save_data(csv_file, algorithm, series_filename, max_iter, execution, MSE, time_elapsed):
+    
+    # Crea un directorio si no existe
     os.makedirs(os.path.dirname(csv_file) if os.path.dirname(csv_file) else ".", exist_ok=True)
     filexist = os.path.isfile(csv_file)
     
@@ -57,6 +60,7 @@ if __name__ == "__main__":
                     
                     ptos = func(series_data, k_segments, max_iter)
                     
+                    # Calcula el tiempo entre repeticiones
                     time_elapsed = time.time() - start_time
                     mse = me.avgMSE(series_data, ptos)
                     
@@ -71,6 +75,8 @@ if __name__ == "__main__":
                 print(f"    => Mejor resultado de {alg_name} ({max_iter} iter) en {filename}! MSE: {mejor_mse_global:.4f}")
                 
                 titulo_grafica = f"Mejor {alg_name} ({max_iter} iter) - {filename} (MSE: {mejor_mse_global:.4f})"
+                
+                # Grafica la función utilizando draw de metrics
                 me.draw(series_data, mejores_ptos_global, filename, title=titulo_grafica)
 
     print(f"\n=========================================================")

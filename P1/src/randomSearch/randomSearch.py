@@ -6,6 +6,7 @@ import metrics as me
 import concurrent.futures
 import os
 
+"""Algoritmo de búsqueda aleatoria en serie"""
 def serialRandomSearch(series: list, k_segments, max_iterations):
     print(" -- RANDOM SEARCH --")
     size = len(series)
@@ -18,11 +19,14 @@ def serialRandomSearch(series: list, k_segments, max_iterations):
     c = 0
     errors = []
     errors.append(avg_mse)
+    
+    # Obtiene soluciones aleatorias dado un máximo de iteraciones
     for _ in range(max_iterations):
         new_breaking_points = me.getBreakingPoints(size, k_segments)
         new_avg_mse = me.avgMSE(series,new_breaking_points)
         errors.append(new_avg_mse) #Aqui metemos el NUEVO error 
 
+        # Guarda el mejor resultado de cada iteracion
         if new_avg_mse < avg_mse :
             c = 0
             breaking_points = new_breaking_points
@@ -51,12 +55,14 @@ def serialRandomSearch(series: list, k_segments, max_iterations):
     print(f"Standard desviation of errors: ", standard_desviation)
     return breaking_points
 
+"""Obtiene los datos de la solución obtenida en paralelo en concreto"""
 def evalParalelSolutions(args):
     size, k_segments, series = args
     breaking_points = me.getBreakingPoints(size, k_segments)
     mse = me.avgMSE(series, breaking_points)
     return breaking_points, mse
 
+"""Algoritmo de búsqueda aleatoria en paralelo"""
 def paralelRandomSearch(series: list, k_segments, max_iterations, batch=5):
     print(" -- PARALEL RANDOM SEARCH --")
     size = len(series)
@@ -70,6 +76,7 @@ def paralelRandomSearch(series: list, k_segments, max_iterations, batch=5):
     else:
         n_cores = cores - 1
 
+    # Usamos la mitad de núcleos del procesador
     n_cores_use = max(1, int(n_cores/2))
 
     print("Segmentos iniciales: ")
@@ -107,6 +114,7 @@ def paralelRandomSearch(series: list, k_segments, max_iterations, batch=5):
             c = c + 1
 
 
+        # Condición de parada 
         if c >= (max_iterations/2):
             me.clear_screen()
             print("STOP:Too may interactions without improving.")
@@ -120,6 +128,7 @@ def paralelRandomSearch(series: list, k_segments, max_iterations, batch=5):
             break 
 
 
+    # Obtención de datos
     errors_mean = me.calculateErrorMean(errors)
     print(f"Average of errors: ", errors_mean)
     error_variance = me.calculateVariance(errors)
