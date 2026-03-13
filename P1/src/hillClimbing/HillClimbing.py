@@ -6,6 +6,8 @@ aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aux'))
 sys.path.append(aux_path)
 
 import metrics as me
+
+"""Obtiene todos los vecinos dado un valor de step para luego analizarlos todos"""
 def neighbourhood(breaking_points, step):
     neighbourhood = []
     
@@ -24,6 +26,7 @@ def neighbourhood(breaking_points, step):
     
     return neighbourhood
 
+"""Funcionamiento de hill climbing estudiado en clase"""
 def hillClimbingSearch(series, k_segments, prev_breaking_points):
     errors = []
     improved = True
@@ -34,6 +37,7 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points):
     
     errors.append(best_MSE)
     
+    # Hill climbing busca para todos los vecinos hasta que no encuentre ninguno mejor y se atasque en un óptimo
     while improved:
         nbh = neighbourhood(best_breaking_points, step)
         improved = False
@@ -47,6 +51,7 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points):
                 best_MSE = curr_MSE
                 improved = True
 
+    # Se obtienen todas las métricas
     print(f"THE BEST MSE IS: ", best_MSE)
     errors_mean = me.calculateErrorMean(errors)
     print(f"Average of errors: ", errors_mean)
@@ -62,6 +67,7 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points):
 
     return best_breaking_points
 
+# Función del main
 if __name__ == '__main__':
     filename, k_segments = me.select_series()
 

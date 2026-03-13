@@ -13,6 +13,7 @@ series_dict = {
     "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
 }
 
+"""Genera un fichero CSV para la evaluación de los datos en la memoria"""
 def generateCSV(n_repetitions):
 
     data = []
@@ -20,6 +21,7 @@ def generateCSV(n_repetitions):
 
     i = 1
 
+    # Guarda los datos para cada serie y cada número de segmentos anteriormente mencionados
     for filename, k_segments in series_dict.items():
         errors = []
         times = []
@@ -27,6 +29,8 @@ def generateCSV(n_repetitions):
         series = me.readSeries(filename)
         best_breaking_points = me.getBreakingPoints(len(series),k_segments)
         best_mse = me.avgMSE(series,best_breaking_points)
+        
+        # Itera con un número de repeticiones hasta obtener el mejor resultado de cada ejecución
         for _ in range(n_repetitions):
             new_breaking_points = me.getBreakingPoints(len(series),k_segments)
             start_time = time.time()
@@ -38,10 +42,12 @@ def generateCSV(n_repetitions):
             errors.append(new_mse)
             times.append(exec_time)
 
+            # Almacena el mejor resultado
             if new_mse < best_mse:
                 best_breaking_points = new_breaking_points.copy()
                 best_mse = new_mse
 
+        # Obtención de métricas
         mse_mean = me.calculateErrorMean(errors)
         mse_variance = me.calculateVariance(errors)
         avg_time = me.calculateErrorMean(times)
@@ -61,6 +67,7 @@ def generateCSV(n_repetitions):
         i += 1
 
 
+    # Escribe en el fichero todos los datos obtenidos
     with open('HCOutput/hillClimbing.csv','w', newline='', encoding = 'utf-8') as f:
         writer = csv.writer(f)
         writer.writerows(data)
