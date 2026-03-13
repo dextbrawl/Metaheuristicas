@@ -1,4 +1,11 @@
 # Metaheurísticas
 Practicas Metaheurísticas
 
-MSE:  0.15712248392413336 --> óptimo global encontrado (Serie 1)
+## Instalación
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+```
