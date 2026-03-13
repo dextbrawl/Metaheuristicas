@@ -9,6 +9,7 @@ from pathlib import Path
 
 # --- LÓGICA DE SEGMENTACIÓN ---
 
+"""Genera una solución aleatoria dados los segmentos y el número de puntos de la serie"""
 def getBreakingPoints(n_points, k_segments): 
     breaking_points = [0, n_points-1]
     for _ in range(k_segments - 1):
@@ -19,9 +20,11 @@ def getBreakingPoints(n_points, k_segments):
     breaking_points.sort()
     return breaking_points
 
+"""Limpia la pantalla de caracteres"""
 def clear_screen():
     print('\033[2J\033[H', end='')
 
+"""Submenú para seleccionar las diferentes series"""
 def select_series():
     # Solo los nombres de los archivos y sus 'k' reales
     series_dict = {"TS1.txt": 9, "TS2.txt": 15, "TS3.txt": 25, "TS4.txt": 50}
@@ -40,6 +43,7 @@ def select_series():
         except ValueError:
             print("Introduzca un número válido.")
 
+"""Obtiene la ruta donde esté el fichero con la serie de puntos y lo carga en memoria"""
 def readSeries(filename): 
 
     actual_directory = os.path.dirname(__file__)
@@ -50,6 +54,7 @@ def readSeries(filename):
     
     return np.loadtxt(full_path).tolist()
 
+"""Calcula el Error Cuadrático Medio dado un segmento"""
 def segmentMSE(segment):
     segment = np.array(segment)
     n = len(segment)
@@ -64,6 +69,7 @@ def segmentMSE(segment):
     else:
         return 0.0
 
+"""Obtiene la media de los MSE de cada segmento"""
 def avgMSE(temp_series, breaking_points):
     segment_errs = []
     for i in range(len(breaking_points) - 1):
@@ -73,18 +79,22 @@ def avgMSE(temp_series, breaking_points):
 
 # --- ESTADÍSTICAS Y PERSISTENCIA ---
 
+"""Calcula la varianza"""
 def calculateVariance(data):
     if len(data) > 1:
         return statistics.variance(data) 
     else:
         return 0.0
 
+"""Calcula la desviación típica"""
 def calculateStandardDesviation(data):
     return math.sqrt(calculateVariance(data))
 
+"""Calcula la media"""
 def calculateErrorMean(data):
     return np.mean(data)
 
+"""Guarda en un fichero los datos obtenidos"""
 def save_statistics(filename_log, method_name, series_name, k, iters, exec_time, mse, variance, std_dev):
     file_exists = os.path.isfile(filename_log)
     with open(filename_log, mode='a', encoding='utf-8') as f:
@@ -93,14 +103,19 @@ def save_statistics(filename_log, method_name, series_name, k, iters, exec_time,
         f.write(f"{method_name},{series_name},{k},{iters},{exec_time:.6f},{mse:.6f},{variance:.6f},{std_dev:.6f}\n")
 
 # --- GRÁFICAS ---
-#Funcion graficar la serie
+
+"""Dibuja el resultado final de una serie y su aproximación obtenida"""
 def draw(Y, breaking_points, filename, title="Regresión por Segmentos"): 
     X = list(range(len(Y)))
     
     plt.figure(figsize=(12, 6))
+    
+    # Dibuja la serie de puntos
     plt.plot(X, Y, color='blue', label='Serie', linewidth=1)
     
     if breaking_points and len(breaking_points) > 0:
+        
+        # Dibuja los puntos y líneas verticales de corte
         for i, bp in enumerate(breaking_points):
             if i == 0:
                 plt.axvline(x=bp, color='red', linestyle='--', 
@@ -110,6 +125,7 @@ def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
                            linewidth=1, alpha=0.7)
         
         
+        # Se añade el 0 y el punto final por fines estéticos, internamente se trabajan con los puntos de corte
         segmentos = [0] + breaking_points + [len(Y)]
         
         for i in range(len(segmentos)-1):
@@ -127,6 +143,7 @@ def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
                     m, c = rect
                     y_pred = m * X_seg + c
                     
+                    # Se dibujan los segmentos de ajuste
                     if i == 0:
                         plt.plot(X_seg, y_pred, color='orange', 
                                linewidth=2, label='Regresión lineal')
@@ -146,6 +163,7 @@ def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
     plt.legend(by_label.values(), by_label.keys(), 
               loc='upper left', bbox_to_anchor=(1,1))
     
+    # Almacena los archivos resultantes en otra carpeta
     os.makedirs("test_files", exist_ok=True)
     nombre_archivo = os.path.basename(filename)
     nombre_base = os.path.splitext(nombre_archivo)[0]
@@ -155,7 +173,7 @@ def draw(Y, breaking_points, filename, title="Regresión por Segmentos"):
     plt.savefig(ruta_guardado, dpi=300, bbox_inches='tight')
     
     
-
+"""Muestra el error para cada iteración y su desviación típica (hacia arriba y hacia abajo)"""
 def draw_single_stat_with_variance(iteraciones, medias, desviaciones, titulo, algoritmo, filename):
     plt.figure(figsize=(10, 6))
     plt.plot(iteraciones, medias, label='MSE Medio', color='blue', marker='o')
@@ -169,6 +187,7 @@ def draw_single_stat_with_variance(iteraciones, medias, desviaciones, titulo, al
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.show()
 
+"""Gráfica para comprobar que el algoritmo se estabiliza (varianza disminuye)"""
 def draw_variance_std_study(iteraciones, varianzas, desviaciones, nombre, filename):
     plt.figure(figsize=(10, 6))
     plt.plot(iteraciones, varianzas, label='Varianza', color='purple', marker='s', linestyle='--')
@@ -180,6 +199,8 @@ def draw_variance_std_study(iteraciones, varianzas, desviaciones, nombre, filena
     plt.grid(True, linestyle=':', alpha=0.6)
     plt.show()
 
+
+"""Crea un histograma clasificando las soluciones obtenidas a partir de los cuartiles"""
 def analizar_distribucion_cuartiles(matriz_mse, nombre, filename):
     todos_los_datos = np.array([item for sublist in matriz_mse for item in sublist])
     mse_min, mse_max = np.min(todos_los_datos), np.max(todos_los_datos)
@@ -196,6 +217,7 @@ def analizar_distribucion_cuartiles(matriz_mse, nombre, filename):
     plt.ylabel("Nº Soluciones")
     plt.show()
 
+"""Muestra la evolución del error más bajo para cada iteración"""
 def draw_convergence_best(history, nombre):
     plt.figure(figsize=(10, 6))
     plt.plot(history, color='green', linewidth=2, label='Mejor MSE encontrado')
