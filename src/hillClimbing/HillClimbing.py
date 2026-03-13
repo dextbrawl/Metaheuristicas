@@ -1,4 +1,11 @@
-import ../aux/metrics
+import sys
+import os
+
+# Para poder importar el módulo desde carpetas externas
+aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aux'))
+sys.path.append(aux_path)
+
+import metrics as me
 def neighbourhood(breaking_points, step):
     neighbourhood = []
     
@@ -40,6 +47,7 @@ def hillClimbingSearch(series, k_segments, prev_breaking_points):
                 best_MSE = curr_MSE
                 improved = True
 
+    print(f"THE BEST MSE IS: ", best_MSE)
     errors_mean = me.calculateErrorMean(errors)
     print(f"Average of errors: ", errors_mean)
 
