@@ -23,10 +23,13 @@ def clear_screen():
     print('\033[2J\033[H', end='')
 
 def select_series():
-    series_dict = {"TS1.txt": 9, "TS2.txt": 10, "TS3.txt": 20, "TS4.txt": 50}
+    # Solo los nombres de los archivos y sus 'k' reales
+    series_dict = {"TS1.txt": 9, "TS2.txt": 15, "TS3.txt": 25, "TS4.txt": 50}
+    
     print("\nSeries disponibles para segmentar:")
     for i, name in enumerate(series_dict.keys(), 1):
         print(f"{i}. {name} ({series_dict[name]} segmentos)")
+        
     while True:
         try:
             opcion = int(input("Seleccione serie (1-4): "))
@@ -38,7 +41,14 @@ def select_series():
             print("Introduzca un número válido.")
 
 def readSeries(filename): 
-    return np.loadtxt(filename).tolist()
+
+    actual_directory = os.path.dirname(__file__)
+    
+    series_path = os.path.abspath(os.path.join(actual_directory, '..', 'series'))
+    
+    full_path = os.path.join(series_path, filename)
+    
+    return np.loadtxt(full_path).tolist()
 
 def segmentMSE(segment):
     segment = np.array(segment)

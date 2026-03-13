@@ -1,4 +1,10 @@
 import random
+import sys
+import os
+
+# Para poder importar el módulo desde carpetas externas
+aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aux'))
+sys.path.append(aux_path)
 import metrics as me
 import math
 import time

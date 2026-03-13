@@ -1,3 +1,7 @@
+import os
+import sys
+aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aux'))
+sys.path.append(aux_path)
 import metrics as me
 import concurrent.futures
 import os
@@ -125,11 +129,10 @@ def paralelRandomSearch(series: list, k_segments, max_iterations, batch=5):
     return best_breaking_points 
 #Definimos para nuestra practica, "Fichero": K
 if __name__ == '__main__':
-    series_dict = {
-        "TS1.txt": 9,"TS2.txt": 10,"TS3.txt": 20,"TS4.txt": 50
-    }
 
     filename, k_segments = me.select_series()
 
-    best_breaking_points = paralelRandomSearch(me.readSeries(filename),k_segments)
-    me.draw(filename,best_breaking_points, filename)
+    series = me.readSeries(filename)
+
+    best_breaking_points = paralelRandomSearch(me.readSeries(filename),k_segments, 200)
+    me.draw(series,best_breaking_points, filename)
