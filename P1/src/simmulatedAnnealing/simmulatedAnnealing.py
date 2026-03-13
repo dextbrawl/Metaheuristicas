@@ -12,25 +12,30 @@ import time
 # En algunas funciones de enfriamiento, se pasan valores no usados para estandarizar las funciones
 # podiendo así pasarlas como parámetro.
 
+"""Función de enfriamiento lineal"""
 def linealCooling(initialTemperature, finalTemperature, i, max_iter):
     beta = (initialTemperature - finalTemperature) / max_iter
     temperature = initialTemperature - i * beta
     return temperature
 
+"""Función de enfriamiento logarítmica"""
 def logarithmCooling(initialTemperature, i, finalTemperature, max_iter):
     T = initialTemperature / (1 + math.log(i))
     return T
 
-# M es max_iter, el número máximo de iteraciones que queremos que corra el algoritmo.
+"""Función de enfriamiento logarítmica"""
 def geometricCooling(initialTemperature, i, finalTemperature, max_iter):
+    # M es max_iter, el número máximo de iteraciones que queremos que corra el algoritmo.
     alpha = (finalTemperature / initialTemperature) ** (1 / max_iter)
     T = (alpha ** i) * initialTemperature
     return T
 
+"""Función de enfriamiento de cauchy (no utilizada al final)"""
 def cauchyCooling(initialTemperature, i, finalTemperature, max_iter):
     T = initialTemperature / (1 + i)
     return T
 
+"""Genera un vecino aleatorio, dado un step concreto"""
 def generateNeighbour(breaking_points, step_size: int):
     neighbour = list(breaking_points)
     tam_s = len(neighbour)
@@ -48,7 +53,7 @@ def generateNeighbour(breaking_points, step_size: int):
     
     return neighbour
 
-
+"""Algoritmo de simulated annealing, con hiperparámetros temperatura inicial, L, temperatura final y la función de enfriamiento"""
 def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: float, coolingFunction, max_iter):    
     start = time.time()
     size = len(series)

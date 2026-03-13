@@ -7,6 +7,7 @@ aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aux'))
 sys.path.append(aux_path)
 import metrics as me
 
+"""Almacena los datos pasados como argumento en un fichero csv"""
 def save_data(csv_file, algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction, execution, MSE, time_elapsed):
     os.makedirs(os.path.dirname(csv_file) if os.path.dirname(csv_file) else ".", exist_ok=True)
     filexist = os.path.isfile(csv_file)
@@ -20,12 +21,15 @@ def save_data(csv_file, algorithm, series_filename, max_iter, initialTemperature
         writer.writerow([algorithm, series_filename, max_iter, initialTemperature, finalTemperature, L, coolingFunction, execution, MSE, time_elapsed])
 
 if __name__ == "__main__":
+    
+    # Valores de prueba que usaremos para el estudio de SA
     T0_values = [50.0, 10.0, 1.0]
     Tf_values = [1.0, 0.1, 0.001]
     L_factors = [0.5, 2.0, 5.0] 
 
     coolingFunctions = [(sa.geometricCooling, "Geometric")]
 
+    # Genera todas las combinaciones posibles
     combinations = list(itertools.product(T0_values, Tf_values, L_factors, coolingFunctions))
 
     series_list = [
@@ -46,7 +50,7 @@ if __name__ == "__main__":
         print(f"\n--- Analizando {filename} (Vecindario: {vecindario}) ---")
 
         for T0, Tf, factor_L, (coolingFunction, function_name) in combinations:
-            L_real = int(factor_L * vecindario)
+            L_real = int(factor_L * vecindario) # En vez de hacerlo arbitrario, el tamaño L se calcula con un factor del vecindario
 
             for i in range(repeticiones):
                 contador += 1

@@ -4,6 +4,7 @@ from BusquedaAleatoria import serialRandomSearch, paralelRandomSearch
 from HillClimbing import hillClimbingSearch
 from simmulatedAnnealing import geometricCooling, simmulatedAnnealing
 
+"""Función auxiliar para imprimir el menú"""
 def mostrar_menu_principal():
     me.clear_screen()
     print("==============================")
@@ -17,6 +18,7 @@ def mostrar_menu_principal():
     print("6. Salir")
     print("==============================")
 
+"""Función general escogido un algoritmo, serie, número de segmentos e iteraciones y almacena los datos en un fichero"""
 def ejecutar_estudio_parametrico(algoritmo_func, nombre, series_data, k_segments, filename, repeticiones, it_inicio, it_fin, it_paso):
     iteraciones_list = list(range(it_inicio, it_fin + 1, it_paso))
     mses_medios_list, varianzas_list, desviaciones_list, tiempos_list = [], [], [], []
@@ -91,6 +93,7 @@ def ejecutar_estudio_parametrico(algoritmo_func, nombre, series_data, k_segments
             elif op == '5': me.draw_iterations_study(iteraciones_list, stats_dict, nombre, filename)
             elif op == '6': break
 
+"""Realiza una comparación general entre algoritmos"""
 def ejecutar_comparativa_global(series_data, k_segments, filename, repeticiones, it_inicio, it_fin, it_paso):
     iteraciones_list = list(range(it_inicio, it_fin + 1, it_paso))
     
