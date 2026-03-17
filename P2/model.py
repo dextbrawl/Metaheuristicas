@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import random
+import individuals as ind
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
@@ -9,22 +11,6 @@ data = pd.read_csv("winequality-red.csv")
 data["quality"] = (data["quality"] >= 6).astype(int)
 X = data.drop("quality", axis=1)
 y = data["quality"]
-
-class Individual:
-    def __init__(self, n_estimators, max_depth, min_samples_split, 
-                 min_samples_leaf, max_features, bootstrap, criterion, 
-                 class_weight, max_leaf_nodes, min_impurity_decrease, random_state):
-        self.n_estimators = n_estimators
-        self.max_depth = max_depth
-        self.min_samples_split = min_samples_split
-        self.min_samples_leaf = min_samples_leaf
-        self.max_features = max_features
-        self.bootstrap = bootstrap
-        self.criterion = criterion
-        self.class_weight = class_weight
-        self.max_leaf_nodes = max_leaf_nodes
-        self.min_impurity_decrease = min_impurity_decrease
-        self.random_state = random_state
 
 def evaluate_solution(ind):
     model = RandomForestClassifier(
@@ -43,6 +29,40 @@ def evaluate_solution(ind):
     scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
     return scores.mean()
 
+#Crear una poblacion random de tamaño population
+def CreateRandomPopulation(population):
+    poblacion = []
+    
+    for _ in range(population):
+        individuo = ind.Individual(
+            n_estimators=random.randint(10, 300),
+            max_depth=random.randint(2, 30),
+            min_samples_split=random.randint(2, 20),
+            min_samples_leaf=random.randint(1, 20),
+            max_features=round(random.uniform(0.1, 1.0), 2),
+            bootstrap=random.choice([0, 1]),
+            criterion=random.choice([0, 1]),
+            class_weight=random.choice([0, 1]),
+            max_leaf_nodes=random.randint(10, 200),
+            min_impurity_decrease=round(random.uniform(0, 0.1), 3),
+            random_state=random.randint(1, 1000)
+        )
+        poblacion.append(individuo)
+    return poblacion
+
+#A cada individuo le asigna su puntuacion, luego lo ordenaremos esto   
+class Population:
+    def __init__(self, individual):
+        self.IndividualAndItScore = []
+        
+        for ind in individual:
+            score = evaluate_solution(ind)
+            self.IndividualAndItScore.append((ind, score))
+
 if __name__ == "__main__":
-    params_obj = Individual(10, 2, 2, 1, 0.1, 0, 0, 0, 10, 0, 42)
-    print(f"Accuracy promedio: {evaluate_solution(params_obj)}")
+    individuos_aleatorios = CreateRandomPopulation(20)
+    
+    
+    p= Population(individuos_aleatorios)
+    print(f"Población creada con {len(p.IndividualAndItScore)} individuos")
+    
