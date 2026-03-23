@@ -2,15 +2,29 @@ import pandas as pd
 import numpy as np
 import random
 import individuals as ind
+import CreatePopulation as pop
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 # cargar dataset
 data = pd.read_csv("winequality-red.csv")
+
 # convertir problema a clasificación binaria
 data["quality"] = (data["quality"] >= 6).astype(int)
 X = data.drop("quality", axis=1)
 y = data["quality"]
+
+
+#En una poblacion, cada individuo tiene su score.
+class Population:
+    def __init__(self, individual):
+        self.IndividualAndItScore = []
+        
+        for ind in individual:
+            score = evaluate_solution(ind)
+            self.IndividualAndItScore.append((ind, score))
+
+
 
 def evaluate_solution(ind):
     model = RandomForestClassifier(
@@ -29,40 +43,31 @@ def evaluate_solution(ind):
     scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
     return scores.mean()
 
-#Crear una poblacion random de tamaño population
-def CreateRandomPopulation(population):
-    poblacion = []
-    
-    for _ in range(population):
-        individuo = ind.Individual(
-            n_estimators=random.randint(10, 300),
-            max_depth=random.randint(2, 30),
-            min_samples_split=random.randint(2, 20),
-            min_samples_leaf=random.randint(1, 20),
-            max_features=round(random.uniform(0.1, 1.0), 2),
-            bootstrap=random.choice([0, 1]),
-            criterion=random.choice([0, 1]),
-            class_weight=random.choice([0, 1]),
-            max_leaf_nodes=random.randint(10, 200),
-            min_impurity_decrease=round(random.uniform(0, 0.1), 3),
-            random_state=random.randint(1, 1000)
-        )
-        poblacion.append(individuo)
-    return poblacion
-
-#A cada individuo le asigna su puntuacion, luego lo ordenaremos esto   
-class Population:
-    def __init__(self, individual):
-        self.IndividualAndItScore = []
-        
-        for ind in individual:
-            score = evaluate_solution(ind)
-            self.IndividualAndItScore.append((ind, score))
 
 if __name__ == "__main__":
-    individuos_aleatorios = CreateRandomPopulation(20)
+    PopulationSize = 20 #Parametro
     
+    print("Formas de incializar nuestra poblacion:")
+    print("  1. Random")
+    print("  2. Secuencial")
     
-    p= Population(individuos_aleatorios)
-    print(f"Población creada con {len(p.IndividualAndItScore)} individuos")
+    while True:
+        try:
+            metodo = int(input("\nElige un método (1 o 2): "))
+            if metodo in [1, 2]:
+                break
+            else:
+                print("Tiene que ser 1 o 2")
+        except ValueError:
+            print("Tiene que ser 1 o 2.")
+    
+    # Generar población según el método elegido
+    if metodo == 1:
+        individuos = pop.CreateRandomPopulation(PopulationSize)
+        print(f"Población aleatoria creada con {len(individuos)} individuos")
+    else:
+        Min = 0.15
+        MaxTry = 100
+        individuos = pop.CreateSequentialPopulation(PopulationSize, Min, MaxTry)
+        print(f"Población secuencial creada con {len(individuos)} individuos")
     

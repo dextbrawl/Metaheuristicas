@@ -15,3 +15,6 @@ class Individual:
         self.random_state = random_state
 
 
+
+
+
