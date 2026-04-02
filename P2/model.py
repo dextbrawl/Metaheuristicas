@@ -1,5 +1,5 @@
 import random
-
+import Selection as sel
 import CreatePopulation as pop
 import individuals as ind
 import numpy as np
