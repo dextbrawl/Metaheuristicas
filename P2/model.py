@@ -1,11 +1,13 @@
 import random
-import Selection as sel
-import CreatePopulation as pop
-import individuals as ind
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, train_test_split
+
+import CreatePopulation as pop
+import individuals as ind
+import Selection as sel
 
 # cargar dataset
 data = pd.read_csv("winequality-red.csv")

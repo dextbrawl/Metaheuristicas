@@ -1,48 +1,67 @@
+import os
 import random
 import sys
-import os
 
 # Para poder importar el módulo desde carpetas externas
-aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aux'))
+aux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "aux"))
 sys.path.append(aux_path)
-import metrics as me
 import math
 import time
+
+import metrics as me
 
 # En algunas funciones de enfriamiento, se pasan valores no usados para estandarizar las funciones
 # podiendo así pasarlas como parámetro.
 
 """Función de enfriamiento lineal"""
+
+
 def linealCooling(initialTemperature, finalTemperature, i, max_iter):
     beta = (initialTemperature - finalTemperature) / max_iter
     temperature = initialTemperature - i * beta
     return temperature
 
+
 """Función de enfriamiento logarítmica"""
+
+
 def logarithmCooling(initialTemperature, i, finalTemperature, max_iter):
     T = initialTemperature / (1 + math.log(i))
     return T
 
+
 """Función de enfriamiento logarítmica"""
+
+
 def geometricCooling(initialTemperature, i, finalTemperature, max_iter):
     # M es max_iter, el número máximo de iteraciones que queremos que corra el algoritmo.
     alpha = (finalTemperature / initialTemperature) ** (1 / max_iter)
-    T = (alpha ** i) * initialTemperature
+    T = (alpha**i) * initialTemperature
     return T
 
+
 """Función de enfriamiento de cauchy (no utilizada al final)"""
+
+
 def cauchyCooling(initialTemperature, i, finalTemperature, max_iter):
     T = initialTemperature / (1 + i)
     return T
 
+
 """Genera un vecino aleatorio, dado un step concreto"""
+
+
 def generateNeighbour(breaking_points, step_size: int):
     neighbour = list(breaking_points)
     tam_s = len(neighbour)
     point_index = random.randint(1, tam_s - 2)
     direction = random.choice([1, -1])
-    step =  step_size * direction
-    if neighbour[point_index - 1] < (neighbour[point_index] + step) < neighbour[point_index + 1]:
+    step = step_size * direction
+    if (
+        neighbour[point_index - 1]
+        < (neighbour[point_index] + step)
+        < neighbour[point_index + 1]
+    ):
         neighbour[point_index] += step
     else:
         if direction == 1:
@@ -50,11 +69,21 @@ def generateNeighbour(breaking_points, step_size: int):
         else:
             neighbour[point_index] = neighbour[point_index - 1] + 1
 
-    
     return neighbour
 
+
 """Algoritmo de simulated annealing, con hiperparámetros temperatura inicial, L, temperatura final y la función de enfriamiento"""
-def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: float, coolingFunction, max_iter):    
+
+
+def simmulatedAnnealing(
+    series: list,
+    k_segments: int,
+    T0: float,
+    L: int,
+    Tf: float,
+    coolingFunction,
+    max_iter,
+):
     start = time.time()
     size = len(series)
     initial_bp = me.getBreakingPoints(size, k_segments)
@@ -73,8 +102,8 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
             s_cand = generateNeighbour(initial_bp, step_size)
             new_mse = me.avgMSE(series, s_cand)
             delta = new_mse - initial_mse
-            U = random.random() # número aleatorio entre 0 y 1 ---> U(0, 1)
-            exponent = (-delta / T)
+            U = random.random()  # número aleatorio entre 0 y 1 ---> U(0, 1)
+            exponent = -delta / T
             probability = math.exp(exponent)
             accept = False
 
@@ -93,20 +122,23 @@ def simmulatedAnnealing(series: list, k_segments: int, T0: float, L: int, Tf: fl
         i += 1
         if i >= max_iter:
             break
-        
+
         T = coolingFunction(T0, i, Tf, max_iter)
-    
+
     end = time.time()
-    time_elapsed = (end - start)
+    time_elapsed = end - start
     return best_bp, best_mse, time_elapsed
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     filename, k_segments = me.select_series()
 
     series = me.readSeries(filename)
-    
+
     max_iter = 200
-    sol = simmulatedAnnealing(series, k_segments, 50, 50, 0.01, geometricCooling, max_iter)
+    sol = simmulatedAnnealing(
+        series, k_segments, 50, 50, 0.01, geometricCooling, max_iter
+    )
 
     sol_bp = sol[0]
     sol_mse = sol[1]
