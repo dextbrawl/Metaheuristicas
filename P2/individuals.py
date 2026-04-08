@@ -1,7 +1,23 @@
+import random
+
+from numpy.random.mtrand import rand
+
+
 class Individual:
-    def __init__(self, n_estimators, max_depth, min_samples_split, 
-                 min_samples_leaf, max_features, bootstrap, criterion, 
-                 class_weight, max_leaf_nodes, min_impurity_decrease, random_state):
+    def __init__(
+        self,
+        n_estimators,
+        max_depth,
+        min_samples_split,
+        min_samples_leaf,
+        max_features,
+        bootstrap,
+        criterion,
+        class_weight,
+        max_leaf_nodes,
+        min_impurity_decrease,
+        random_state,
+    ):
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -14,7 +30,20 @@ class Individual:
         self.min_impurity_decrease = min_impurity_decrease
         self.random_state = random_state
 
+    def mutate(self):
+        mutation_params = {
+            "n_estimators": lambda: random.randint(10, 500),
+            "max_depth": lambda: random.randint(1, 50),
+            "min_samples_leaf": lambda: random.randint(1, 50),
+            "max_features": lambda: random.randint(1, 50),
+            "bootstrap": lambda: random.choice([True, False]),
+            "criterion": lambda: random.choice(["gini", "entropy"]),
+            "class_weight": lambda: random.choice(["balanced", None]),
+            "max_leaf_nodes": lambda: random.randint(1, 50),
+            "min_impurity_decrease": lambda: random.uniform(0, 1),
+            "random_state": lambda: random.randint(0, 1000),
+        }
 
-
-
-
+        param_name = random.choice(list(mutation_params.keys()))
+        new_param_value = mutation_params[param_name]()
+        setattr(self, param_name, new_param_value)
