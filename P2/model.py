@@ -1,10 +1,16 @@
+import random
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, train_test_split
 
+import CreatePopulation as pop
+import individuals as ind
+import Selection as sel
+
 # cargar dataset
-data = pd.read_csv("winequality-red.csv", sep=";")
+data = pd.read_csv("winequality-red.csv")
 
 # convertir problema a clasificación binaria
 data["quality"] = (data["quality"] >= 6).astype(int)
@@ -12,35 +18,17 @@ X = data.drop("quality", axis=1)
 y = data["quality"]
 
 
-class Individual:
-    def __init__(
-        self,
-        n_estimators,
-        max_depth,
-        min_samples_split,
-        min_samples_leaf,
-        max_features,
-        bootstrap,
-        criterion,
-        class_weight,
-        max_leaf_nodes,
-        min_impurity_decrease,
-        random_state,
-    ):
-        self.n_estimators = n_estimators
-        self.max_depth = max_depth
-        self.min_samples_split = min_samples_split
-        self.min_samples_leaf = min_samples_leaf
-        self.max_features = max_features
-        self.bootstrap = bootstrap
-        self.criterion = criterion
-        self.class_weight = class_weight
-        self.max_leaf_nodes = max_leaf_nodes
-        self.min_impurity_decrease = min_impurity_decrease
-        self.random_state = random_state
+# En una poblacion, cada individuo tiene su score.
+class Population:
+    def __init__(self, individual):
+        self.IndividualAndItScore = []
+
+        for ind in individual:
+            score = evaluate_solution(ind)
+            self.IndividualAndItScore.append((ind, score))
 
 
-def evaluate_solution(ind):
+def evaluate_solution(ind: ind.Individual):
     model = RandomForestClassifier(
         n_estimators=int(ind.n_estimators),
         max_depth=int(ind.max_depth),
@@ -59,5 +47,28 @@ def evaluate_solution(ind):
 
 
 if __name__ == "__main__":
-    params_obj = Individual(10, 2, 2, 1, 0.1, 0, 0, 0, 10, 0, 42)
-    print(f"Accuracy promedio: {evaluate_solution(params_obj)}")
+    PopulationSize = 20  # Parametro
+
+    print("Formas de incializar nuestra poblacion:")
+    print("  1. Random")
+    print("  2. Secuencial")
+
+    while True:
+        try:
+            metodo = int(input("\nElige un método (1 o 2): "))
+            if metodo in [1, 2]:
+                break
+            else:
+                print("Tiene que ser 1 o 2")
+        except ValueError:
+            print("Tiene que ser 1 o 2.")
+
+    # Generar población según el método elegido
+    if metodo == 1:
+        individuos = pop.CreateRandomPopulation(PopulationSize)
+        print(f"Población aleatoria creada con {len(individuos)} individuos")
+    else:
+        Min = 0.15
+        MaxTry = 100
+        individuos = pop.CreateSequentialPopulation(PopulationSize, Min, MaxTry)
+        print(f"Población secuencial creada con {len(individuos)} individuos")
