@@ -9,8 +9,6 @@ def Tournament(population,size): #Usamos 3 o 2
     return winner[0]
 
 
-
-
 def TournamentSelection(population, tournamentSize=3, elite=2):
     PopulationSorted = sorted(population, key=lambda x: x[1], reverse=True)
     
