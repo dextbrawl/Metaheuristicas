@@ -4,20 +4,9 @@ from numpy.random.mtrand import rand
 
 
 class Individual:
-    def __init__(
-        self,
-        n_estimators,
-        max_depth,
-        min_samples_split,
-        min_samples_leaf,
-        max_features,
-        bootstrap,
-        criterion,
-        class_weight,
-        max_leaf_nodes,
-        min_impurity_decrease,
-        random_state,
-    ):
+    def __init__(self, n_estimators, max_depth, min_samples_split, 
+                 min_samples_leaf, max_features, bootstrap, criterion, 
+                 class_weight, max_leaf_nodes, min_impurity_decrease, random_state, position):
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -29,6 +18,7 @@ class Individual:
         self.max_leaf_nodes = max_leaf_nodes
         self.min_impurity_decrease = min_impurity_decrease
         self.random_state = random_state
+        self.position = position
 
     def mutate(self):
         mutation_params = {

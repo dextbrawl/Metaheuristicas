@@ -3,7 +3,7 @@ import numpy as np
 import individuals as ind
 
 #Metodo para crear un individuo aleatorio
-def CreateRandomIndividual():
+def CreateRandomIndividual(population_size):
     individual = ind.Individual(
             n_estimators=random.randint(10, 300),
             max_depth=random.randint(2, 30),
@@ -15,7 +15,8 @@ def CreateRandomIndividual():
             class_weight=random.choice([0, 1]),
             max_leaf_nodes=random.randint(10, 200),
             min_impurity_decrease=round(random.uniform(0, 0.1), 3),
-            random_state=random.randint(1, 1000)
+            random_state=random.randint(1, 1000),
+            position=population_size+1
         )
     return individual
 
