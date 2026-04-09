@@ -6,14 +6,14 @@ import individuals
 import replacement
 import Selection
 
-mutation_prob = 0.3
-cross_prob = 0.7
+mutation_prob = 0.2
+cross_prob = 0.8
 
 if __name__ == "__main__":
     population_size = 18
     population = CreatePopulation.CreateSequentialPopulation(population_size, 0.15, 100)
     print("Creada la population")
-    max_iter = 100
+    max_iter = 50
     i = 0
     while i < max_iter:
         selected = Selection.TournamentSelection(population)
@@ -48,3 +48,14 @@ if __name__ == "__main__":
         for j in population:
             j.features()
         i += 1
+
+    max_score = 0
+
+    for i in population:
+        if(max_score < i.score):
+            max_score = i.score
+            final_individual = i
+            
+    
+    print(f"El mejor individuo, con puntuación: {max_score}")
+    final_individual.features()
