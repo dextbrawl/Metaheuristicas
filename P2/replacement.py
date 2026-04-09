@@ -40,3 +40,14 @@ def crowdingReplacement(population, fathers, children):
             opponents[i].features()
 
     return population
+
+def worstReplacement(population, children):
+    
+    n_replacements = len(children)
+    worst_individuals = []
+    
+
+    
+    while(len(worst_individuals) < n_replacements):
+        
+        
