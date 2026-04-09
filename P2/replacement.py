@@ -34,5 +34,9 @@ def crowdingReplacement(population, fathers, children):
         if children[i].score > opponents[i].score:
             children[i].position = opponents[i].position
             population[opponents[i].position] = children[i]
+            print("Este hijo ha reemplazado a su padre: ")
+            children[i].features()
+            print("--->")
+            opponents[i].features()
 
     return population
