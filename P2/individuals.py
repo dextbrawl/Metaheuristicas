@@ -2,8 +2,6 @@ import random
 
 from numpy.random.mtrand import rand
 
-import model
-
 
 class Individual:
     def __init__(
@@ -34,6 +32,9 @@ class Individual:
         self.random_state = random_state
         self.position = position
         self.elite = False
+
+        import model
+
         self.score = model.evaluate_solution(self)
 
     def mutate(self):
@@ -55,6 +56,9 @@ class Individual:
         param_name = random.choice(list(mutation_params.keys()))
         new_param_value = mutation_params[param_name]()
         setattr(self, param_name, new_param_value)
+
+        import model
+        
         self.score = model.evaluate_solution(self)
 
     def features(self):
