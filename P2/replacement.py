@@ -40,3 +40,54 @@ def crowdingReplacement(population, fathers, children):
             opponents[i].features()
 
     return population
+
+def replaceWorst(population, n, min_distance=0.2, max_attempts=100):
+
+    sorted_pop = sorted(population, key=lambda ind: ind.score)
+    worst = sorted_pop[:n]
+
+    for worst_ind in worst:
+        attempts = 0
+        while attempts < max_attempts:
+            new_ind = crt.CreateRandomIndividual(worst_ind.position)
+            distance = crt.PrimeDistance(new_ind, population)
+            if distance >= min_distance:
+                new_ind.position = worst_ind.position
+                population[worst_ind.position] = new_ind
+                break
+            attempts += 1
+        else:
+            # Si no encuentra uno suficientemente distante, lo reemplaza igualmente
+            new_ind.position = worst_ind.position
+            population[worst_ind.position] = new_ind
+
+    return population
+
+def replaceWorstWithChildren(population, children, min_distance=0.15):
+
+    if not children:
+        return population
+
+    sorted_pop = sorted(population, key=lambda ind: ind.score)
+    sorted_children = sorted(children, key=lambda ind: ind.score, reverse=True)
+
+    # Limitamos al mínimo entre peores y hijos disponibles
+    replacements = min(len(sorted_pop), len(sorted_children))
+
+    for i in range(replacements):
+        worst = sorted_pop[i]
+        best_child = sorted_children[i]
+
+        if best_child.score <= worst.score:
+            break  # si el mejor hijo no supera al peor, los siguientes tampoco
+
+        # Comprobamos que el hijo no sea casi idéntico a alguien ya en la población
+        distance = crt.PrimeDistance(best_child, population)
+        if distance < min_distance:
+            print(f"  [replaceWorst] Hijo descartado por distancia {distance:.3f} < {min_distance}")
+            continue
+
+        best_child.position = worst.position
+        population[worst.position] = best_child
+
+    return population

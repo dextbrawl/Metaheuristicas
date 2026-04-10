@@ -46,31 +46,3 @@ def evaluate_solution(ind: ind.Individual):
     )
     scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
     return scores.mean()
-
-
-if __name__ == "__main__":
-    PopulationSize = 20  # Parametro
-
-    print("Formas de incializar nuestra poblacion:")
-    print("  1. Random")
-    print("  2. Secuencial")
-
-    while True:
-        try:
-            metodo = int(input("\nElige un método (1 o 2): "))
-            if metodo in [1, 2]:
-                break
-            else:
-                print("Tiene que ser 1 o 2")
-        except ValueError:
-            print("Tiene que ser 1 o 2.")
-
-    # Generar población según el método elegido
-    if metodo == 1:
-        individuos = pop.CreateRandomPopulation(PopulationSize)
-        print(f"Población aleatoria creada con {len(individuos)} individuos")
-    else:
-        Min = 0.15
-        MaxTry = 100
-        individuos = pop.CreateSequentialPopulation(PopulationSize, Min, MaxTry)
-        print(f"Población secuencial creada con {len(individuos)} individuos")

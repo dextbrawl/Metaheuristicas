@@ -1,23 +1,65 @@
 import random
+import numpy as np
 
 import CreatePopulation
 import crossing
 import individuals
 import replacement
 import Selection
+import model
 
-mutation_prob = 0.2
-cross_prob = 0.8
+mutation_prob = 0.5
+cross_prob = 0.5
+stagnated = False
+
+MAX_MUTATION_PROB, MIN_MUTATION_PROB = 0.8, 0.1
+MAX_CROSSING_PROB, MIN_CROSSING_PROB = 0.9, 0.2
+STAGNATION_THRESHOLD = 0.1
+
+def populationVariance(population):
+    vectors = np.array([CreatePopulation.NormaliseIndividual(ind) for ind in population])
+    return np.mean(np.var(vectors, axis=0))
+
+def changeProbabilities(mutation_prob, cross_prob, population):
+    
+    scores = [ind.score for ind in population]
+    mean = np.mean(scores)
+    variance = populationVariance(population)
+
+    # Hay un estancamiento, aumentamos mutación y disminuimos cruce
+    if variance < STAGNATION_THRESHOLD:
+        mutation_prob = min(mutation_prob + 0.1, MAX_MUTATION_PROB)
+        cross_prob = max(cross_prob - 0.1, MIN_CROSSING_PROB)
+        stagnated = True
+        print("Explorando")
+    else:   # No hay estancamiento, seguimos intensificando
+        print("Intensificando")
+        mutation_prob = max(mutation_prob - 0.1, MIN_MUTATION_PROB)
+        cross_prob = min(cross_prob + 0.1, MAX_CROSSING_PROB)
+        stagnated = False
+    
+    print(f"Media de score: {mean}, Varianza de parámetros: {variance}\nProbabilidades actualizadas --> Mutación: {mutation_prob}, Cruce: {cross_prob}")
+    
+    return mutation_prob, cross_prob
 
 if __name__ == "__main__":
-    population_size = 18
-    population = CreatePopulation.CreateSequentialPopulation(population_size, 0.15, 100)
+    
+    print(f"Prueba: {model.evaluate_solution(individuals.Individual(250, 43, 15, 35, "sqrt", False, 1, 0, 155, 0, 42, 0))}")
+    
+    population_size = 24
+    population = CreatePopulation.CreateSequentialPopulation(population_size, 0.5, 150)
     print("Creada la population")
+    
+    print("Población Inicial:")
+    for j in population:
+        j.features()
+    
+    print(f"\nProbabilidad de mutación y cruce iniciales: {mutation_prob}, {cross_prob}")
+    
     max_iter = 50
     i = 0
     while i < max_iter:
         selected = Selection.TournamentSelection(population)
-        print("Seleccionados los folladores vividores")
         children = []
         fathers = []
         for j in range(0, len(selected), 2):
@@ -30,24 +72,28 @@ if __name__ == "__main__":
                 fathers.append(selected[j])
                 fathers.append(selected[j + 1])
                 children.append(child)
-                print("ha habido sexo, hijo creado:")
-                child.features()
+
         for j in range(0, len(children)):
             m_prob = random.uniform(0.0, 1.0)
             if m_prob < mutation_prob:
                 children[j].mutate()
-                print("ha habido mutation, hijo mutado: ")
-                children[j].features()
+
                 
 
         old_population = population
-        population = replacement.crowdingReplacement(old_population, fathers, children)
+        if stagnated:
+            population = replacement.replaceWorst(population, 5)
+        else:
+            population = replacement.replaceWorstWithChildren(population, children)
+        
 
         print("La populasini gusini ha quedado así:")
-        print("----LISTA DE PANCHITOS----")
         for j in population:
             j.features()
         i += 1
+        
+        mutation_prob, cross_prob = changeProbabilities(mutation_prob, cross_prob, population)
+        print("")
 
     max_score = 0
 

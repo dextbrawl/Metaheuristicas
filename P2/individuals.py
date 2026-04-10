@@ -53,9 +53,17 @@ class Individual:
             "random_state": lambda: random.randint(0, 1000),
         }
 
-        param_name = random.choice(list(mutation_params.keys()))
-        new_param_value = mutation_params[param_name]()
-        setattr(self, param_name, new_param_value)
+        gene_mutation_prob = 0.3  # Probabilidad por cada gen
+        mutated = False
+        for param_name, generator in mutation_params.items():
+            if random.random() < gene_mutation_prob:
+                setattr(self, param_name, generator())
+                mutated = True
+
+        # Para garantizar por lo menos una mutación
+        if not mutated:  
+            param_name = random.choice(list(mutation_params.keys()))
+            setattr(self, param_name, mutation_params[param_name]())
 
         import model
         
