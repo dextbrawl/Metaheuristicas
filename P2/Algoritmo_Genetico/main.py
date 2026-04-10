@@ -39,6 +39,8 @@ def changeProbabilities(mutation_prob, cross_prob, population):
         stagnated = False
     
     print(f"Media de score: {mean}, Varianza de parámetros: {variance}\nProbabilidades actualizadas --> Mutación: {mutation_prob}, Cruce: {cross_prob}")
+    with open("prob_data.csv", "a") as f:
+        f.write(f"\n{mean},{variance},{mutation_prob},{cross_prob}")
     
     return mutation_prob, cross_prob, stagnated
 
@@ -50,7 +52,12 @@ if __name__ == "__main__":
     population = CreatePopulation.CreateSequentialPopulation(population_size, 0.5, 150)
     print("Creada la population")
     
+    # Variable para ver si el algoritmo está atrapado en un óptimo local
     stagnated = False
+    
+    # FIchero para recopilar datos
+    with open("prob_data.csv", "w") as f:
+        f.write("media_score,varianza_params,prob_mut,prob_cross")
     
     print("Población Inicial:")
     for j in population:
