@@ -70,26 +70,30 @@ if __name__ == "__main__":
     while i < max_iter:
         selected = Selection.TournamentSelection(population)
         children = []
-        fathers = []
-        for j in range(0, len(selected), 2):
+        for j in range(0, len(selected)-1, 2):
             n_points = 4
-            c_prob = random.uniform(0.0, 1.0)
+            c_prob = random.random()
+        
             if c_prob < cross_prob:
-                child = crossing.n_point_crossing(
-                    selected[j], selected[j + 1], n_points
-                )
-                fathers.append(selected[j])
-                fathers.append(selected[j + 1])
-                children.append(child)
+                if random.random() < 0.5:
+                    child1 = crossing.n_point_crossing(selected[j], selected[j + 1], n_points)
+                    child2 = crossing.n_point_crossing(selected[j], selected[j + 1], n_points)
+                else:
+                    child1 = crossing.uniform_crossing(selected[j], selected[j + 1])
+                    child2 = crossing.uniform_crossing(selected[j], selected[j + 1])
+
+                children.append(child1)
+                children.append(child2)
+            else:
+                children.append(selected[j])
+                children.append(selected[j + 1])
+
 
         for j in range(0, len(children)):
             m_prob = random.uniform(0.0, 1.0)
             if m_prob < mutation_prob:
                 children[j].mutate()
 
-                
-
-        old_population = population
         if stagnated:
             population = replacement.replaceWorst(population, 5)
         else:

@@ -53,7 +53,7 @@ class Individual:
             "random_state": lambda: random.randint(0, 1000),
         }
 
-        gene_mutation_prob = 0.5  # Probabilidad por cada gen
+        gene_mutation_prob = 0.15  # Probabilidad por cada gen
         mutated = False
         for param_name, generator in mutation_params.items():
             if random.random() < gene_mutation_prob:

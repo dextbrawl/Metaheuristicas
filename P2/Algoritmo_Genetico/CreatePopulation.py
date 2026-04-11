@@ -36,12 +36,12 @@ def NormaliseIndividual(ind):
         elif mf == "log2":
             mf_norm = 0.3
         else:
-            mf_norm = 0.0  # fallback
+            mf_norm = 0.0 
     else:
         # ya es float (debe estar en [0,1])
         mf_norm = float(mf)
 
-    # bootstrap ya es booleano -> convertir a 0/1
+    # bootstrap ya es booleano 0/1
     bootstrap_norm = 1.0 if ind.bootstrap else 0.0
 
     # criterion y class_weight ya son 0/1, pero aseguramos float
