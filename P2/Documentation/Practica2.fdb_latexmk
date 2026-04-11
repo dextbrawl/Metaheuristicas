@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1775904436.66427 "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" "Practica2.pdf" "Practica2" 1775904436.97666 0
-  "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" 1775904019.94116 6626 f60d244d2691d2c58141ecb49978e742 ""
+["pdflatex"] 1775921469.6306 "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" "Practica2.pdf" "Practica2" 1775921469.95435 0
+  "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" 1775921469.44839 9644 ffa00bdeeb28b4d4d4b636bd7d6241b4 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmr12.tfm" 1136768653 1288 655e228510b4c2a1abe905c368440826 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmr17.tfm" 1136768653 1292 296a67155bdbfc32aa9c636f21e91433 ""
@@ -79,9 +79,9 @@
   "/usr/local/texlive/2026basic/texmf-var/web2c/pdftex/pdflatex.fmt" 1773403499 2966195 e12773f304d5b8bd9f547aa5754731ec ""
   "/usr/local/texlive/2026basic/texmf.cnf" 1772405582 628 bbc09d6d38872d53c11bb48dc9b14e88 ""
   "Logo_UCO.png" 1775904019.93947 105836 26591fa9055f66bffba43907c36fb050 ""
-  "Practica2.aux" 1775904436.95418 1347 dd8113982ad6754fff4ff813255c697a "pdflatex"
-  "Practica2.out" 1775904436.95463 1528 6e1851cbffd40c25c88c5bfd50b01cef "pdflatex"
-  "Practica2.tex" 1775904019.94116 6626 f60d244d2691d2c58141ecb49978e742 ""
+  "Practica2.aux" 1775921469.93139 1347 41088282a13f38579362e421dce9b3cf "pdflatex"
+  "Practica2.out" 1775921469.93184 1528 6e1851cbffd40c25c88c5bfd50b01cef "pdflatex"
+  "Practica2.tex" 1775921469.44839 9644 ffa00bdeeb28b4d4d4b636bd7d6241b4 ""
   (generated)
   "Practica2.aux"
   "Practica2.log"
