@@ -13,7 +13,7 @@ cross_prob = 0.5
 
 MAX_MUTATION_PROB, MIN_MUTATION_PROB = 0.8, 0.1
 MAX_CROSSING_PROB, MIN_CROSSING_PROB = 0.9, 0.2
-STAGNATION_THRESHOLD = 0.1
+STAGNATION_THRESHOLD = 0.12
 
 def populationVariance(population):
     vectors = np.array([CreatePopulation.NormaliseIndividual(ind) for ind in population])
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     
     print(f"\nProbabilidad de mutación y cruce iniciales: {mutation_prob}, {cross_prob}")
     
-    max_iter = 50
+    max_iter = 20
     i = 0
     while i < max_iter:
         selected = Selection.TournamentSelection(population)

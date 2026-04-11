@@ -56,31 +56,17 @@ def list_to_ind(attr: list):
     return retVal
 
 
-def n_point_crossing(parent1: ind.Individual, parent2: ind.Individual, n_points):
-    split_points = sorted(random.sample(range(1, len(attr_list)), n_points - 1))
-
-    heritage = []
-
-    parent_bit = True
-    for i in range(0, len(attr_list)):
-        heritage.append(parent_bit)
-        if i in split_points:
-            parent_bit = not parent_bit
-
+def n_point_crossing(parent1, parent2, n_points):
+    split_points = sorted(random.sample(range(1, len(attr_list)), n_points))
     parent1_attr = ind_to_list(parent1)
     parent2_attr = ind_to_list(parent2)
-
     child_attr = []
-
-    for i in range(0, len(attr_list)):
-        if heritage[i]:
-            child_attr.append(parent1_attr[i])
-        else:
-            child_attr.append(parent2_attr[i])
-
-    child = list_to_ind(child_attr)
-
-    return child
+    use_parent1 = True
+    for i in range(len(attr_list)):
+        if i in split_points:
+            use_parent1 = not use_parent1
+        child_attr.append(parent1_attr[i] if use_parent1 else parent2_attr[i])
+    return list_to_ind(child_attr)
 
 
 def uniform_crossing(parent1: ind.Individual, parent2: ind.Individual):

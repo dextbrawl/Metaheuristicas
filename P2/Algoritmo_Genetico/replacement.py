@@ -41,25 +41,15 @@ def crowdingReplacement(population, fathers, children):
 
     return population
 
-def replaceWorst(population, n, min_distance=0.2, max_attempts=100):
+def replaceWorst(population, n):
 
     sorted_pop = sorted(population, key=lambda ind: ind.score)
     worst = sorted_pop[:n]
 
     for worst_ind in worst:
-        attempts = 0
-        while attempts < max_attempts:
-            new_ind = crt.CreateRandomIndividual(worst_ind.position)
-            distance = crt.PrimeDistance(new_ind, population)
-            if distance >= min_distance:
-                new_ind.position = worst_ind.position
-                population[worst_ind.position] = new_ind
-                break
-            attempts += 1
-        else:
-            # Si no encuentra uno suficientemente distante, lo reemplaza igualmente
-            new_ind.position = worst_ind.position
-            population[worst_ind.position] = new_ind
+        new_ind = crt.CreateRandomIndividual(len(population))
+        new_ind.position = worst_ind.position
+        population[worst_ind.position] = new_ind
 
     return population
 
