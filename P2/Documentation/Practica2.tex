@@ -1,0 +1,159 @@
+\documentclass{article}
+
+\usepackage{csvsimple}
+\usepackage{adjustbox}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\makeatletter
+\renewcommand{\maketitle}{%
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+
+{\Huge\bfseries Práctica 2\par}
+\vspace{0.5cm}
+{\Large\bfseries Metaheurísticas\par}
+\vspace{2cm}
+
+
+\includegraphics[width=0.3\textwidth]{Logo_UCO.png}\par
+\vspace{1.5cm}
+
+
+{\Large\bfseries
+Juan Antonio Mellado Arenas\\
+Nicolás Sánchez Álvarez\\
+Antonio Jesús Merlo Morales\\
+Sergio Palacios López\\
+Sergio García Atanasio
+\par}
+
+\vfill
+
+
+{\large\bfseries Universidad de Córdoba\par}
+
+\end{titlepage}
+}
+\makeatother
+
+\title{Práctica 2}
+\author{Juan Antonio Mellado Arenas \\ Nicolás Sánchez Álvarez \\ Antonio Jesús Merlo Morales \\ Sergio Palacios López \\ Sergio García Atanasio}
+
+\begin{document}
+
+
+\maketitle
+
+%FALTA INDICE
+
+\section{Introducción}
+
+En este documento, se muestran sendos proceso y resultado del desarrollo de la segunda
+práctica de la asignatura de Metaheurísticas. Se ha implemenado un algoritmo
+genético para la optimización de hiperparámetros de un modelo de aprendizaje atuomático.
+Además. Se ha implementado una búsqueda aleatoria y grid search así como otras estadísticas.
+Cualquier aspecto relativo al código fuente,
+o información adicional queda en 
+\href{https://www.google.com}{el repositorio de la práctica}.
+
+
+\section{Enunciado de la práctica}
+
+La práctica plantea que, dado un conjunto real de datos (será el dataset Wine Quality), se
+ha de maximizar la precisión de clasificación del modelo de aprendizaje automático dado.
+Wine Quality considera datos como pH del vino, su acidez, densidad, entre otros.
+Sobre esto, se transforma la clasificación del  problema tal que sea de carácter binario,
+resultando en que un vino puede ser bueno o malo según si su calidad supera o no supera
+6.\newline
+
+Sobre el modelo Random Forest no se debe tomar consideraciones en cuanto a su funcionamiento por dentro,
+ya que, el objeto de la práctica es optimizar los hiperparámetros, y eso incluye una
+abstracción del modelo tal que se perciba como una herramienta capaz de evaluar esos 
+parámetros y devolviendo una calidad.\newline
+
+
+Así pues, para lo que será el algoritmo genético, tenemos una codificación tal que un individuo
+es un vector con sus genes (parámetros) en orden. Es mixto ya que algunos genes tienen un dominio
+binario, mientras que otros operan en un rango definido para los números reales.
+
+Utilizando un paradigma orientado a objetos, se ha implementado la clase Individual, que tiene
+los genes como atributos. Haciendo uso del modelo, se obtiene un atributo score o puntuación, que es la media de los
+5 folds como se indica en la práctica (de nuevo, esto no es crucial en el desarrollo del algoritmo). Posteriormente se compara
+con 6 para decidir si la calidad es apta o no. Una población es un conjunto
+de objetos de la clase individuo. Con la representación definida ya se pueden empezar a plantear
+las diferentes etapas del algoritmo genético.
+
+
+
+\section{Población inicial}
+
+El comienzo del algoritmo genético es, la creación de una población inicial sobre la que iterar el resto de las etapas
+de este. Para el algoritmo se ha implementado una generación de población
+inicial secuencial. Esta consiste en crear individuos aleatorios, con el matiz de que los individuos distan entre sí una
+cantidad considerable de diferencias en sus genes. Al final resultará una población de la que partir con individuos que tienen
+genes aleatorios, pero que, de manera general son todos diferentes entre sí como mínimo una distancia definida.\newline
+
+
+Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
+lo que permite definir como de alejados se encuentrán dos individuos según sus genes.\newline
+
+Se ha elegido esta técnica ya que si se tiene en cuenta cualidades como la diversidad de la población inicial, la generación secuencial
+permite partir de un conjunto extenso y que cubre un espacio amplio de individuos. El costo de implementarlo y ejecutarlo a nivel computacional
+es medio, y su punto más débil es que las soluciones iniciales no serán de gran calidad (al estar creados los individuos de manera aleatoria). Con todo esto
+sigue siendo un método idóneo por su balance y, teniendo en cuenta que la mejora de soluciones es algo que se obtendrá posteriormente en el algoritmo,
+y que, en este punto interesa diversificar lo máximo posible.
+
+\section{Selección padres}
+
+Una vez que se tiene la población inicial, el próximo paso es escoger los padres de la población. Para esto el grupo ha decidido
+hacer uso de la selección por torneo. Esta técnica, es una de las más costosas y complejas, no obstante, resulta en mejores soluciones de forma general.
+Además, es un balance entre aleatoriedad y una selección de los mejores individuos. \newline
+
+La cuestión principal en selección por torneo es, el tamaño del torneo. Si se toma un tamaño muy grande surge alta presión selectiva,
+y al final únicamente pasan los individuos mejores, de forma repetida. Esto puede terminar en muy poca diversificación y en incesto.
+
+Por eso nuestro tamaño de torneo es 3. Se seleccionan tres individuos aleatorios de la población, y se evalúan según su score,
+el individuo que más score tenga será el seleccionado para ser padre. La selección de individuos para enfrentarlos en el torneo es
+con reposición (pueden aparecer individuos repetidos)\newline
+
+En adición, se introduce un concepto nuevo que ayudará a mejorar la media de la puntuación de una población. El elitismo, consiste en
+seleccionar como padres a un conjunto de individuos (la élite) porque son aquellos con mayor puntuación, saltándose todo el proceso de selección.
+
+Se ha implementado que además de los padres elegidos por torneo, los dos mejores individuos de cada generación sobrevivan y pasen a la próxima
+generación. Este fenómeno contribuye a la mejora de la media de la puntuación del algoritmo.
+
+
+
+\section{Cruces entre individuos}
+
+Una vez escogidos los padres de la población, la etapa que sigue consiste en cruzar esos padres para obtener los individuos hijos.
+
+
+
+
+\section{Mutación de individuos}
+
+
+
+\section{Reemplazo del algoritmo}
+
+
+
+\section{Criterio de parada/Consideraciones extra}
+
+
+\section{Análisis resultados}
+
+
+
+\section{Conclusión}
+
+
+
+\end{document}
