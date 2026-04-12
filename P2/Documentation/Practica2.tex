@@ -21,7 +21,7 @@
 \vspace{2cm}
 
 
-\includegraphics[width=0.3\textwidth]{Logo_UCO.png}\par
+\includegraphics[width=0.3\textwidth]{images/Logo_UCO.png}\par
 \vspace{1.5cm}
 
 
@@ -165,12 +165,60 @@ A diferencia del cruce, se ha optado por un operador único y más simple. La de
 muy elevada.
 
 
-\section{Reemplazo del algoritmo}
+\section{Reemplazo}
 
-Tras la mutación, el algoritmo introduce técnicas de reemplazo para sustituir
-a los individuos con peor puntuación por los mejores hijos posibles. Solo se efectuan reemplazos
-que mejoren la calidad global de la población, además, se comprueba que los nuevos individuos
-introducidos no sean extremadamente parecidos a los ya existentes, contribuyendo a la diversidad.
+Tras la mutación, el algoritmo genético realiza la técnica de reemplazo del peor individuo (o individuos).
+Este ordena primero la población según el valor obtenido al evaluar la solución, y dependiendo del 
+número de individuos que vayan a ser reemplazados en la población, se seleccionan aquellos individuos
+para su reemplazo.\newline 
+
+En este caso, se ha tenido en cuenta si la población necesita diversificar más o menos. Para
+cuando es necesario intensificar, se reemplazarán a los n peores de la población con los mejores 
+hijos obtenidos, pero en el caso de que sea necesario diversificar más, se reemplazará a los n peores
+de la población con un individuo aleatorio, para que existan individuos más diferentes.\newline
+
+Se pensó en un primer momento en utilizar crowding determinístico, pero los resultados que obtuvimos
+no eran muy favorables, ya que la varianza apenas aumentaba o disminuía. 
+
+\section{Probabilidades de mutación y cruce}
+
+Se ha tenido en cuenta la variabilidad de la probabilidad de mutación y la probabilidad de cruce. Para
+ello, el algoritmo calcula por cada generación la media de score de toda la población, y la varianza
+de los parámetros de los individuos que se encuentran en la población,  normalizando los individuos
+como se ha hecho anteriormente para la creación de la población.\newline
+
+No hemos utilizado la varianza del score de la población, ya que realmente un individuo con unos 
+parámetros diferentes al de otro individuo puede tener el mismo score. De esta forma, comprobamos 
+realmente la variabilidad que existe en la población. \newline
+
+Primero hemos comenzado inicializando las probabilidades de mutación y de cruce a 0.5. Después,
+en cada generación dependiendo de un valor de varianza predefinido (probando, hemos determinado que
+en torno a 0.12 es un valor idóneo). 
+
+\begin{itemize}
+    \item Si la varianza es menor que este valor predefinido, significa que los individuos de la población 
+    son muy parecidos entre ellos, por lo que necesitamos diversificar, y con ello aumentar la probabilidad 
+    de mutación y disminuir la de cruce. 
+    \item Si la varianza es mayor que el valor de threshold, significa que los individuos son lo suficientemente
+    diferentes como para poder intensificar, así que aumentaremos el valor de la probabilidad de cruce
+    y disminuiremos la de mutación
+\end{itemize}
+
+Dicho esto, lo usual es que al principio vaya aumentando mucho la probabilidad de cruce, hasta que 
+llegue un punto que la varianza es tan baja, que debería empezar a aumentar la probabilidad de mutación
+y disminuir la de cruce, hasta llegar a un tope. Un ejemplo de una ejecución se puede observar en la
+siguiente gráfica:
+
+\csvautotabular[respect all]{data/prob_data.csv}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{images/prob_mut_cruce.png}
+    \caption{Probabilidades de mutación y cruce tras 20 iteraciones}
+\end{figure}
+
+Podemos observar, como en las últimas iteraciones va aumentando la probabilidad de mutación
+y disminuyendo la de cruce, como habíamos predicho.
 
 \section{Criterio de parada/Consideraciones extra}
 
