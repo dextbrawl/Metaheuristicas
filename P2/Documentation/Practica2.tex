@@ -121,7 +121,7 @@ y al final únicamente pasan los individuos mejores, de forma repetida. Esto pue
 
 Por eso nuestro tamaño de torneo es 3. Se seleccionan tres individuos aleatorios de la población, y se evalúan según su score,
 el individuo que más score tenga será el seleccionado para ser padre. La selección de individuos para enfrentarlos en el torneo es
-con reposición (pueden aparecer individuos repetidos)\newline
+con reposición (pueden aparecer individuos repetidos)
 
 En adición, se introduce un concepto nuevo que ayudará a mejorar la media de la puntuación de una población. El elitismo, consiste en
 seleccionar como padres a un conjunto de individuos (la élite) porque son aquellos con mayor puntuación, saltándose todo el proceso de selección.
@@ -133,18 +133,44 @@ generación. Este fenómeno contribuye a la mejora de la media de la puntuación
 
 \section{Cruces entre individuos}
 
-Una vez escogidos los padres de la población, la etapa que sigue consiste en cruzar esos padres para obtener los individuos hijos.
+Una vez escogidos los padres de la población, la etapa que sigue consiste en cruzar dichos individuos para obtener nuevos individuos hijos.
+Para efectuar este proceso, se ha desarrollado un operador de cruce híbrido, que combina dos estrategias distintas: cruce uniforme y cruce en n puntos.\newline
+El cruce uniforme consiste en generar un nuevo individuo seleccionando, para cada gen, el valor de uno de los dos progenitores de forma independiente y aleatoria. 
+De este modo, cada parámetro del hijo proviene de uno de los padres con una cierta probabilidad, favoreciendo la exploración del espacio de soluciones.\newline
+Por otro lado, el cruce en n puntos es una técnica en la que se seleccionan varios puntos de corte a lo largo del cromosoma. A partir de estos puntos, 
+se alternan bloques de genes entre ambos progenitores para construir el descendiente. En este caso se han utilizado 4 puntos de corte. Este método permite preservar
+ combinaciones parciales de parámetros que pueden ser beneficiosas, favoreciendo la explotación.\newline
+Ambos operadores generan dos descendientes a partir de cada pareja de padres.\newline
+El algoritmo activa el cruce si la probabilidad de cruce lo permite (este mecanismo se detalla más adelante en el documento), y en caso afirmativo, 
+se selecciona de manera aleatoria cuál de los dos operadores aplicar, asignando aproximadamente la misma probabilidad a cada uno. De este modo, 
+la mitad de los cruces se realizan mediante cruce uniforme y la otra mitad mediante cruce en n puntos.\newline
 
-
-
+Las fortalezas del cruce híbrido frente a únicamente utilizar uno de los dos mecanismos explicados, son especialmente respecto
+al equilibrio de exploración y explotación, además, el algoritmo ahora tiene más variabilidad, lo que reduce la convergencia prematura.
+Sus debilidades son principalmente el costo ya que hay más evaluaciones, y al hacer dos hijos por cruce se deben entrenar todos estos, causando
+que el algoritmo tarde más. Además, la implementación ha resultado más compleja que utilizar un cruce único.
 
 \section{Mutación de individuos}
 
+La mutación consiste en modificar ligeramente ciertos individuos, en este caso se aplica una mutación uniforme, aunque, 
+se va aplicando a todos los genes del individuo. El operador recorre cada gen con una probabilidad de modificarlo, y si esta acierta,
+se cambia el gen de manera aleatoria (dentro del dominio permitido de cada parámetro o gen). Para garantizar que si se activa la mutación
+el individuo va a cambiar de manera segura, (podría recorrer todos los genes sin varíar ninguno), el operador asegura que al menos un gen
+cambia aleatoriamente. Tras la mutación, se actualiza el score del individuo.\newline
+
+
+Esta estrategia resulta poderosa para introducir nuevos valores que antes no estaban en la población, reduciendo convergencia prematura
+y explorando nuevas zonas. De hecho, si la población sufre estancamiento, puede saltar a soluciones mejores que no existirían solo con el cruce.
+A diferencia del cruce, se ha optado por un operador único y más simple. La desventaja principal es que podría romper alguna solución con puntuación
+muy elevada.
 
 
 \section{Reemplazo del algoritmo}
 
-
+Tras la mutación, el algoritmo introduce técnicas de reemplazo para sustituir
+a los individuos con peor puntuación por los mejores hijos posibles. Solo se efectuan reemplazos
+que mejoren la calidad global de la población, además, se comprueba que los nuevos individuos
+introducidos no sean extremadamente parecidos a los ya existentes, contribuyendo a la diversidad.
 
 \section{Criterio de parada/Consideraciones extra}
 
