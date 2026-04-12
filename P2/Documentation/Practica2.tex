@@ -55,9 +55,9 @@ Sergio García Atanasio
 \section{Introducción}
 
 En este documento, se muestran sendos proceso y resultado del desarrollo de la segunda
-práctica de la asignatura de Metaheurísticas. Se ha implemenado un algoritmo
-genético para la optimización de hiperparámetros de un modelo de aprendizaje atuomático.
-Además. Se ha implementado una búsqueda aleatoria y grid search así como otras estadísticas.
+práctica de la asignatura de Metaheurísticas. El objetivo de esta práctica consiste en la implementación de un algoritmo
+genético para la optimización de hiperparámetros de un modelo de aprendizaje atomático, así como su comparación entre los 
+algoritmos Random Search y Grid Search.
 Cualquier aspecto relativo al código fuente,
 o información adicional queda en 
 \href{https://www.google.com}{el repositorio de la práctica}.
@@ -68,7 +68,7 @@ o información adicional queda en
 La práctica plantea que, dado un conjunto real de datos (será el dataset Wine Quality), se
 ha de maximizar la precisión de clasificación del modelo de aprendizaje automático dado.
 Wine Quality considera datos como pH del vino, su acidez, densidad, entre otros.
-Sobre esto, se transforma la clasificación del  problema tal que sea de carácter binario,
+Sobre esto, se transforma la clasificación del problema tal que sea de carácter binario,
 resultando en que un vino puede ser bueno o malo según si su calidad supera o no supera
 6.\newline
 
@@ -83,9 +83,10 @@ es un vector con sus genes (parámetros) en orden. Es mixto ya que algunos genes
 binario, mientras que otros operan en un rango definido para los números reales.
 
 Utilizando un paradigma orientado a objetos, se ha implementado la clase Individual, que tiene
-los genes como atributos. Haciendo uso del modelo, se obtiene un atributo score o puntuación, que es la media de los
-5 folds como se indica en la práctica (de nuevo, esto no es crucial en el desarrollo del algoritmo). Posteriormente se compara
-con 6 para decidir si la calidad es apta o no. Una población es un conjunto
+los genes como atributos, además de algunos campos ajenos a los genes que serán útiles a la hora de implementar el algoritmo, 
+como la posición que ocupa cada individuo en la población. Haciendo uso del modelo, se obtiene un atributo score o puntuación, 
+que es la media de los 5 folds como se indica en la práctica (de nuevo, esto no es crucial en el desarrollo del algoritmo). 
+Posteriormente se compara con 6 para decidir si la calidad es apta o no. Una población es un conjunto
 de objetos de la clase individuo. Con la representación definida ya se pueden empezar a plantear
 las diferentes etapas del algoritmo genético.
 
