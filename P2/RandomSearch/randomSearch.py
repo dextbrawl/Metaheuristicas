@@ -5,7 +5,8 @@ sys.path.append("..")
 from Algoritmo_Genetico.individuals import Individual
 from Algoritmo_Genetico.model import evaluate_solution
 
-
+#Busqueda aleatoria.
+#Se inicializa la mejor puntuacion a 0, y se generan individuos de manera aleatoria, devolviendo el mejor al final
 def randomSearch(ind: Individual, n_iter):
     best_score = 0
     for _ in range(0, n_iter):

@@ -50,7 +50,11 @@ Sergio García Atanasio
 
 \maketitle
 
-%FALTA INDICE
+\renewcommand{\contentsname}{Índice}
+\setcounter{tocdepth}{2} % 1 = secciones, 2 = subsecciones, 3 = subsubsecciones
+\tableofcontents
+
+\newpage
 
 \section{Introducción}
 
@@ -224,6 +228,43 @@ y disminuyendo la de cruce, como habíamos predicho.
 
 
 \section{Análisis resultados}
+
+
+\section{Random Search, Grid Search y Algoritmo genético}
+
+En adición al algoritmo genético, se han implementado una búsqueda aleatoria y grid search para
+comparar ambos métodos.
+
+\subsection{Random Search}
+La búsqueda aleatoria consiste en generar individuos (soluciones) de manera estocástica,
+tal que por cada gen (parámetro) se inicializa en un valor aleatorio. Este proceso
+se itera repetidas veces 
+
+\subsection{Grid Search}
+Grid search es una técnica de búsqueda exhaustiva de los parámetros objeto del problema.
+Se definen unas divisiones (grid) con los posibles valores de los parámetros, y sobre estos valores
+se generan combinaciones.\newline
+
+En este caso, se ha definido una lista de la división de esos parámetros con los posibles valores:
+
+\begin{description}
+    \item[n\_estimators] \{50, 100, 200\}
+    \item[max\_depth] \{5, 10, 20, None\}
+    \item[min\_samples\_split] \{2, 5, 10\}
+    \item[min\_samples\_leaf] \{1, 2, 4\}
+    \item[max\_features] \{\textit{sqrt}, \textit{log2}, None\}
+    \item[bootstrap] \{True, False\}
+    \item[criterion] \{\textit{gini}, \textit{entropy}\}
+\end{description}
+
+Sobre estas opciones se crean los individuos, para finalmente ordenarlos y obtener
+las mejor o mejores configuraciones posibles. La principal bondad es que dentro del espacio
+(grid) que hemos definido, se afinan soluciones muy buenas (se encuentra la mejor combinación),
+aunque, la decisión surge al elegir qué se considera como división ya que grid search
+es computacionalmente muy costoso, y podría llegar a ser inviable.
+
+Esto es fundamental para comprender los resultados así como la comparativa con los otros dos métodos 
+relativos a esta práctica.
 
 
 

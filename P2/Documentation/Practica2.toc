@@ -1,0 +1,14 @@
+\contentsline {section}{\numberline {1}Introducción}{2}{section.1}%
+\contentsline {section}{\numberline {2}Enunciado de la práctica}{2}{section.2}%
+\contentsline {section}{\numberline {3}Población inicial}{2}{section.3}%
+\contentsline {section}{\numberline {4}Selección padres}{3}{section.4}%
+\contentsline {section}{\numberline {5}Cruces entre individuos}{3}{section.5}%
+\contentsline {section}{\numberline {6}Mutación de individuos}{3}{section.6}%
+\contentsline {section}{\numberline {7}Reemplazo}{4}{section.7}%
+\contentsline {section}{\numberline {8}Probabilidades de mutación y cruce}{4}{section.8}%
+\contentsline {section}{\numberline {9}Criterio de parada/Consideraciones extra}{6}{section.9}%
+\contentsline {section}{\numberline {10}Análisis resultados}{6}{section.10}%
+\contentsline {section}{\numberline {11}Random Search, Grid Search y Algoritmo genético}{6}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Random Search}{6}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}Grid Search}{6}{subsection.11.2}%
+\contentsline {section}{\numberline {12}Conclusión}{6}{section.12}%
