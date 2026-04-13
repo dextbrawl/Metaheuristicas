@@ -7,6 +7,37 @@
 \usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
 \usepackage{amsmath}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{setspace}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Define colors for syntax highlighting
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configure listings style
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
 
 \makeatletter
 \renewcommand{\maketitle}{%
@@ -56,6 +87,8 @@ Sergio García Atanasio
 
 \newpage
 
+\begin{spacing}{1.3}
+  
 \section{Introducción}
 
 En este documento, se muestran sendos proceso y resultado del desarrollo de la segunda
@@ -104,6 +137,35 @@ inicial secuencial. Esta consiste en crear individuos aleatorios, con el matiz d
 cantidad considerable de diferencias en sus genes. Al final resultará una población de la que partir con individuos que tienen
 genes aleatorios, pero que, de manera general son todos diferentes entre sí como mínimo una distancia definida.\newline
 
+Estos son los atributos que aparecen en nuestra clase individuo, a efectos prácticos
+trabajaremos con ella como si fuese un vector de parámetros. Los dos últimos parámetros,
+position y score, no se utilizarán a la hora de realizar operaciones de selección, cruce o mutación.\newline
+
+El parámetro position indica la posición que tiene cada individuo en la población, cosa que será bastante útil
+cuando necesitemos hacer reemplazamiento. El parámetro score indica el valor que devuelve la función de fitness,
+y se calcula únicamente cuando se crea el individuo para ahorrar cálculos innecesarios (también se recalcula cuando
+se hace una operación de mutación, por ejemplo).\newline
+
+\begin{lstlisting}[language=Python, caption=Constructor de la clase Individuo]
+  class Individual:
+    def __init__(
+        self,n_estimators,max_depth,min_samples_split,min_samples_leaf,max_features,bootstrap,
+        criterion,class_weight,max_leaf_nodes,min_impurity_decrease,random_state,position,
+    ):
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.min_samples_leaf = min_samples_leaf
+        self.max_features = max_features
+        self.bootstrap = bootstrap
+        self.criterion = criterion
+        self.class_weight = class_weight
+        self.max_leaf_nodes = max_leaf_nodes
+        self.min_impurity_decrease = min_impurity_decrease
+        self.random_state = random_state
+        self.position = position
+        self.score = model.evaluate_solution(self)
+\end{lstlisting}
 
 Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
 lo que permite definir como de alejados se encuentrán dos individuos según sus genes.\newline
@@ -211,11 +273,13 @@ en torno a 0.12 es un valor idóneo).
 Dicho esto, lo usual es que al principio vaya aumentando mucho la probabilidad de cruce, hasta que 
 llegue un punto que la varianza es tan baja, que debería empezar a aumentar la probabilidad de mutación
 y disminuir la de cruce, hasta llegar a un tope. Un ejemplo de una ejecución se puede observar en la
-siguiente gráfica:
+siguiente gráfica:\newline
 
-\csvautotabular[respect all]{data/prob_data.csv}
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/prob_data.csv}
+}\newline
 
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{images/prob_mut_cruce.png}
     \caption{Probabilidades de mutación y cruce tras 20 iteraciones}
@@ -299,5 +363,5 @@ relativos a esta práctica.
 \section{Conclusión}
 
 
-
+\end{spacing}
 \end{document}
