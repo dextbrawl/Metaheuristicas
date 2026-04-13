@@ -12,6 +12,8 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
+\usepackage{hyperref}
+
 % Define colors for syntax highlighting
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -127,15 +129,12 @@ Posteriormente se compara con 6 para decidir si la calidad es apta o no. Una pob
 de objetos de la clase individuo. Con la representación definida ya se pueden empezar a plantear
 las diferentes etapas del algoritmo genético.
 
+\section{Representación}
 
-
-\section{Población inicial}
-
-El comienzo del algoritmo genético es, la creación de una población inicial sobre la que iterar el resto de las etapas
-de este. Para el algoritmo se ha implementado una generación de población
-inicial secuencial. Esta consiste en crear individuos aleatorios, con el matiz de que los individuos distan entre sí una
-cantidad considerable de diferencias en sus genes. Al final resultará una población de la que partir con individuos que tienen
-genes aleatorios, pero que, de manera general son todos diferentes entre sí como mínimo una distancia definida.\newline
+Lo primero que haremos será definir la representación que utilizaremos para aplicar nuestro algoritmo
+genético y abordar nuestro problema principal. La representación más sencilla que podemos utilizar es 
+una de tipo lineal, en este caso, combinada con valores enteros y binarios. Para aplicarlo en Python, 
+crearemos una clase con los siguientes campos.
 
 Estos son los atributos que aparecen en nuestra clase individuo, a efectos prácticos
 trabajaremos con ella como si fuese un vector de parámetros. Los dos últimos parámetros,
@@ -167,8 +166,17 @@ se hace una operación de mutación, por ejemplo).\newline
         self.score = model.evaluate_solution(self)
 \end{lstlisting}
 
+\section{Población inicial}
+
+El comienzo del algoritmo genético es, la creación de una población inicial sobre la que iterar el resto de las etapas
+de este. Para el algoritmo se ha implementado una generación de población
+inicial secuencial. Esta consiste en crear individuos aleatorios, con el matiz de que los individuos distan entre sí una
+cantidad considerable de diferencias en sus genes. Al final resultará una población de la que partir con individuos que tienen
+genes aleatorios, pero que, de manera general son todos diferentes entre sí como mínimo una distancia definida.\newline
+
 Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
-lo que permite definir como de alejados se encuentrán dos individuos según sus genes.\newline
+lo que permite definir como de alejados se encuentrán dos individuos según sus genes. Para más información, mirar la referencia a
+\newline
 
 Se ha elegido esta técnica ya que si se tiene en cuenta cualidades como la diversidad de la población inicial, la generación secuencial
 permite partir de un conjunto extenso y que cubre un espacio amplio de individuos. El costo de implementarlo y ejecutarlo a nivel computacional
@@ -189,6 +197,12 @@ Por eso nuestro tamaño de torneo es 3. Se seleccionan tres individuos aleatorio
 el individuo que más score tenga será el seleccionado para ser padre. La selección de individuos para enfrentarlos en el torneo es
 con reposición (pueden aparecer individuos repetidos)
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/tournament.png}
+    \caption{Selección por torneo, con K=3}
+\end{figure}
+
 En adición, se introduce un concepto nuevo que ayudará a mejorar la media de la puntuación de una población. El elitismo, consiste en
 seleccionar como padres a un conjunto de individuos (la élite) porque son aquellos con mayor puntuación, saltándose todo el proceso de selección.
 
@@ -203,9 +217,23 @@ Una vez escogidos los padres de la población, la etapa que sigue consiste en cr
 Para efectuar este proceso, se ha desarrollado un operador de cruce híbrido, que combina dos estrategias distintas: cruce uniforme y cruce en n puntos.\newline
 El cruce uniforme consiste en generar un nuevo individuo seleccionando, para cada gen, el valor de uno de los dos progenitores de forma independiente y aleatoria. 
 De este modo, cada parámetro del hijo proviene de uno de los padres con una cierta probabilidad, favoreciendo la exploración del espacio de soluciones.\newline
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/uniform.png}
+    \caption{Cruce uniforme}
+\end{figure}
+
 Por otro lado, el cruce en n puntos es una técnica en la que se seleccionan varios puntos de corte a lo largo del cromosoma. A partir de estos puntos, 
 se alternan bloques de genes entre ambos progenitores para construir el descendiente. En este caso se han utilizado 4 puntos de corte. Este método permite preservar
  combinaciones parciales de parámetros que pueden ser beneficiosas, favoreciendo la explotación.\newline
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/n_points.png}
+    \caption{Cruce de n-puntos}
+\end{figure}
+
 Ambos operadores generan dos descendientes a partir de cada pareja de padres.\newline
 El algoritmo activa el cruce si la probabilidad de cruce lo permite (este mecanismo se detalla más adelante en el documento), y en caso afirmativo, 
 se selecciona de manera aleatoria cuál de los dos operadores aplicar, asignando aproximadamente la misma probabilidad a cada uno. De este modo, 
@@ -214,7 +242,18 @@ la mitad de los cruces se realizan mediante cruce uniforme y la otra mitad media
 Las fortalezas del cruce híbrido frente a únicamente utilizar uno de los dos mecanismos explicados, son especialmente respecto
 al equilibrio de exploración y explotación, además, el algoritmo ahora tiene más variabilidad, lo que reduce la convergencia prematura.
 Sus debilidades son principalmente el costo ya que hay más evaluaciones, y al hacer dos hijos por cruce se deben entrenar todos estos, causando
-que el algoritmo tarde más. Además, la implementación ha resultado más compleja que utilizar un cruce único.
+que el algoritmo tarde más. Además, la implementación ha resultado más compleja que utilizar un cruce úni
+
+Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
+lo que permite definir como de alejados se encuentrán dos individuos según sus genes. Para más información, revisar el punto de 
+``Consideraciones extra''\pageref{sec:Normalizacion}. \newline
+
+Se ha elegido esta técnica ya que si se tiene en cuenta cualidades como la diversidad de la población inicial, la generación secuencial
+permite partir de un conjunto extenso y que cubre un espacio amplio de individuos. El costo de implementarlo y ejecutarlo a nivel computacional
+es medio, y su punto más débil es que las soluciones iniciales no serán de gran calidad (al estar creados los individuos de manera aleatoria). Con todo esto
+sigue siendo un método idóneo por su balance y, teniendo en cuenta que la mejora de soluciones es algo que se obtendrá posteriormente en el algoritmo,
+y que, en este punto interesa diversificar lo máximo posible.
+generación. Esteco.
 
 \section{Mutación de individuos}
 
@@ -243,8 +282,10 @@ cuando es necesario intensificar, se reemplazarán a los n peores de la poblaci�
 hijos obtenidos, pero en el caso de que sea necesario diversificar más, se reemplazará a los n peores
 de la población con un individuo aleatorio, para que existan individuos más diferentes.\newline
 
-Se pensó en un primer momento en utilizar crowding determinístico, pero los resultados que obtuvimos
-no eran muy favorables, ya que la varianza apenas aumentaba o disminuía. 
+Se pensó en un primer momento en utilizar crowding determinístico ya que es muy útil a la hora de mantener la diversidad en la población, 
+pero no nos logró convencer, ya que en nuestro caso no llegaba a converger lo rápido que queríamos, y la varianza
+no variaba mucho, por lo siempre aumentaba o disminuía una de las probabilidades de cruce o de mutación 
+(siguiente apartado).
 
 \section{Probabilidades de mutación y cruce}
 
@@ -306,7 +347,7 @@ Debido a que los cruces implementados no modifican los valores de los parámetro
 
 La única mutación implementada es la uniforme, se garantiza que los valores se mantengan dentro de los dominios definiendo el rango de la función de generación aleatoria.\\
 
-\subsection{Normalización y cálculo de distancias}
+\subsection{Normalización y cálculo de distancias}\label{sec:Normalizacion}
 
 Para que el algoritmo gestione la diversidad de manera cuantitativa, se ha implementado un sistema de normalización en el rango $[0,1]$ para cada gen del individuo.\\
 
@@ -318,19 +359,62 @@ Debido a que los hiperparámetros del modelo operan en escalas distintas, una di
   \item \textbf{Manejo de valores especiales}: Se mapean a valores intermedios (\texttt{"sqrt" -> 0.5, "log2" -> 0.3}) para permitir su comparación matemática.
 \end{itemize}
 
-\section{Análisis resultados}
+\begin{lstlisting}[language=Python, caption=Función de normalización de individuo]
+  def NormaliseIndividual(ind):
+    # Convertir max_features
+    mf = ind.max_features
+    if mf is None:
+        mf_norm = 0.0
+    elif isinstance(mf, str):
+        if mf == "sqrt":
+            mf_norm = 0.5
+        elif mf == "log2":
+            mf_norm = 0.3
+        else:
+            mf_norm = 0.0 
+    else:
+        # ya es float (debe estar en [0,1])
+        mf_norm = float(mf)
 
+    # bootstrap ya es booleano 0/1
+    bootstrap_norm = 1.0 if ind.bootstrap else 0.0
+
+    # criterion y class_weight ya son 0/1, pero aseguramos float
+    criterion_norm = float(ind.criterion)
+    class_weight_norm = float(ind.class_weight)
+
+    return np.array(
+        [
+            ind.n_estimators / 300.0,
+            ind.max_depth / 30.0,
+            ind.min_samples_split / 20.0,
+            ind.min_samples_leaf / 20.0,
+            mf_norm,
+            bootstrap_norm,
+            criterion_norm,
+            class_weight_norm,
+            ind.max_leaf_nodes / 200.0,
+            ind.min_impurity_decrease / 0.1,
+            ind.random_state / 1000.0,
+        ]
+    )
+\end{lstlisting}
 
 
 \section{Random Search, Grid Search y Algoritmo genético}
 
 En adición al algoritmo genético, se han implementado una búsqueda aleatoria y grid search para
-comparar ambos métodos.
+comparar ambos métodos. De esta forma, podremos observar cómo se comporta nuestro algoritmo frente
+a opciones más clásicas, y si de alguna manera es mejor o peor. 
 
 \subsection{Random Search}
 La búsqueda aleatoria consiste en generar individuos (soluciones) de manera estocástica,
 tal que por cada gen (parámetro) se inicializa en un valor aleatorio. Este proceso
-se itera repetidas veces 
+se itera repetidas veces.\newline
+
+Este método es de los más rápidos que hay, pero como observaremos a continuación, la gran 
+desventaja que tiene es la inconsistencia de los datos obtenidos por cada ejecución del 
+algoritmo. Como resultado, la varianza debería ser bastante más elevada. 
 
 \subsection{Grid Search}
 Grid search es una técnica de búsqueda exhaustiva de los parámetros objeto del problema.
@@ -357,6 +441,9 @@ es computacionalmente muy costoso, y podría llegar a ser inviable.
 
 Esto es fundamental para comprender los resultados así como la comparativa con los otros dos métodos 
 relativos a esta práctica.
+
+
+\section{Análisis resultados}
 
 
 
