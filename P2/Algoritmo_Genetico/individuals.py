@@ -1,12 +1,13 @@
 import random
+import model
+
 
 from numpy.random.mtrand import rand
 
 
 class Individual:
     def __init__(
-        self,
-        n_estimators,
+        self,n_estimators,
         max_depth,
         min_samples_split,
         min_samples_leaf,
@@ -31,10 +32,6 @@ class Individual:
         self.min_impurity_decrease = min_impurity_decrease
         self.random_state = random_state
         self.position = position
-        self.elite = False
-
-        import model
-
         self.score = model.evaluate_solution(self)
 
     def mutate(self):
