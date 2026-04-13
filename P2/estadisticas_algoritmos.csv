@@ -1,0 +1,4 @@
+Algoritmo,Mejor_Accuracy,Varianza,Desviacion,Tiempo_Segundos,CPU_Media_%,Memoria_Pico_MB
+Algoritmo Genetico,0.7405,0.00101,0.031775,601.96,101.06,150.96
+Grid Search,0.7455,3.8e-05,0.006202,570.06,100.68,159.29
+Random Search,0.7411,0.001502,0.038759,735.24,100.8,156.67
