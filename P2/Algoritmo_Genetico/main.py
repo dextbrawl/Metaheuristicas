@@ -67,7 +67,7 @@ if __name__ == "__main__":
     
     max_iter = 20
     i = 0
-    while i < max_iter:
+    while i < max_iter and mutation_prob <= cross_prob:
         selected = Selection.TournamentSelection(population)
         children = []
         for j in range(0, len(selected)-1, 2):

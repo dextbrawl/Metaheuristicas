@@ -64,7 +64,7 @@ genético para la optimización de hiperparámetros de un modelo de aprendizaje 
 algoritmos Random Search y Grid Search.
 Cualquier aspecto relativo al código fuente,
 o información adicional queda en 
-\href{https://www.google.com}{el repositorio de la práctica}.
+\href{https://github.com/dextbrawl/Metaheuristicas}{el repositorio de la práctica}.
 
 
 \section{Enunciado de la práctica}
@@ -224,10 +224,38 @@ siguiente gráfica:
 Podemos observar, como en las últimas iteraciones va aumentando la probabilidad de mutación
 y disminuyendo la de cruce, como habíamos predicho.
 
-\section{Criterio de parada/Consideraciones extra}
+\section{Criterios de parada}
 
+Se han considerado los siguientes criterios para detener la evolución de la población:
+
+\begin{itemize}
+  \item \textbf{Número máximo de generaciones}: Para evitar que se ejecute en exceso, en el algoritmo genético en cuestión se considera un máximo de 24 generaciones. Se ha observado que este número de iteraciones es suficiente como para inferir conclusiones sin suponer demasiado tiempo de ejecución.
+  \item \textbf{Inversión de probabilidades}: Además del límite físico de 24 iteraciones, se ha implementado un criterio de parada basado en la convergencia evolutiva que detiene el algoritmo cuando se da la inversión de probabilidades de operadores $P_{mut} > P_{cross} $.
+\end{itemize}
+
+\section{Consideraciones extra}
+
+\subsection{Control de dominios}
+Se han de tener en cuenta los valores de los parámetros de cada individuo y que se mantengan dentro de su dominio correspondiente en los cruces y las mutaciones.\\
+
+Debido a que los cruces implementados no modifican los valores de los parámetros, no hay que tomar ninguna consideración de seguridad en este aspecto. \\
+
+La única mutación implementada es la uniforme, se garantiza que los valores se mantengan dentro de los dominios definiendo el rango de la función de generación aleatoria.\\
+
+\subsection{Normalización y cálculo de distancias}
+
+Para que el algoritmo gestione la diversidad de manera cuantitativa, se ha implementado un sistema de normalización en el rango $[0,1]$ para cada gen del individuo.\\
+
+Debido a que los hiperparámetros del modelo operan en escalas distintas, una distancia calculada sobre los valores reales daría un peso excesivo a las variables con más rango. La función \texttt{NormaliseIndividual} transforma cada gen para normalizarlo:
+
+\begin{itemize}
+  \item \textbf{Variables numéricas de rango definido}: Se escalan dividiendo el valor por el límite máximo permitido.
+  \item \textbf{Variables categóricas y booleanas}: Se mapean directamente a 0.0 o a 1.0.
+  \item \textbf{Manejo de valores especiales}: Se mapean a valores intermedios (\texttt{"sqrt" -> 0.5, "log2" -> 0.3}) para permitir su comparación matemática.
+\end{itemize}
 
 \section{Análisis resultados}
+
 
 
 \section{Random Search, Grid Search y Algoritmo genético}
