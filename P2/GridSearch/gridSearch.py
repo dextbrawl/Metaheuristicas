@@ -20,6 +20,9 @@ def grid_search():
         "max_features": ["sqrt", "log2", None],
         "bootstrap": [True, False],
         "criterion": ["gini", "entropy"],
+        "class_weight": [0, 1],
+        "max_leaf_nodes": [24, 80, 170],
+        "min_impurity_decrease": [0.2, 0.5, 0.7],
     }
 
     keys = list(param_grid.keys())
