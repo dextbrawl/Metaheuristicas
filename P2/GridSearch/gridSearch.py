@@ -20,7 +20,7 @@ def grid_search():
         "max_features": ["log2"],
         "bootstrap": [True],
         "criterion": ["entropy"],
-        "class_weight": [1],
+        "class_weight": ["balanced"],
         "max_leaf_nodes": [125],
         "min_impurity_decrease": [0.05],
     }
@@ -39,15 +39,12 @@ def grid_search():
         params = dict(zip(keys, combo))
         print(f"[{idx + 1}/{total}] {params}")
 
-        try:
-            model = RandomForestClassifier(**params, random_state=42)
-            scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
-            mean_score = scores.mean()
+        model = RandomForestClassifier(**params, random_state=42)
+        scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
+        mean_score = scores.mean()
 
-            results.append({**params, "score": mean_score})
-            print(f"  -> Score: {mean_score:.4f}")
-        except Exception as e:
-            print(f"  -> Error: {e}")
+        results.append({**params, "score": mean_score})
+        print(f"  -> Score: {mean_score:.4f}")
 
     results.sort(key=lambda x: x["score"], reverse=True)
 
@@ -55,15 +52,16 @@ def grid_search():
     print("TOP 5 CONFIGURATIONS:")
     for i, res in enumerate(results[:5]):
         print(f"{i + 1}. Score: {res['score']:.4f}")
-        del res["score"]
-        print(f"   {res}")
+        params_only = {k: v for k, v in res.items() if k != "score"}
+        print(f"   {params_only}")
 
     print("\n" + "=" * 50)
     print(f"BEST: {results[0]['score']:.4f}")
-    del results[0]["score"]
-    print(results[0])
 
-    return results[0]
+    best_params_only = {k: v for k, v in results[0].items() if k != "score"}
+    print(best_params_only)
+
+    return best_params_only
 
 
 if __name__ == "__main__":
