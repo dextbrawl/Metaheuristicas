@@ -43,7 +43,7 @@ def changeProbabilities(mutation_prob, cross_prob, population):
     return mutation_prob, cross_prob, stagnated
 
 if __name__ == "__main__":
-    lista_iteraciones = [100, 200, 300, 400, 500]
+    lista_iteraciones = [1, 5, 10, 15, 20]
     
     for iters_totales in lista_iteraciones:
         print(f"\n=====================================================")
