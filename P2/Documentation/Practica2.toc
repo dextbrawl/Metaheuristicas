@@ -11,8 +11,8 @@
 \contentsline {section}{\numberline {11}Consideraciones extra}{8}{section.11}%
 \contentsline {subsection}{\numberline {11.1}Control de dominios}{8}{subsection.11.1}%
 \contentsline {subsection}{\numberline {11.2}Normalización y cálculo de distancias}{9}{subsection.11.2}%
-\contentsline {section}{\numberline {12}Random Search, Grid Search y Algoritmo genético}{10}{section.12}%
-\contentsline {subsection}{\numberline {12.1}Random Search}{10}{subsection.12.1}%
-\contentsline {subsection}{\numberline {12.2}Grid Search}{10}{subsection.12.2}%
-\contentsline {section}{\numberline {13}Análisis resultados}{11}{section.13}%
-\contentsline {section}{\numberline {14}Conclusión}{11}{section.14}%
+\contentsline {section}{\numberline {12}Random Search, Grid Search y Algoritmo genético}{9}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Random Search}{9}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Grid Search}{9}{subsection.12.2}%
+\contentsline {section}{\numberline {13}Análisis resultados}{10}{section.13}%
+\contentsline {section}{\numberline {14}Conclusión}{10}{section.14}%

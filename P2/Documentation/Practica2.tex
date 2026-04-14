@@ -359,46 +359,6 @@ Debido a que los hiperparámetros del modelo operan en escalas distintas, una di
   \item \textbf{Manejo de valores especiales}: Se mapean a valores intermedios (\texttt{"sqrt" -> 0.5, "log2" -> 0.3}) para permitir su comparación matemática.
 \end{itemize}
 
-\begin{lstlisting}[language=Python, caption=Función de normalización de individuo]
-  def NormaliseIndividual(ind):
-    # Convertir max_features
-    mf = ind.max_features
-    if mf is None:
-        mf_norm = 0.0
-    elif isinstance(mf, str):
-        if mf == "sqrt":
-            mf_norm = 0.5
-        elif mf == "log2":
-            mf_norm = 0.3
-        else:
-            mf_norm = 0.0 
-    else:
-        # ya es float (debe estar en [0,1])
-        mf_norm = float(mf)
-
-    # bootstrap ya es booleano 0/1
-    bootstrap_norm = 1.0 if ind.bootstrap else 0.0
-
-    # criterion y class_weight ya son 0/1, pero aseguramos float
-    criterion_norm = float(ind.criterion)
-    class_weight_norm = float(ind.class_weight)
-
-    return np.array(
-        [
-            ind.n_estimators / 300.0,
-            ind.max_depth / 30.0,
-            ind.min_samples_split / 20.0,
-            ind.min_samples_leaf / 20.0,
-            mf_norm,
-            bootstrap_norm,
-            criterion_norm,
-            class_weight_norm,
-            ind.max_leaf_nodes / 200.0,
-            ind.min_impurity_decrease / 0.1,
-            ind.random_state / 1000.0,
-        ]
-    )
-\end{lstlisting}
 
 
 \section{Random Search, Grid Search y Algoritmo genético}
@@ -423,14 +383,21 @@ se generan combinaciones.\newline
 
 En este caso, se ha definido una lista de la división de esos parámetros con los posibles valores:
 
+
+        
+       
+        
 \begin{description}
-    \item[n\_estimators] \{50, 100, 200\}
-    \item[max\_depth] \{5, 10, 20, None\}
-    \item[min\_samples\_split] \{2, 5, 10\}
-    \item[min\_samples\_leaf] \{1, 2, 4\}
-    \item[max\_features] \{\textit{sqrt}, \textit{log2}, None\}
+    \item[n\_estimators] \{10, 155, 300\}
+    \item[max\_depth] \{2, 15, 30\}
+    \item[min\_samples\_split] \{2, 10, 20\}
+    \item[min\_samples\_leaf] \{1, 10, 20\}
+    \item[max\_features] \{0.1, 0.5, 1\}
     \item[bootstrap] \{True, False\}
     \item[criterion] \{\textit{gini}, \textit{entropy}\}
+    \item[class\_weight] \{\textit{balanced}, \textit{None}\}
+    \item[max\_leaf\_nodes] \{10, 100, 200\}
+    \item[min\_impurity\_decrease] \{0, 0.05, 0.1\}
 \end{description}
 
 Sobre estas opciones se crean los individuos, para finalmente ordenarlos y obtener
@@ -440,8 +407,13 @@ aunque, la decisión surge al elegir qué se considera como división ya que gri
 es computacionalmente muy costoso, y podría llegar a ser inviable.
 
 Esto es fundamental para comprender los resultados así como la comparativa con los otros dos métodos 
-relativos a esta práctica.
+relativos a esta práctica.\newline
 
+Tras ejecutar las cobinaciones posibles de grid search (17496). Los resultados finales han sido:\newline
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/resultados_estadisticas.csv}
+}
 
 \section{Análisis resultados}
 
