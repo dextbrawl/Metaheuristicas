@@ -20,7 +20,7 @@ def randomSearch(ind: Individual, n_iter):
         ind.criterion = random.choice(["gini", "entropy"])
         ind.class_weight = random.choice([None, "balanced"])
         ind.max_leaf_nodes = random.randint(10, 200)
-        ind.min_impurity_decrease = random.uniform(0, 1)
+        ind.min_impurity_decrease = random.uniform(0, 0.1)
         ind.random_state = random.randint(0, 1000)
         ind.score = evaluate_solution(ind)
         if best_score < ind.score:

@@ -13,16 +13,16 @@ y = data["quality"]
 
 def grid_search():
     param_grid = {
-        "n_estimators": [50, 100, 200],
-        "max_depth": [5, 10, 20, None],
-        "min_samples_split": [2, 5, 10],
-        "min_samples_leaf": [1, 2, 4],
-        "max_features": ["sqrt", "log2", None],
-        "bootstrap": [True, False],
-        "criterion": ["gini", "entropy"],
-        "class_weight": [0, 1],
-        "max_leaf_nodes": [24, 80, 170],
-        "min_impurity_decrease": [0.2, 0.5, 0.7],
+        "n_estimators": [100, 200],
+        "max_depth": [10, 20],
+        "min_samples_split": [8, 15],
+        "min_samples_leaf": [4, 15],
+        "max_features": ["log2"],
+        "bootstrap": [True],
+        "criterion": ["entropy"],
+        "class_weight": [1],
+        "max_leaf_nodes": [125],
+        "min_impurity_decrease": [0.05],
     }
 
     keys = list(param_grid.keys())
