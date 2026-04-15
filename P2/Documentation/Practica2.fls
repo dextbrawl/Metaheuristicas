@@ -229,6 +229,17 @@ INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
 INPUT data/stats_grid.csv
 INPUT data/stats_rs.csv
 INPUT data/stats_gen_pdf.csv
+INPUT ./images/acc_var.jpeg
+INPUT ./images/acc_var.jpeg
+INPUT ./images/acc_var.jpeg
+INPUT ./images/acc_var.jpeg
+INPUT ./images/acc_var.jpeg
+INPUT ./images/cpu_ram.jpeg
+INPUT ./images/cpu_ram.jpeg
+INPUT ./images/cpu_ram.jpeg
+INPUT ./images/cpu_ram.jpeg
+INPUT ./images/cpu_ram.jpeg
+INPUT data/best_genetic.csv
 INPUT Practica2.aux
 INPUT ./Practica2.out
 INPUT ./Practica2.out
