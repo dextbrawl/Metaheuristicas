@@ -9,10 +9,10 @@
 \contentsline {section}{\numberline {7}Mutación de individuos}{6}{section.7}%
 \contentsline {section}{\numberline {8}Reemplazo}{6}{section.8}%
 \contentsline {section}{\numberline {9}Probabilidades de mutación y cruce}{6}{section.9}%
-\contentsline {section}{\numberline {10}Criterios de parada}{7}{section.10}%
+\contentsline {section}{\numberline {10}Criterios de parada}{8}{section.10}%
 \contentsline {section}{\numberline {11}Consideraciones extra}{8}{section.11}%
 \contentsline {subsection}{\numberline {11.1}Control de dominios}{8}{subsection.11.1}%
-\contentsline {subsection}{\numberline {11.2}Normalización y cálculo de distancias}{8}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.2}Normalización y cálculo de distancias}{9}{subsection.11.2}%
 \contentsline {section}{\numberline {12}Grid Search, Random Search y Algoritmo genético}{9}{section.12}%
 \contentsline {subsection}{\numberline {12.1}Grid Search}{9}{subsection.12.1}%
 \contentsline {subsection}{\numberline {12.2}Random Search}{10}{subsection.12.2}%
@@ -20,4 +20,4 @@
 \contentsline {subsection}{\numberline {13.1}Grid Search}{10}{subsection.13.1}%
 \contentsline {subsection}{\numberline {13.2}Random Search}{11}{subsection.13.2}%
 \contentsline {subsection}{\numberline {13.3}Algoritmo Genético}{11}{subsection.13.3}%
-\contentsline {section}{\numberline {14}Conclusión}{12}{section.14}%
+\contentsline {section}{\numberline {14}Conclusión}{13}{section.14}%

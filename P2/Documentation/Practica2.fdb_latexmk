@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1776280554.41095 "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" "Practica2.pdf" "Practica2" 1776280554.91697 0
-  "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" 1776280554.21081 29460 3bba3800c5d5a22e1a650191f28a5d76 ""
+["pdflatex"] 1776283262.24271 "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" "Practica2.pdf" "Practica2" 1776283262.74416 0
+  "/Users/nico/Documents/METAHEURISTIC/Metaheuristicas/P2/Documentation/Practica2.tex" 1776283261.44494 29468 1d948118b6b1df2c578c5620aa58f8eb ""
   "/Users/nico/Library/texlive/2026basic/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk" 1776069141.51801 11524 80cefc2d947e4ecbd1626786db2286ea ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -100,10 +100,10 @@
   "/usr/local/texlive/2026basic/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1773403511 79187 e3f5941707347d15c1721f52279213a2 ""
   "/usr/local/texlive/2026basic/texmf-var/web2c/pdftex/pdflatex.fmt" 1773403499 2966195 e12773f304d5b8bd9f547aa5754731ec ""
   "/usr/local/texlive/2026basic/texmf.cnf" 1772405582 628 bbc09d6d38872d53c11bb48dc9b14e88 ""
-  "Practica2.aux" 1776280554.87531 4273 f6ca18256f394b28af9995da5a9b6f45 "pdflatex"
-  "Practica2.out" 1776280554.87593 3600 5a2b0a4a5a6158d558ec98dd2281635c "pdflatex"
-  "Practica2.tex" 1776280554.21081 29460 3bba3800c5d5a22e1a650191f28a5d76 ""
-  "Practica2.toc" 1776280554.8761 1882 0b0fdb874253f37f1528c23bf75743fe "pdflatex"
+  "Practica2.aux" 1776283262.70493 4273 2cf24f832e604857e8bf0798c91fcd1c "pdflatex"
+  "Practica2.out" 1776283262.70557 3600 5a2b0a4a5a6158d558ec98dd2281635c "pdflatex"
+  "Practica2.tex" 1776283261.44494 29468 1d948118b6b1df2c578c5620aa58f8eb ""
+  "Practica2.toc" 1776283262.70574 1882 f6027a58c0ec8368b26033ab2414bd70 "pdflatex"
   "data/best_genetic.csv" 1776279025.73978 221 cc8a0433631a00a44da605c7b6c656c4 ""
   "data/prob_data.csv" 1776062059.59244 1231 cb47b8717f30bcb8228277670109736d ""
   "data/stats_gen_pdf.csv" 1776251478.2187 784 2c66ffb8b0270d1d96e818b31efeb57f ""
