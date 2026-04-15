@@ -18,6 +18,6 @@
 \contentsline {subsection}{\numberline {12.2}Random Search}{10}{subsection.12.2}%
 \contentsline {section}{\numberline {13}Análisis resultados}{11}{section.13}%
 \contentsline {subsection}{\numberline {13.1}Grid Search}{11}{subsection.13.1}%
-\contentsline {subsection}{\numberline {13.2}Random Search}{11}{subsection.13.2}%
-\contentsline {subsection}{\numberline {13.3}Algoritmo Genético}{11}{subsection.13.3}%
+\contentsline {subsection}{\numberline {13.2}Random Search}{12}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}Algoritmo Genético}{12}{subsection.13.3}%
 \contentsline {section}{\numberline {14}Conclusión}{12}{section.14}%

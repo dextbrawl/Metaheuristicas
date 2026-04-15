@@ -428,20 +428,55 @@ del procesador utlizado durante la ejecución.
 
 
 \subsection{Grid Search}
-En el caso de grid search, el total de combinaciones posibles para la rejilla establecida, son 17496. Así pues los datos obtenidos son:\newline
+Para el grid search, probaremos todas las posibilidades dejando fijos únicamente 3 valores diferentes por cada campo del individuo.
+En concreto, estos son los parámetros que estableceremos para luego hacer todas las combinaciones posibles:
+
+\begin{lstlisting}[language=Python, caption=Grid de parámetros]
+  param_grid = {
+        "n_estimators": [10, 155, 300],
+        "max_depth": [2, 15, 30],
+        "min_samples_split": [2, 10, 20],
+        "min_samples_leaf": [1, 10, 20],
+        "max_features": [0.1, 0.5, 1],
+        "bootstrap": [True, False],
+        "criterion": ["entropy", "gini"],
+        "class_weight": ["balanced", None],
+        "max_leaf_nodes": [10, 100, 200],
+        "min_impurity_decrease": [0, 0.05, 0.1],
+  }
+\end{lstlisting}
+
+El total de combinaciones posibles para la rejilla establecida, son 17496 individuos. Para hacer una comparación justa, estudiaremos
+los siguientes algoritmos basándonos en el mismo número de individuos. Los datos obtenidos tras el estudio son los siguientes:\newline
 
 \resizebox{\textwidth}{!}{%
   \csvautotabular[respect all]{data/stats_grid.csv}
 }\newline
 
-\subsection{Random Search}
-Con intención de hacer una comparación equitativa, la búsqueda aleatoria se ha ejecutado de forma análoga generando el mismo número de soluciones,
-los datos obtenidos han sido:\newline
+Los resultados con respecto al uso de CPU Media, es un valor mayor a 100\% porque suma el porcentaje de todos
+los hilos del procesador (es decir, con un procesador de 16 cores, el porcentaje máximo sería el 1600\%). Vemos que
+Los resultados tienen sentido, pues al ser un algoritmo secuencial, lo más probable es que un hilo esté al 100\%
+de uso y el resto apenas tenga uso.\newline
 
+El resto de resultados los podremos comparar con los otros algoritmos en la conclusión final, aunque podemos ir 
+observando que la desviación típica es la mayor de todas, y la media de accuracy es de las más bajas con 
+respecto a otros algoritmos. Al ser el grid search todas combinaciones diferentes entre sí, es normal que tenga una
+varianza y desviación típica mayor al resto, ya que es imposible que algún valor se repita. \newline
+
+\subsection{Random Search}
+Como hemos recalcado en el apartado anterior, con intención de hacer una comparación equitativa, la búsqueda aleatoria se ha ejecutado de forma 
+análoga generando el mismo número de soluciones, los datos obtenidos han sido:\newline
 
 \resizebox{\textwidth}{!}{%
   \csvautotabular[respect all]{data/stats_rs.csv}
 }\newline
+
+Primeramente podemos observar que hay una mejora en cuanto a los resultados de accuracy 
+obtenidos, y un poco menos de varianza con respecto al anterior. La explicación es que, 
+al poder obtener el mismo valor repetidas veces, la varianza tiene que ser menor sí o sí con
+el grid search. Y el score obtenido medio y máximo, es mejor con respecto al grid, ya que 
+grid search prueba todas las combinaciones posibles dentro de una rejilla, evaluando muchas
+combinaciones que obtienen un accuracy muy malo.\newline
 
 \subsection{Algoritmo Genético}
 Finalmente, el algoritmo genético presenta una distinción a la hora de ejecutarlo. Se han de modificar sendos tamaño de la población
