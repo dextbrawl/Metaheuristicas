@@ -126,11 +126,10 @@ los genes como atributos, además de algunos campos ajenos a los genes que será
 como la posición que ocupa cada individuo en la población. Haciendo uso del modelo, se obtiene un atributo score o puntuación, 
 que es la media de los 5 folds como se indica en la práctica (de nuevo, esto no es crucial en el desarrollo del algoritmo). 
 Posteriormente se compara con 6 para decidir si la calidad es apta o no. Una población es un conjunto
-de objetos de la clase individuo. Con la representación definida ya se pueden empezar a plantear
-las diferentes etapas del algoritmo genético.
+de objetos de la clase individuo.
 
-\section{Representación}
-
+\section{Representación y Función Objetivo}
+\subsection{Representación}
 Lo primero que haremos será definir la representación que utilizaremos para aplicar nuestro algoritmo
 genético y abordar nuestro problema principal. La representación más sencilla que podemos utilizar es 
 una de tipo lineal, en este caso, combinada con valores enteros y binarios. Para aplicarlo en Python, 
@@ -165,6 +164,11 @@ se hace una operación de mutación, por ejemplo).\newline
         self.position = position
         self.score = model.evaluate_solution(self)
 \end{lstlisting}
+\subsection{Función objetivo}
+La función objetivo o fitness será el valor de accuracy que devuelve el modelo una vez ha sido entrenado con los hiperparámetros
+que obtenemos a partir del individuo. Como se ha explicado, en este caso actúa como "una caja negra", de manera que no requiere de implementación, y el objetivo será simplemente
+maximizar la puntuación.
+
 
 \section{Población inicial}
 
@@ -361,20 +365,12 @@ Debido a que los hiperparámetros del modelo operan en escalas distintas, una di
 
 
 
-\section{Random Search, Grid Search y Algoritmo genético}
+\section{Grid Search, Random Search y Algoritmo genético}
 
 En adición al algoritmo genético, se han implementado una búsqueda aleatoria y grid search para
 comparar ambos métodos. De esta forma, podremos observar cómo se comporta nuestro algoritmo frente
 a opciones más clásicas, y si de alguna manera es mejor o peor. 
 
-\subsection{Random Search}
-La búsqueda aleatoria consiste en generar individuos (soluciones) de manera estocástica,
-tal que por cada gen (parámetro) se inicializa en un valor aleatorio. Este proceso
-se itera repetidas veces.\newline
-
-Este método es de los más rápidos que hay, pero como observaremos a continuación, la gran 
-desventaja que tiene es la inconsistencia de los datos obtenidos por cada ejecución del 
-algoritmo. Como resultado, la varianza debería ser bastante más elevada. 
 
 \subsection{Grid Search}
 Grid search es una técnica de búsqueda exhaustiva de los parámetros objeto del problema.
@@ -387,18 +383,18 @@ En este caso, se ha definido una lista de la división de esos parámetros con l
         
        
         
-\begin{description}
-    \item[n\_estimators] \{10, 155, 300\}
-    \item[max\_depth] \{2, 15, 30\}
-    \item[min\_samples\_split] \{2, 10, 20\}
-    \item[min\_samples\_leaf] \{1, 10, 20\}
-    \item[max\_features] \{0.1, 0.5, 1\}
-    \item[bootstrap] \{True, False\}
-    \item[criterion] \{\textit{gini}, \textit{entropy}\}
-    \item[class\_weight] \{\textit{balanced}, \textit{None}\}
-    \item[max\_leaf\_nodes] \{10, 100, 200\}
-    \item[min\_impurity\_decrease] \{0, 0.05, 0.1\}
-\end{description}
+\begin{itemize}
+    \item \textbf{n\_estimators}: 10, 155, 300
+    \item \textbf{max\_depth}: 2, 15, 30
+    \item \textbf{min\_samples\_split}: 2, 10, 20
+    \item \textbf{min\_samples\_leaf}: 1, 10, 20
+    \item \textbf{max\_features}: 0.1, 0.5, 1
+    \item \textbf{bootstrap}: True, False
+    \item \textbf{criterion}: \textit{gini}, \textit{entropy}
+    \item \textbf{class\_weight}: \textit{balanced}, \textit{None}
+    \item \textbf{max\_leaf\_nodes}: 10, 100, 200
+    \item \textbf{min\_impurity\_decrease}: 0, 0.05, 0.1
+\end{itemize}
 
 Sobre estas opciones se crean los individuos, para finalmente ordenarlos y obtener
 las mejor o mejores configuraciones posibles. La principal bondad es que dentro del espacio
@@ -409,13 +405,58 @@ es computacionalmente muy costoso, y podría llegar a ser inviable.
 Esto es fundamental para comprender los resultados así como la comparativa con los otros dos métodos 
 relativos a esta práctica.\newline
 
-Tras ejecutar las cobinaciones posibles de grid search (17496). Los resultados finales han sido:\newline
 
-\resizebox{\textwidth}{!}{%
-  \csvautotabular[respect all]{data/resultados_estadisticas.csv}
-}
+\subsection{Random Search}
+La búsqueda aleatoria consiste en generar individuos (soluciones) de manera estocástica,
+tal que por cada gen (parámetro) se inicializa en un valor aleatorio. Este proceso
+se itera repetidas veces.\newline
+
+Este método es de los más rápidos que hay, pero como observaremos a continuación, la gran 
+desventaja que tiene es la inconsistencia de los datos obtenidos por cada ejecución del 
+algoritmo. Como resultado, la varianza debería ser bastante más elevada.
+
+
 
 \section{Análisis resultados}
+
+Con todos los métodos ya implementados, la fase que sigue consiste en evaluar y comparar los resultados que han aportado
+tras su ejecución. Para ello, se han tenido en cuenta diferentes métricas, como las puntuaciones máximas, mínimas y su promedio.
+Además, se estudian la varianza y desviación de los resultados. Finalmente, en cuánto a la eficiencia y coste de los métodos
+tratados en la práctica, hemos hallado el tiempo de la ejecución en segundos, los MB de memoria y el porcentaje medio
+del procesador utlizado durante la ejecución.
+
+
+
+\subsection{Grid Search}
+En el caso de grid search, el total de combinaciones posibles para la rejilla establecida, son 17496. Así pues los datos obtenidos son:\newline
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/stats_grid.csv}
+}\newline
+
+\subsection{Random Search}
+Con intención de hacer una comparación equitativa, la búsqueda aleatoria se ha ejecutado de forma análoga generando el mismo número de soluciones,
+los datos obtenidos han sido:\newline
+
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/stats_rs.csv}
+}\newline
+
+\subsection{Algoritmo Genético}
+Finalmente, el algoritmo genético presenta una distinción a la hora de ejecutarlo. Se han de modificar sendos tamaño de la población
+y número de generaciones para equiparar la exhaustividad de los otros dos métodos. Así pues, hemos ejecutado el algoritmo genético implementado
+durante 349 generaciones. El tamaño de la población es cincuenta individuos. El resto de parámetros y decisiones de implementación/ejecución 
+son los que se han explicado a lo largo de este documento. Los resultados han sido:\newline
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/stats_gen_pdf.csv}
+}\newline
+
+\textbf{Nota:} El csv completo con todos los datos (de los cuales se han obtenido las siguientes gráficas) está disponible
+en 
+\href{https://github.com/dextbrawl/Metaheuristicas}{el repositorio de la práctica} 
+al igual que el resto de documentos y código fuente.\newline
 
 
 

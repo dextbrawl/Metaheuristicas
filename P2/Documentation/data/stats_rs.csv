@@ -1,0 +1,2 @@
+Algoritmo,Varianza,Desviacion_Tipica,Tiempo_Segundos,Num_Combinaciones,Media_Accuracy,Max_Accuracy,Min_Accuracy,CPU_Media_%,Memoria_MB
+Random Search,0.001822,0.042687,14744.9,17496,0.6797,0.7448,0.479,100.81,165.8

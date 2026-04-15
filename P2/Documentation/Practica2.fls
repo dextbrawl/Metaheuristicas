@@ -219,11 +219,10 @@ INPUT ./images/prob_mut_cruce.png
 INPUT ./images/prob_mut_cruce.png
 INPUT ./images/prob_mut_cruce.png
 INPUT ./images/prob_mut_cruce.png
-INPUT /usr/local/texlive/2026basic/texmf-dist/tex/latex/base/omscmr.fd
-INPUT /usr/local/texlive/2026basic/texmf-dist/tex/latex/base/omscmr.fd
-INPUT /usr/local/texlive/2026basic/texmf-dist/tex/latex/base/omscmr.fd
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
-INPUT data/resultados_estadisticas.csv
+INPUT data/stats_grid.csv
+INPUT data/stats_rs.csv
+INPUT data/stats_gen_pdf.csv
 INPUT Practica2.aux
 INPUT ./Practica2.out
 INPUT ./Practica2.out
@@ -234,7 +233,6 @@ INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb
-INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb
