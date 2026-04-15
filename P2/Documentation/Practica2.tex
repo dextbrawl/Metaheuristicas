@@ -12,7 +12,6 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
-\usepackage{hyperref}
 
 % Define colors for syntax highlighting
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -95,7 +94,7 @@ Sergio García Atanasio
 
 En este documento, se muestran sendos proceso y resultado del desarrollo de la segunda
 práctica de la asignatura de Metaheurísticas. El objetivo de esta práctica consiste en la implementación de un algoritmo
-genético para la optimización de hiperparámetros de un modelo de aprendizaje atomático, así como su comparación entre los 
+genético para la optimización de hiperparámetros de un modelo de aprendizaje automático, así como su comparación entre los 
 algoritmos Random Search y Grid Search.
 Cualquier aspecto relativo al código fuente,
 o información adicional queda en 
@@ -118,14 +117,14 @@ parámetros y devolviendo una calidad.\newline
 
 
 Así pues, para lo que será el algoritmo genético, tenemos una codificación tal que un individuo
-es un vector con sus genes (parámetros) en orden. Es mixto ya que algunos genes tienen un dominio
+es un vector con sus genes (parámetros) en orden. Algunos genes tienen un dominio
 binario, mientras que otros operan en un rango definido para los números reales.
 
 Utilizando un paradigma orientado a objetos, se ha implementado la clase Individual, que tiene
 los genes como atributos, además de algunos campos ajenos a los genes que serán útiles a la hora de implementar el algoritmo, 
 como la posición que ocupa cada individuo en la población. Haciendo uso del modelo, se obtiene un atributo score o puntuación, 
-que es la media de los 5 folds como se indica en la práctica (de nuevo, esto no es crucial en el desarrollo del algoritmo). 
-Posteriormente se compara con 6 para decidir si la calidad es apta o no. Una población es un conjunto
+que es la media de los 5 folds como se indica en la práctica (de nuevo, esto no es relevante en el desarrollo del algoritmo). 
+Una población es un conjunto
 de objetos de la clase individuo.
 
 \section{Representación y Función Objetivo}
@@ -178,15 +177,7 @@ inicial secuencial. Esta consiste en crear individuos aleatorios, con el matiz d
 cantidad considerable de diferencias en sus genes. Al final resultará una población de la que partir con individuos que tienen
 genes aleatorios, pero que, de manera general son todos diferentes entre sí como mínimo una distancia definida.\newline
 
-Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
-lo que permite definir como de alejados se encuentrán dos individuos según sus genes. Para más información, mirar la referencia a
-\newline
 
-Se ha elegido esta técnica ya que si se tiene en cuenta cualidades como la diversidad de la población inicial, la generación secuencial
-permite partir de un conjunto extenso y que cubre un espacio amplio de individuos. El costo de implementarlo y ejecutarlo a nivel computacional
-es medio, y su punto más débil es que las soluciones iniciales no serán de gran calidad (al estar creados los individuos de manera aleatoria). Con todo esto
-sigue siendo un método idóneo por su balance y, teniendo en cuenta que la mejora de soluciones es algo que se obtendrá posteriormente en el algoritmo,
-y que, en este punto interesa diversificar lo máximo posible.
 
 \section{Selección padres}
 
@@ -207,8 +198,6 @@ con reposición (pueden aparecer individuos repetidos)
     \caption{Selección por torneo, con K=3}
 \end{figure}
 
-En adición, se introduce un concepto nuevo que ayudará a mejorar la media de la puntuación de una población. El elitismo, consiste en
-seleccionar como padres a un conjunto de individuos (la élite) porque son aquellos con mayor puntuación, saltándose todo el proceso de selección.
 
 Se ha implementado que además de los padres elegidos por torneo, los dos mejores individuos de cada generación sobrevivan y pasen a la próxima
 generación. Este fenómeno contribuye a la mejora de la media de la puntuación del algoritmo.
@@ -246,32 +235,38 @@ la mitad de los cruces se realizan mediante cruce uniforme y la otra mitad media
 Las fortalezas del cruce híbrido frente a únicamente utilizar uno de los dos mecanismos explicados, son especialmente respecto
 al equilibrio de exploración y explotación, además, el algoritmo ahora tiene más variabilidad, lo que reduce la convergencia prematura.
 Sus debilidades son principalmente el costo ya que hay más evaluaciones, y al hacer dos hijos por cruce se deben entrenar todos estos, causando
-que el algoritmo tarde más. Además, la implementación ha resultado más compleja que utilizar un cruce úni
+que el algoritmo tarde más. Además, la implementación ha resultado más compleja que utilizar un único operador de cruce.
 
 Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
-lo que permite definir como de alejados se encuentrán dos individuos según sus genes. Para más información, revisar el punto de 
-``Consideraciones extra''\pageref{sec:Normalizacion}. \newline
+lo que permite definir como de alejados se encuentran dos individuos según sus genes. Para más información, revisar
+la sección \ref{sec:Normalizacion}. \newline
 
-Se ha elegido esta técnica ya que si se tiene en cuenta cualidades como la diversidad de la población inicial, la generación secuencial
-permite partir de un conjunto extenso y que cubre un espacio amplio de individuos. El costo de implementarlo y ejecutarlo a nivel computacional
+El costo de implementar esta estrategia y ejecutarla a nivel computacional
 es medio, y su punto más débil es que las soluciones iniciales no serán de gran calidad (al estar creados los individuos de manera aleatoria). Con todo esto
 sigue siendo un método idóneo por su balance y, teniendo en cuenta que la mejora de soluciones es algo que se obtendrá posteriormente en el algoritmo,
 y que, en este punto interesa diversificar lo máximo posible.
-generación. Esteco.
+
 
 \section{Mutación de individuos}
 
-La mutación consiste en modificar ligeramente ciertos individuos, en este caso se aplica una mutación uniforme, aunque, 
-se va aplicando a todos los genes del individuo. El operador recorre cada gen con una probabilidad de modificarlo, y si esta acierta,
-se cambia el gen de manera aleatoria (dentro del dominio permitido de cada parámetro o gen). Para garantizar que si se activa la mutación
-el individuo va a cambiar de manera segura, (podría recorrer todos los genes sin varíar ninguno), el operador asegura que al menos un gen
-cambia aleatoriamente. Tras la mutación, se actualiza el score del individuo.\newline
+La mutación consiste en modificar ligeramente ciertos individuos. 
+En este caso, se aplica una mutación uniforme sobre todos los genes del individuo. 
+El operador recorre cada gen con una determinada probabilidad de modificación y,
+ si esta se cumple, el gen se reemplaza por un valor aleatorio dentro del dominio 
+ permitido para dicho parámetro. 
 
+Para garantizar que, al activarse la mutación, 
+el individuo experimente al menos un cambio (ya que podría darse el caso de que ningún gen fuese modificado),
+ el operador fuerza la modificación de al menos uno de los genes. Tras la mutación, 
+ se actualiza el \textit{score} del individuo.
 
-Esta estrategia resulta poderosa para introducir nuevos valores que antes no estaban en la población, reduciendo convergencia prematura
-y explorando nuevas zonas. De hecho, si la población sufre estancamiento, puede saltar a soluciones mejores que no existirían solo con el cruce.
-A diferencia del cruce, se ha optado por un operador único y más simple. La desventaja principal es que podría romper alguna solución con puntuación
-muy elevada.
+Esta estrategia resulta efectiva para introducir nuevos valores que no 
+estaban presentes previamente en la población, reduciendo el riesgo de convergencia prematura y 
+favoreciendo la exploración de nuevas regiones del espacio de búsqueda. De hecho, en situaciones de 
+estancamiento, la mutación puede permitir alcanzar soluciones mejores que no se obtendrían únicamente mediante el cruce.
+
+A diferencia de este último, se ha optado por un operador de mutación único y más sencillo. 
+No obstante, su principal desventaja es que puede deteriorar soluciones con una puntuación elevada.
 
 
 \section{Reemplazo}
@@ -287,7 +282,7 @@ hijos obtenidos, pero en el caso de que sea necesario diversificar más, se reem
 de la población con un individuo aleatorio, para que existan individuos más diferentes.\newline
 
 Se pensó en un primer momento en utilizar crowding determinístico ya que es muy útil a la hora de mantener la diversidad en la población, 
-pero no nos logró convencer, ya que en nuestro caso no llegaba a converger lo rápido que queríamos, y la varianza
+pero no arrojó resultados idóneos, ya que en nuestro caso no llegaba a converger lo rápido que queríamos, y la varianza
 no variaba mucho, por lo siempre aumentaba o disminuía una de las probabilidades de cruce o de mutación 
 (siguiente apartado).
 
@@ -295,15 +290,15 @@ no variaba mucho, por lo siempre aumentaba o disminuía una de las probabilidade
 
 Se ha tenido en cuenta la variabilidad de la probabilidad de mutación y la probabilidad de cruce. Para
 ello, el algoritmo calcula por cada generación la media de score de toda la población, y la varianza
-de los parámetros de los individuos que se encuentran en la población,  normalizando los individuos
-como se ha hecho anteriormente para la creación de la población.\newline
+de los parámetros de los individuos que se encuentran en la población, normalizando los individuos
+como se ha descrito anteriormente.\newline
 
 No hemos utilizado la varianza del score de la población, ya que realmente un individuo con unos 
 parámetros diferentes al de otro individuo puede tener el mismo score. De esta forma, comprobamos 
 realmente la variabilidad que existe en la población. \newline
 
 Primero hemos comenzado inicializando las probabilidades de mutación y de cruce a 0.5. Después,
-en cada generación dependiendo de un valor de varianza predefinido (probando, hemos determinado que
+en cada generación dependiendo de un valor de varianza predefinido (tras varias ejecuciones, se ha determinado que
 en torno a 0.12 es un valor idóneo). 
 
 \begin{itemize}
@@ -397,8 +392,8 @@ En este caso, se ha definido una lista de la división de esos parámetros con l
 \end{itemize}
 
 Sobre estas opciones se crean los individuos, para finalmente ordenarlos y obtener
-las mejor o mejores configuraciones posibles. La principal bondad es que dentro del espacio
-(grid) que hemos definido, se afinan soluciones muy buenas (se encuentra la mejor combinación),
+la mejor o mejores configuraciones posibles. La principal bondad es que dentro del espacio
+(grid) que hemos definido, se afinan soluciones muy buenas (se encuentra la mejor combinación posible en la rejilla),
 aunque, la decisión surge al elegir qué se considera como división ya que grid search
 es computacionalmente muy costoso, y podría llegar a ser inviable.
 
@@ -421,9 +416,9 @@ algoritmo. Como resultado, la varianza debería ser bastante más elevada.
 
 Con todos los métodos ya implementados, la fase que sigue consiste en evaluar y comparar los resultados que han aportado
 tras su ejecución. Para ello, se han tenido en cuenta diferentes métricas, como las puntuaciones máximas, mínimas y su promedio.
-Además, se estudian la varianza y desviación de los resultados. Finalmente, en cuánto a la eficiencia y coste de los métodos
+Además, se estudian la varianza y desviación de los resultados. Finalmente, en cuanto a la eficiencia y coste de los métodos
 tratados en la práctica, hemos hallado el tiempo de la ejecución en segundos, los MB de memoria y el porcentaje medio
-del procesador utlizado durante la ejecución.
+del procesador utilizado durante la ejecución.
 
 
 
@@ -473,8 +468,8 @@ análoga generando el mismo número de soluciones, los datos obtenidos han sido:
 
 Primeramente podemos observar que hay una mejora en cuanto a los resultados de accuracy 
 obtenidos, y un poco menos de varianza con respecto al anterior. La explicación es que, 
-al poder obtener el mismo valor repetidas veces, la varianza tiene que ser menor sí o sí con
-el grid search. Y el score obtenido medio y máximo, es mejor con respecto al grid, ya que 
+al poder obtener el mismo valor repetidas veces, la varianza tiende a ser menor debido a la posible
+repetición de configuraciones. Y el score obtenido medio y máximo, es mejor con respecto al grid, ya que 
 grid search prueba todas las combinaciones posibles dentro de una rejilla, evaluando muchas
 combinaciones que obtienen un accuracy muy malo.\newline
 
@@ -522,12 +517,13 @@ También es el que obtiene un valor de varianza más bajo, ya que al converger t
 la población serán lo más parecidos entre sí, exceptuando aquellos que vayan mutando o se reemplacen los peores con aleatorios.
 
 \section{Conclusión}
-Tras el análisis comparativo de los modelos implementados, llegamos a la conclusión de que el Algoritmo Genético es la solución óptima para este problema por las siguientes
+Tras el análisis comparativo de los modelos implementados, llegamos a la conclusión de que el Algoritmo Genético ha mostrado
+el mejor comportamiento para este problema por las siguientes
 razones fundamentales:
 
 \begin{enumerate}
   \item \textbf{CPU y Memoria: }El algoritmo genético es bastante similar a los anteriores en cuanto a uso
-  de CPU, haciendo que nos sea indiferente en nuestro caso. En cuanto a Memoria prácticamente igual,
+  de CPU, haciendo que no suponga una diferencia significativa en nuestro caso. En cuanto a Memoria prácticamente igual,
   aunque hay que tener en cuenta que Random Search va a utilizar menos memoria que Grid Search y el 
   Algoritmo Genético (en nuestro caso, unos 10MB de diferencia).\newline
 
