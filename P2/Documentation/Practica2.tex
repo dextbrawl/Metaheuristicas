@@ -12,7 +12,6 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
-\usepackage{hyperref}
 
 % Define colors for syntax highlighting
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -95,7 +94,7 @@ Sergio García Atanasio
 
 En este documento, se muestran sendos proceso y resultado del desarrollo de la segunda
 práctica de la asignatura de Metaheurísticas. El objetivo de esta práctica consiste en la implementación de un algoritmo
-genético para la optimización de hiperparámetros de un modelo de aprendizaje atomático, así como su comparación entre los 
+genético para la optimización de hiperparámetros de un modelo de aprendizaje automático, así como su comparación entre los 
 algoritmos Random Search y Grid Search.
 Cualquier aspecto relativo al código fuente,
 o información adicional queda en 
@@ -118,19 +117,18 @@ parámetros y devolviendo una calidad.\newline
 
 
 Así pues, para lo que será el algoritmo genético, tenemos una codificación tal que un individuo
-es un vector con sus genes (parámetros) en orden. Es mixto ya que algunos genes tienen un dominio
+es un vector con sus genes (parámetros) en orden. Algunos genes tienen un dominio
 binario, mientras que otros operan en un rango definido para los números reales.
 
 Utilizando un paradigma orientado a objetos, se ha implementado la clase Individual, que tiene
 los genes como atributos, además de algunos campos ajenos a los genes que serán útiles a la hora de implementar el algoritmo, 
 como la posición que ocupa cada individuo en la población. Haciendo uso del modelo, se obtiene un atributo score o puntuación, 
-que es la media de los 5 folds como se indica en la práctica (de nuevo, esto no es crucial en el desarrollo del algoritmo). 
-Posteriormente se compara con 6 para decidir si la calidad es apta o no. Una población es un conjunto
-de objetos de la clase individuo. Con la representación definida ya se pueden empezar a plantear
-las diferentes etapas del algoritmo genético.
+que es la media de los 5 folds como se indica en la práctica (de nuevo, esto no es relevante en el desarrollo del algoritmo). 
+Una población es un conjunto
+de objetos de la clase individuo.
 
-\section{Representación}
-
+\section{Representación y Función Objetivo}
+\subsection{Representación}
 Lo primero que haremos será definir la representación que utilizaremos para aplicar nuestro algoritmo
 genético y abordar nuestro problema principal. La representación más sencilla que podemos utilizar es 
 una de tipo lineal, en este caso, combinada con valores enteros y binarios. Para aplicarlo en Python, 
@@ -165,6 +163,11 @@ se hace una operación de mutación, por ejemplo).\newline
         self.position = position
         self.score = model.evaluate_solution(self)
 \end{lstlisting}
+\subsection{Función objetivo}
+La función objetivo o fitness será el valor de accuracy que devuelve el modelo una vez ha sido entrenado con los hiperparámetros
+que obtenemos a partir del individuo. Como se ha explicado, en este caso actúa como "una caja negra", de manera que no requiere de implementación, y el objetivo será simplemente
+maximizar la puntuación.
+
 
 \section{Población inicial}
 
@@ -174,15 +177,7 @@ inicial secuencial. Esta consiste en crear individuos aleatorios, con el matiz d
 cantidad considerable de diferencias en sus genes. Al final resultará una población de la que partir con individuos que tienen
 genes aleatorios, pero que, de manera general son todos diferentes entre sí como mínimo una distancia definida.\newline
 
-Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
-lo que permite definir como de alejados se encuentrán dos individuos según sus genes. Para más información, mirar la referencia a
-\newline
 
-Se ha elegido esta técnica ya que si se tiene en cuenta cualidades como la diversidad de la población inicial, la generación secuencial
-permite partir de un conjunto extenso y que cubre un espacio amplio de individuos. El costo de implementarlo y ejecutarlo a nivel computacional
-es medio, y su punto más débil es que las soluciones iniciales no serán de gran calidad (al estar creados los individuos de manera aleatoria). Con todo esto
-sigue siendo un método idóneo por su balance y, teniendo en cuenta que la mejora de soluciones es algo que se obtendrá posteriormente en el algoritmo,
-y que, en este punto interesa diversificar lo máximo posible.
 
 \section{Selección padres}
 
@@ -203,8 +198,6 @@ con reposición (pueden aparecer individuos repetidos)
     \caption{Selección por torneo, con K=3}
 \end{figure}
 
-En adición, se introduce un concepto nuevo que ayudará a mejorar la media de la puntuación de una población. El elitismo, consiste en
-seleccionar como padres a un conjunto de individuos (la élite) porque son aquellos con mayor puntuación, saltándose todo el proceso de selección.
 
 Se ha implementado que además de los padres elegidos por torneo, los dos mejores individuos de cada generación sobrevivan y pasen a la próxima
 generación. Este fenómeno contribuye a la mejora de la media de la puntuación del algoritmo.
@@ -242,32 +235,38 @@ la mitad de los cruces se realizan mediante cruce uniforme y la otra mitad media
 Las fortalezas del cruce híbrido frente a únicamente utilizar uno de los dos mecanismos explicados, son especialmente respecto
 al equilibrio de exploración y explotación, además, el algoritmo ahora tiene más variabilidad, lo que reduce la convergencia prematura.
 Sus debilidades son principalmente el costo ya que hay más evaluaciones, y al hacer dos hijos por cruce se deben entrenar todos estos, causando
-que el algoritmo tarde más. Además, la implementación ha resultado más compleja que utilizar un cruce úni
+que el algoritmo tarde más. Además, la implementación ha resultado más compleja que utilizar un único operador de cruce.
 
 Para implementar este método, se han normalizado los genes entre 0 y 1. Posteriormente se hace uso de la distancia euclidiana,
-lo que permite definir como de alejados se encuentrán dos individuos según sus genes. Para más información, revisar el punto de 
-``Consideraciones extra''\pageref{sec:Normalizacion}. \newline
+lo que permite definir como de alejados se encuentran dos individuos según sus genes. Para más información, revisar
+la sección \ref{sec:Normalizacion}. \newline
 
-Se ha elegido esta técnica ya que si se tiene en cuenta cualidades como la diversidad de la población inicial, la generación secuencial
-permite partir de un conjunto extenso y que cubre un espacio amplio de individuos. El costo de implementarlo y ejecutarlo a nivel computacional
+El costo de implementar esta estrategia y ejecutarla a nivel computacional
 es medio, y su punto más débil es que las soluciones iniciales no serán de gran calidad (al estar creados los individuos de manera aleatoria). Con todo esto
 sigue siendo un método idóneo por su balance y, teniendo en cuenta que la mejora de soluciones es algo que se obtendrá posteriormente en el algoritmo,
 y que, en este punto interesa diversificar lo máximo posible.
-generación. Esteco.
+
 
 \section{Mutación de individuos}
 
-La mutación consiste en modificar ligeramente ciertos individuos, en este caso se aplica una mutación uniforme, aunque, 
-se va aplicando a todos los genes del individuo. El operador recorre cada gen con una probabilidad de modificarlo, y si esta acierta,
-se cambia el gen de manera aleatoria (dentro del dominio permitido de cada parámetro o gen). Para garantizar que si se activa la mutación
-el individuo va a cambiar de manera segura, (podría recorrer todos los genes sin varíar ninguno), el operador asegura que al menos un gen
-cambia aleatoriamente. Tras la mutación, se actualiza el score del individuo.\newline
+La mutación consiste en modificar ligeramente ciertos individuos. 
+En este caso, se aplica una mutación uniforme sobre todos los genes del individuo. 
+El operador recorre cada gen con una determinada probabilidad de modificación y,
+ si esta se cumple, el gen se reemplaza por un valor aleatorio dentro del dominio 
+ permitido para dicho parámetro. 
 
+Para garantizar que, al activarse la mutación, 
+el individuo experimente al menos un cambio (ya que podría darse el caso de que ningún gen fuese modificado),
+ el operador fuerza la modificación de al menos uno de los genes. Tras la mutación, 
+ se actualiza el \textit{score} del individuo.
 
-Esta estrategia resulta poderosa para introducir nuevos valores que antes no estaban en la población, reduciendo convergencia prematura
-y explorando nuevas zonas. De hecho, si la población sufre estancamiento, puede saltar a soluciones mejores que no existirían solo con el cruce.
-A diferencia del cruce, se ha optado por un operador único y más simple. La desventaja principal es que podría romper alguna solución con puntuación
-muy elevada.
+Esta estrategia resulta efectiva para introducir nuevos valores que no 
+estaban presentes previamente en la población, reduciendo el riesgo de convergencia prematura y 
+favoreciendo la exploración de nuevas regiones del espacio de búsqueda. De hecho, en situaciones de 
+estancamiento, la mutación puede permitir alcanzar soluciones mejores que no se obtendrían únicamente mediante el cruce.
+
+A diferencia de este último, se ha optado por un operador de mutación único y más sencillo. 
+No obstante, su principal desventaja es que puede deteriorar soluciones con una puntuación elevada.
 
 
 \section{Reemplazo}
@@ -283,7 +282,7 @@ hijos obtenidos, pero en el caso de que sea necesario diversificar más, se reem
 de la población con un individuo aleatorio, para que existan individuos más diferentes.\newline
 
 Se pensó en un primer momento en utilizar crowding determinístico ya que es muy útil a la hora de mantener la diversidad en la población, 
-pero no nos logró convencer, ya que en nuestro caso no llegaba a converger lo rápido que queríamos, y la varianza
+pero no arrojó resultados idóneos, ya que en nuestro caso no llegaba a converger lo rápido que queríamos, y la varianza
 no variaba mucho, por lo siempre aumentaba o disminuía una de las probabilidades de cruce o de mutación 
 (siguiente apartado).
 
@@ -291,15 +290,15 @@ no variaba mucho, por lo siempre aumentaba o disminuía una de las probabilidade
 
 Se ha tenido en cuenta la variabilidad de la probabilidad de mutación y la probabilidad de cruce. Para
 ello, el algoritmo calcula por cada generación la media de score de toda la población, y la varianza
-de los parámetros de los individuos que se encuentran en la población,  normalizando los individuos
-como se ha hecho anteriormente para la creación de la población.\newline
+de los parámetros de los individuos que se encuentran en la población, normalizando los individuos
+como se ha descrito anteriormente.\newline
 
 No hemos utilizado la varianza del score de la población, ya que realmente un individuo con unos 
 parámetros diferentes al de otro individuo puede tener el mismo score. De esta forma, comprobamos 
 realmente la variabilidad que existe en la población. \newline
 
 Primero hemos comenzado inicializando las probabilidades de mutación y de cruce a 0.5. Después,
-en cada generación dependiendo de un valor de varianza predefinido (probando, hemos determinado que
+en cada generación dependiendo de un valor de varianza predefinido (tras varias ejecuciones, se ha determinado que
 en torno a 0.12 es un valor idóneo). 
 
 \begin{itemize}
@@ -328,7 +327,7 @@ siguiente gráfica:\newline
 
 Podemos observar, como en las últimas iteraciones va aumentando la probabilidad de mutación
 y disminuyendo la de cruce, como habíamos predicho.
-
+\newpage
 \section{Criterios de parada}
 
 Se han considerado los siguientes criterios para detener la evolución de la población:
@@ -359,62 +358,14 @@ Debido a que los hiperparámetros del modelo operan en escalas distintas, una di
   \item \textbf{Manejo de valores especiales}: Se mapean a valores intermedios (\texttt{"sqrt" -> 0.5, "log2" -> 0.3}) para permitir su comparación matemática.
 \end{itemize}
 
-\begin{lstlisting}[language=Python, caption=Función de normalización de individuo]
-  def NormaliseIndividual(ind):
-    # Convertir max_features
-    mf = ind.max_features
-    if mf is None:
-        mf_norm = 0.0
-    elif isinstance(mf, str):
-        if mf == "sqrt":
-            mf_norm = 0.5
-        elif mf == "log2":
-            mf_norm = 0.3
-        else:
-            mf_norm = 0.0 
-    else:
-        # ya es float (debe estar en [0,1])
-        mf_norm = float(mf)
-
-    # bootstrap ya es booleano 0/1
-    bootstrap_norm = 1.0 if ind.bootstrap else 0.0
-
-    # criterion y class_weight ya son 0/1, pero aseguramos float
-    criterion_norm = float(ind.criterion)
-    class_weight_norm = float(ind.class_weight)
-
-    return np.array(
-        [
-            ind.n_estimators / 300.0,
-            ind.max_depth / 30.0,
-            ind.min_samples_split / 20.0,
-            ind.min_samples_leaf / 20.0,
-            mf_norm,
-            bootstrap_norm,
-            criterion_norm,
-            class_weight_norm,
-            ind.max_leaf_nodes / 200.0,
-            ind.min_impurity_decrease / 0.1,
-            ind.random_state / 1000.0,
-        ]
-    )
-\end{lstlisting}
 
 
-\section{Random Search, Grid Search y Algoritmo genético}
+\section{Grid Search, Random Search y Algoritmo genético}
 
 En adición al algoritmo genético, se han implementado una búsqueda aleatoria y grid search para
 comparar ambos métodos. De esta forma, podremos observar cómo se comporta nuestro algoritmo frente
 a opciones más clásicas, y si de alguna manera es mejor o peor. 
 
-\subsection{Random Search}
-La búsqueda aleatoria consiste en generar individuos (soluciones) de manera estocástica,
-tal que por cada gen (parámetro) se inicializa en un valor aleatorio. Este proceso
-se itera repetidas veces.\newline
-
-Este método es de los más rápidos que hay, pero como observaremos a continuación, la gran 
-desventaja que tiene es la inconsistencia de los datos obtenidos por cada ejecución del 
-algoritmo. Como resultado, la varianza debería ser bastante más elevada. 
 
 \subsection{Grid Search}
 Grid search es una técnica de búsqueda exhaustiva de los parámetros objeto del problema.
@@ -423,32 +374,184 @@ se generan combinaciones.\newline
 
 En este caso, se ha definido una lista de la división de esos parámetros con los posibles valores:
 
-\begin{description}
-    \item[n\_estimators] \{50, 100, 200\}
-    \item[max\_depth] \{5, 10, 20, None\}
-    \item[min\_samples\_split] \{2, 5, 10\}
-    \item[min\_samples\_leaf] \{1, 2, 4\}
-    \item[max\_features] \{\textit{sqrt}, \textit{log2}, None\}
-    \item[bootstrap] \{True, False\}
-    \item[criterion] \{\textit{gini}, \textit{entropy}\}
-\end{description}
+
+        
+       
+        
+\begin{itemize}
+    \item \textbf{n\_estimators}: 10, 155, 300
+    \item \textbf{max\_depth}: 2, 15, 30
+    \item \textbf{min\_samples\_split}: 2, 10, 20
+    \item \textbf{min\_samples\_leaf}: 1, 10, 20
+    \item \textbf{max\_features}: 0.1, 0.5, 1
+    \item \textbf{bootstrap}: True, False
+    \item \textbf{criterion}: \textit{gini}, \textit{entropy}
+    \item \textbf{class\_weight}: \textit{balanced}, \textit{None}
+    \item \textbf{max\_leaf\_nodes}: 10, 100, 200
+    \item \textbf{min\_impurity\_decrease}: 0, 0.05, 0.1
+\end{itemize}
 
 Sobre estas opciones se crean los individuos, para finalmente ordenarlos y obtener
-las mejor o mejores configuraciones posibles. La principal bondad es que dentro del espacio
-(grid) que hemos definido, se afinan soluciones muy buenas (se encuentra la mejor combinación),
+la mejor o mejores configuraciones posibles. La principal bondad es que dentro del espacio
+(grid) que hemos definido, se afinan soluciones muy buenas (se encuentra la mejor combinación posible en la rejilla),
 aunque, la decisión surge al elegir qué se considera como división ya que grid search
 es computacionalmente muy costoso, y podría llegar a ser inviable.
 
 Esto es fundamental para comprender los resultados así como la comparativa con los otros dos métodos 
-relativos a esta práctica.
+relativos a esta práctica.\newline
+
+
+\subsection{Random Search}
+La búsqueda aleatoria consiste en generar individuos (soluciones) de manera estocástica,
+tal que por cada gen (parámetro) se inicializa en un valor aleatorio. Este proceso
+se itera repetidas veces.\newline
+
+Este método es de los más rápidos que hay, pero como observaremos a continuación, la gran 
+desventaja que tiene es la inconsistencia de los datos obtenidos por cada ejecución del 
+algoritmo. Como resultado, la varianza debería ser bastante más elevada.
+
 
 
 \section{Análisis resultados}
 
+Con todos los métodos ya implementados, la fase que sigue consiste en evaluar y comparar los resultados que han aportado
+tras su ejecución. Para ello, se han tenido en cuenta diferentes métricas, como las puntuaciones máximas, mínimas y su promedio.
+Además, se estudian la varianza y desviación de los resultados. Finalmente, en cuanto a la eficiencia y coste de los métodos
+tratados en la práctica, hemos hallado el tiempo de la ejecución en segundos, los MB de memoria y el porcentaje medio
+del procesador utilizado durante la ejecución.
 
+
+
+\subsection{Grid Search}
+Para el grid search, probaremos todas las posibilidades dejando fijos únicamente 3 valores diferentes por cada campo del individuo.
+En concreto, estos son los parámetros que estableceremos para luego hacer todas las combinaciones posibles:
+
+\begin{lstlisting}[language=Python, caption=Grid de parámetros]
+  param_grid = {
+        "n_estimators": [10, 155, 300],
+        "max_depth": [2, 15, 30],
+        "min_samples_split": [2, 10, 20],
+        "min_samples_leaf": [1, 10, 20],
+        "max_features": [0.1, 0.5, 1],
+        "bootstrap": [True, False],
+        "criterion": ["entropy", "gini"],
+        "class_weight": ["balanced", None],
+        "max_leaf_nodes": [10, 100, 200],
+        "min_impurity_decrease": [0, 0.05, 0.1],
+  }
+\end{lstlisting}
+
+El total de combinaciones posibles para la rejilla establecida, son 17496 individuos. Para hacer una comparación justa, estudiaremos
+los siguientes algoritmos basándonos en el mismo número de individuos. Los datos obtenidos tras el estudio son los siguientes:\newline
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/stats_grid.csv}
+}\newline
+
+Los resultados con respecto al uso de CPU Media, es un valor mayor a 100\% porque suma el porcentaje de todos
+los hilos del procesador (es decir, con un procesador de 16 cores, el porcentaje máximo sería el 1600\%). Vemos que
+Los resultados tienen sentido, pues al ser un algoritmo secuencial, lo más probable es que un hilo esté al 100\%
+de uso y el resto apenas tenga uso.\newline
+
+El resto de resultados los podremos comparar con los otros algoritmos en la conclusión final, aunque podemos ir 
+observando que la desviación típica es la mayor de todas, y la media de accuracy es de las más bajas con 
+respecto a otros algoritmos. Al ser el grid search todas combinaciones diferentes entre sí, es normal que tenga una
+varianza y desviación típica mayor al resto, ya que es imposible que algún valor se repita. \newline
+
+\subsection{Random Search}
+Como hemos recalcado en el apartado anterior, con intención de hacer una comparación equitativa, la búsqueda aleatoria se ha ejecutado de forma 
+análoga generando el mismo número de soluciones, los datos obtenidos han sido:\newline
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/stats_rs.csv}
+}\newline
+
+Primeramente podemos observar que hay una mejora en cuanto a los resultados de accuracy 
+obtenidos, y un poco menos de varianza con respecto al anterior. La explicación es que, 
+al poder obtener el mismo valor repetidas veces, la varianza tiende a ser menor debido a la posible
+repetición de configuraciones. Y el score obtenido medio y máximo, es mejor con respecto al grid, ya que 
+grid search prueba todas las combinaciones posibles dentro de una rejilla, evaluando muchas
+combinaciones que obtienen un accuracy muy malo.\newline
+
+\subsection{Algoritmo Genético}
+Finalmente, el algoritmo genético presenta una distinción a la hora de ejecutarlo. Se han de modificar sendos tamaño de la población
+y número de generaciones para equiparar la exhaustividad de los otros dos métodos. Así pues, hemos ejecutado el algoritmo genético implementado
+durante 349 generaciones. El tamaño de la población es cincuenta individuos. El resto de parámetros y decisiones de implementación/ejecución 
+son los que se han explicado a lo largo de este documento. Los resultados han sido:\newline
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/stats_gen_pdf.csv}
+}\newline
+
+\textbf{Nota:} El csv completo con todos los datos está disponible
+en 
+\href{https://github.com/dextbrawl/Metaheuristicas}{el repositorio de la práctica} 
+al igual que el resto de documentos y código fuente.\newline
+
+A continuación, se muestran unas gráficas con los resultados obtenidos:\newline
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{images/acc_var.jpeg}
+  \caption{Valores obtenidos de Media y Varianza a lo largo de las generaciones}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{images/cpu_ram.jpeg}
+  \caption{Valores obtenidos de Media de CPU y Memoria a lo largo de las generaciones}
+\end{figure}
+
+Y el valor máximo de accuracy encontrado, en la generación 193:
+
+\resizebox{\textwidth}{!}{%
+  \csvautotabular[respect all]{data/best_genetic.csv}
+}\newline
+
+Podemos comprobar, que con respecto a los anteriores, es el algoritmo que más tiempo tarda (aproximadamente el 
+doble de cada uno de los dos), lo cual es muy razonable al tener que hacer muchas más operaciones (cruce, 
+mutación, selección, reemplazo, ordenaciones\ldots). Aún así, sigue siendo el que mejor resultados nos ha dado,
+y con un uso de CPU y Memoria similares a los anteriores.\newline
+
+También es el que obtiene un valor de varianza más bajo, ya que al converger tan rápido la población, la gran mayoría de individuos de 
+la población serán lo más parecidos entre sí, exceptuando aquellos que vayan mutando o se reemplacen los peores con aleatorios.
 
 \section{Conclusión}
+Tras el análisis comparativo de los modelos implementados, llegamos a la conclusión de que el Algoritmo Genético ha mostrado
+el mejor comportamiento para este problema por las siguientes
+razones fundamentales:
 
+\begin{enumerate}
+  \item \textbf{CPU y Memoria: }El algoritmo genético es bastante similar a los anteriores en cuanto a uso
+  de CPU, haciendo que no suponga una diferencia significativa en nuestro caso. En cuanto a Memoria prácticamente igual,
+  aunque hay que tener en cuenta que Random Search va a utilizar menos memoria que Grid Search y el 
+  Algoritmo Genético (en nuestro caso, unos 10MB de diferencia).\newline
+
+  \item \textbf{Accuracy y Tiempo: }Es cierto que el Algoritmo Genético ha sido el que más se ha ejecutado con diferencia,
+  pero esto es debido a que hemos querido hacer una comparación justa para evaluar el mismo número de 
+  individuos que con Grid Search y Random Search. Si observamos la primera gráfica, observamos que el algoritmo
+  converge en apenas 4 o 5 generaciones, para así después explorar más, por lo que no nos sería tan efectivo
+  ejecutar el algoritmo durante tanto tiempo.
+
+  No solo eso, sino que además ha sido el que ha encontrado el mejor valor de Accuracy con respecto a los otros dos,
+  alrededor de la mitad del tiempo, acercándose más al óptimo global con respecto a los otros dos.\newline
+
+  \item \textbf{Punto intermedio: }Si analizamos detenidamente Grid Search y Random Search, nos damos cuenta de que 
+  son algoritmos opuestos, pues si probásemos absolutamente todas las combinaciones posibles con Grid Search, estaríamos
+  realizando una búsqueda exhaustiva sobre todo el espacio de exploración. En cambio, Random Search al ser una búsqueda 
+  completamente aleatoria, estaría utilizando diversificación total.
+
+  Dicho esto, con nuestro Algoritmo Genético podemos determinar un punto intermedio para así obtener unos resultados lo 
+  más cercanos al óptimo sin tener que explorar todo nuestro espacio de búsqueda y sin dejar el resultado completamente 
+  dependiente del azar.\newline
+
+  \item \textbf{Valor aceptable de accuracy: }Aunque es cierto que nuestro algoritmo genético a la larga ha conseguido obtener
+  el valor más cercano al óptimo, realmente no nos generaría una mejora tan significativa (según los datos obtenidos, más o menos 
+  un 0.01 de diferencia con respecto al valor usual: 0.74). Es por ello que podríamos detener el algoritmo
+  a las 10 o 20 generaciones, y esperar tanto tiempo para ello. De hecho, si nos importase todavía menos esa diferencia de score,
+  nos podría interesar más un Random Search, capaz de encontrar un valor relativamente decente sin tener que explorar mucho, pero 
+  definitivamente no utilizaríamos un Grid Search si ese fuera el caso.
+\end{enumerate}
 
 \end{spacing}
 \end{document}

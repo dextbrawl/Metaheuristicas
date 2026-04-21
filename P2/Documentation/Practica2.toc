@@ -1,6 +1,8 @@
 \contentsline {section}{\numberline {1}Introducción}{2}{section.1}%
 \contentsline {section}{\numberline {2}Enunciado de la práctica}{2}{section.2}%
-\contentsline {section}{\numberline {3}Representación}{2}{section.3}%
+\contentsline {section}{\numberline {3}Representación y Función Objetivo}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Representación}{2}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Función objetivo}{3}{subsection.3.2}%
 \contentsline {section}{\numberline {4}Población inicial}{3}{section.4}%
 \contentsline {section}{\numberline {5}Selección padres}{4}{section.5}%
 \contentsline {section}{\numberline {6}Cruces entre individuos}{4}{section.6}%
@@ -11,8 +13,11 @@
 \contentsline {section}{\numberline {11}Consideraciones extra}{8}{section.11}%
 \contentsline {subsection}{\numberline {11.1}Control de dominios}{8}{subsection.11.1}%
 \contentsline {subsection}{\numberline {11.2}Normalización y cálculo de distancias}{9}{subsection.11.2}%
-\contentsline {section}{\numberline {12}Random Search, Grid Search y Algoritmo genético}{10}{section.12}%
-\contentsline {subsection}{\numberline {12.1}Random Search}{10}{subsection.12.1}%
-\contentsline {subsection}{\numberline {12.2}Grid Search}{10}{subsection.12.2}%
-\contentsline {section}{\numberline {13}Análisis resultados}{11}{section.13}%
-\contentsline {section}{\numberline {14}Conclusión}{11}{section.14}%
+\contentsline {section}{\numberline {12}Grid Search, Random Search y Algoritmo genético}{9}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Grid Search}{9}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Random Search}{10}{subsection.12.2}%
+\contentsline {section}{\numberline {13}Análisis resultados}{10}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Grid Search}{10}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}Random Search}{11}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}Algoritmo Genético}{11}{subsection.13.3}%
+\contentsline {section}{\numberline {14}Conclusión}{13}{section.14}%
