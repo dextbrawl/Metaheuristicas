@@ -9,6 +9,7 @@ class BlackBoxModel:
         x = np.array(x).reshape(1, -1)
         return self.model.predict(x)[0]
 
+
     
     
 if __name__ == "__main__":
