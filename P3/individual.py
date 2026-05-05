@@ -4,172 +4,187 @@ from typing import List, Tuple, Optional
 import matplotlib.pyplot as plt
 import prueba as modelo
 
-#Un individuo es un conjunto de puntos (de pares de puntos)
 class Individual:
+
     
-    def __init__(self, numpairs: int = 15, bounds: Tuple[float, float] = (-50.0, 50.0), model: modelo.BlackBoxModel = None):
-        self.numpairs = numpairs
-        self.bounds = bounds
+    def __init__(self, numPoints: int = 20, limits: Tuple[float, float] = (-2.0, -2.0), model: modelo.BlackBoxModel = None):
+        self.numPoints = numPoints
+        self.limits = limits
         self.model = model
         
-        if model is not None:
-            self.pairing()
-        else:
-            self.points0 = np.random.uniform(bounds[0], bounds[1], (numpairs, 2))
-            self.points1 = np.random.uniform(bounds[0], bounds[1], (numpairs, 2))
-            self.points = np.vstack([self.points0, self.points1])
-            self.classes = None
-            self.fitness = None
-    
-    def pairing(self):
-       
-        self.points0 = []
-        self.points1 = []
-        
-        maxattempts = self.numpairs * 200  # Aumentamos intentos
-        attempts = 0
-        
-        while len(self.points0) < self.numpairs and attempts < maxattempts:
-            a = np.random.uniform(self.bounds[0], self.bounds[1], 2)
-            b = np.random.uniform(self.bounds[0], self.bounds[1], 2)
-            
-            class_a = self.model.predict(a)
-            class_b = self.model.predict(b)
-            
-            if class_a != class_b:
-                if class_a == 0:
-                    self.points0.append(a)
-                    self.points1.append(b)
-                else:
-                    self.points0.append(b)
-                    self.points1.append(a)
-            
-            attempts += 1
-        
-        # Si no se generaron suficientes pares, completar con puntos aleatorios
-        # y luego ajustar sus clases
-        while len(self.points0) < self.numpairs:
-            # Generar punto aleatorio
-            point = np.random.uniform(self.bounds[0], self.bounds[1], 2)
-            point_class = self.model.predict(point)
-            
-            # Buscar un punto de clase opuesta
-            max_attempts_2 = 100
-            for _ in range(max_attempts_2):
-                other_point = np.random.uniform(self.bounds[0], self.bounds[1], 2)
-                other_class = self.model.predict(other_point)
-                
-                if other_class != point_class:
-                    if point_class == 0:
-                        self.points0.append(point)
-                        self.points1.append(other_point)
-                    else:
-                        self.points0.append(other_point)
-                        self.points1.append(point)
-                    break
-        
-        self.points0 = np.array(self.points0[:self.numpairs])
-        self.points1 = np.array(self.points1[:self.numpairs])
-        self.points = np.vstack([self.points0, self.points1])
-        
-        print(f"Generados {len(self.points0)}/{self.numpairs} pares validos")
+        self.points = np.random.uniform(limits[0], limits[1], (numPoints, 2))
+        self.classes = None
+        self.fitness = None
+        self.pairs = []
+        self.components = {}
     
     def getClasses(self, model: modelo.BlackBoxModel) -> np.ndarray:
         self.classes = np.array([model.predict(point) for point in self.points])
         return self.classes
     
-    def getDistances(self) -> float:
+    def randomPairing(self):
+        indices = list(range(self.numPoints))
+        random.shuffle(indices)
+        
+        self.pairs = []
+        for i in range(0, len(indices), 2):
+            if i + 1 < len(indices):
+                self.pairs.append((indices[i], indices[i + 1]))
+        
+        return self.pairs
+    
+    def varietyPenalty(self) -> float:
         if self.classes is None:
-            if self.model:
-                self.getClasses(self.model)
-            else:
-                raise ValueError("primero clases bro")
+            raise ValueError("Primero calcula las clases con getClasses()")
+        
+        countClass0 = np.sum(self.classes == 0)
+        countClass1 = np.sum(self.classes == 1)
+        
+        idealCount = self.numPoints / 2
+        penalty = abs(countClass0 - idealCount) / idealCount
+        
+        return penalty
+    
+    def averagePairDistance(self) -> float:
+        if not self.pairs:
+            self.randomPairing()
         
         distances = []
-        for i in range(self.numpairs):
-            dist = np.linalg.norm(self.points0[i] - self.points1[i]) #distancia euclides en R2
-            distances.append(dist)
+        for i, j in self.pairs:
+            distance = np.linalg.norm(self.points[i] - self.points[j])
+            distances.append(distance)
         
         return np.mean(distances)
     
-    #Dispersion alta god dispersion baja antigod
-    def getDispersion(self) -> float:
-        if len(self.points) < 2:
+    def dispersion(self) -> float:
+        if not self.pairs:
+            self.randomPairing()
+        
+        if len(self.pairs) < 2:
             return 0.0
         
         minDistance = float('inf')
         
-        #linalg es la raiz de la suma de cuadrados 
-        for i in range(self.numpairs):
-            for j in range(i + 1, self.numpairs):
-                d00 = np.linalg.norm(self.points0[i] - self.points0[j])
-                d11 = np.linalg.norm(self.points1[i] - self.points1[j])
-                d01 = np.linalg.norm(self.points0[i] - self.points1[j])
-                d10 = np.linalg.norm(self.points1[i] - self.points0[j])
+        for p1 in range(len(self.pairs)):
+            for p2 in range(p1 + 1, len(self.pairs)):
+                i1, j1 = self.pairs[p1]
+                i2, j2 = self.pairs[p2]
                 
-                for d in [d00, d11, d01, d10]:
-                    if d < minDistance:
-                        minDistance = d
+                distance1 = np.linalg.norm(self.points[i1] - self.points[i2])
+                distance2 = np.linalg.norm(self.points[i1] - self.points[j2])
+                distance3 = np.linalg.norm(self.points[j1] - self.points[i2])
+                distance4 = np.linalg.norm(self.points[j1] - self.points[j2])
+                
+                closestDistance = min(distance1, distance2, distance3, distance4)
+                
+                if closestDistance < minDistance:
+                    minDistance = closestDistance
         
         return minDistance if minDistance != float('inf') else 0.0
     
-    def computeFitness(self, model: modelo.BlackBoxModel) -> float:
-       
-        #Distancia pares - dispersion
-        #Lo suyo es que la distancia sea minima y la dispersion maxima
-
-        self.getClasses(model)
-        distance = self.getDistances()
-        dispersion = self.getDispersion()
-        self.fitness = distance - dispersion
-        return self.fitness
+    def sameClassPenalty(self) -> float:
+        if self.classes is None:
+            raise ValueError("Primero calcula las clases con getClasses()")
+        
+        if not self.pairs:
+            self.randomPairing()
+        
+        sameClassCount = 0
+        for i, j in self.pairs:
+            if self.classes[i] == self.classes[j]:
+                sameClassCount += 1
+        
+        penalty = sameClassCount / len(self.pairs)
+        
+        return penalty
     
+    def computeFitness(self, model: modelo.BlackBoxModel, 
+                       weightDistance: float = 1.0,
+                       weightDispersion: float = 0.5,
+                       weightVariety: float = 1.0,
+                       weightSameClass: float = 2.0) -> float:
+        """
+        Fitness = weightDistance * distanciaPromedio 
+                - weightDispersion * dispersion 
+                + weightVariety * penalizacionVariedad 
+                + weightSameClass * penalizacionMismaClase
+        
+        """
+        self.getClasses(model)
+        self.randomPairing()
+        
+        avgDistance = self.averagePairDistance()
+        dispersionValue = self.dispersion()
+        varietyPenalty = self.varietyPenalty()
+        sameClassPenalty = self.sameClassPenalty()
+        
+        self.fitness = (weightDistance * avgDistance 
+                       - weightDispersion * dispersionValue 
+                       + weightVariety * varietyPenalty 
+                       + weightSameClass * sameClassPenalty)
+        
+        self.components = {
+            'avgDistance': avgDistance,
+            'dispersion': dispersionValue,
+            'varietyPenalty': varietyPenalty,
+            'sameClassPenalty': sameClassPenalty
+        }
+        
+        return self.fitness
+
+    def showInfo(self):
+        """
+        Muestra información detallada del individuo
+        """
+        if self.classes is None:
+            print("Individuo no evaluado. Ejecuta computeFitness() primero.")
+            return
+        
+        countClass0 = np.sum(self.classes == 0)
+        countClass1 = np.sum(self.classes == 1)
+        
+        print("INDIVIDUO:")
+        print(f"Puntos totales: {self.numPoints}")
+        print(f"Clase 0: {countClass0} puntos")
+        print(f"Clase 1: {countClass1} puntos")
+        print(f"Numero de pares: {len(self.pairs)}")
+        
+        # Contar pares por tipo
+        sameClass = 0
+        diffClass = 0
+        for i, j in self.pairs:
+            if self.classes[i] == self.classes[j]:
+                sameClass += 1
+            else:
+                diffClass += 1
+        
+        print(f"Pares de misma clase: {sameClass}")
+        print(f"Pares de clases diferentes: {diffClass}")
+        
+        print("\n--- COMPONENTES DEL FITNESS ---")
+        print(f"Distancia promedio entre pares: {self.components.get('avgDistance', 0):.4f}")
+        print(f"Dispersión (distancia mínima entre pares): {self.components.get('dispersion', 0):.4f}")
+        print(f"Penalización por variedad: {self.components.get('varietyPenalty', 0):.4f}")
+        print(f"Penalización por misma clase: {self.components.get('sameClassPenalty', 0):.4f}")
+        print(f"\nFITNESS TOTAL: {self.fitness:.4f} (menor es mejor)")    
 
 
-
-
-
-
-#ESTE MAIN CREA 1 INDIVIDUO Y LO SACA POR PANTALLA
 if __name__ == "__main__":
-
     model = modelo.BlackBoxModel("blackbox_modelB.pkl")
     
-    print("Creando individuo...")
-    ind = Individual(numpairs=10, model=model)
-    
-    print(f"\nIndividuo creado con {ind.numpairs} pares")
-    print(f"Puntos clase0: {ind.points0.shape}")
-    print(f"Puntos clase1: {ind.points1.shape}")
-    
-    # Mostrar puntos
-    print("\n--- PUNTOS CLASE 0 ---")
-    for i, point in enumerate(ind.points0):
-        print(f"Punto {i+1}: ({point[0]:.4f}, {point[1]:.4f})")
-    
-    print("\n--- PUNTOS CLASE 1 ---")
-    for i, point in enumerate(ind.points1):
-        print(f"Punto {i+1}: ({point[0]:.4f}, {point[1]:.4f})")
+    print("CREANDO INDIVIDUO CON PUNTOS ALEATORIOS")
 
-    # Evaluar fitness
-    fitness = ind.computeFitness(model)
-    print(f"\nFitness: {fitness:.4f}")
-    print(f"Distancia promedio entre pares: {ind.getDistances():.4f}")
-    print(f"Dispersion: {ind.getDispersion():.4f}")
-
-    # Verificar que todos los pares son validos
-    ind.getClasses(model)
-    valid = True
-    for i in range(ind.numpairs):
-        if ind.classes[i] == ind.classes[i + ind.numpairs]:
-            valid = False
-            print(f"ERROR: Par {i} invalido")
+    myIndividual = Individual(numPoints=20, limits=(-2.0, 2.0), model=model)
+    fitnessValue = myIndividual.computeFitness(model)
     
-    if valid:
-        print("\nTodos los pares son validos (clases diferentes)")
-    
-    #Pa pintar
-    #ind.plot_pairs(model, save_path="pares_iniciales.png")
+    print("\n--- PUNTOS GENERADOS ---")
+    for i, point in enumerate(myIndividual.points):
+        pointClass = myIndividual.classes[i]
+        print(f"Punto {i+1:2d}: ({point[0]:7.4f}, {point[1]:7.4f}) -> Clase {int(pointClass)}")
 
-
-
+    print("\n--- EMPAREJAMIENTO ALEATORIO ---")
+    for k, (i, j) in enumerate(myIndividual.pairs):
+        classI = myIndividual.classes[i]
+        classJ = myIndividual.classes[j]
+        pairType = "DIFERENTE" if classI != classJ else "MISMA"
+        print(f"Par {k+1:2d}: Punto {i+1:2d} (clase {int(classI)}) con Punto {j+1:2d} (clase {int(classJ)}) -> {pairType}")
