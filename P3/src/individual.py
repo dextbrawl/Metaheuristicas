@@ -17,7 +17,7 @@ class Individual:
         self.fitness = None
         self.pairs = []
         self.components = {}
-    
+
     def getClasses(self, model: modelo.BlackBoxModel) -> np.ndarray:
         self.classes = np.array([model.predict(point) for point in self.points])
         return self.classes
@@ -169,7 +169,24 @@ class Individual:
         print(f"Penalización por misma clase: {self.components.get('sameClassPenalty', 0):.4f}")
         print(f"\nFITNESS TOTAL: {self.fitness:.4f} (menor es mejor)")    
 
+def mutate(ind: Individual, mRate):
+    """
+    ind: Individuo a mutar
 
+    mRate: Ratio de mutación, máximo de varianza de la mutación. mRate = 0 -> no mutación
+    """
+
+    newPoints = ind.points.copy()
+
+    for a in newPoints:
+        a[0] += mRate * random.uniform(-1,1)
+
+    retVal = Individual()
+
+    retVal.points = newPoints
+
+    return retVal
+        
 if __name__ == "__main__":
     model = modelo.BlackBoxModel("blackbox_modelB.pkl")
     

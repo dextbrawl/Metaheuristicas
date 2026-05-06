@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from typing import List, Tuple, Optional
+from P2.Algoritmo_Genetico import individuals
 from individual import Individual  
 import prueba as modelo
 
@@ -54,6 +55,21 @@ class Population:
         winner = min(tournament, key=lambda ind: ind.fitness)
         return winner
     
+
+    def mutation(self,pM,mRate):
+        """
+        pM: probabilidad de mutación de todos los individuos.
+        mRate: ratio de mutación, máximo de varianza de la mutación. 
+        """
+
+
+        newIndividuals = []
+
+        for ind in self.individuals:
+            if random.uniform.(0,1) < pM:
+                newIndividuals.append(mutate(ind, mRate))
+        
+        self.individuals = newIndividuals
 
     def crossing(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
         if not parent1.pairs:
