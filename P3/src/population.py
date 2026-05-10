@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from typing import List, Tuple, Optional
-from P2.Algoritmo_Genetico import individuals
+#from P2.Algoritmo_Genetico import individuals
 from individual import Individual  
 import prueba as modelo
 
@@ -61,13 +61,13 @@ class Population:
         pM: probabilidad de mutación de todos los individuos.
         mRate: ratio de mutación, máximo de varianza de la mutación. 
         """
-
+        
 
         newIndividuals = []
 
         for ind in self.individuals:
-            if random.uniform.(0,1) < pM:
-                newIndividuals.append(mutate(ind, mRate))
+            if random.uniform(0,1) < pM:
+                newIndividuals.append(ind.mutate(ind, mRate))
         
         self.individuals = newIndividuals
 

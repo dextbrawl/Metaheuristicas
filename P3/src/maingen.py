@@ -176,7 +176,8 @@ LIMITS = (-1.0, 1.0)
 ELITE_SIZE = 2
 TOURNAMENT_SIZE = 3
 CROSSOVER_PROB = 0.85
-#MUTATION_PROB
+MUTATION_PROB = 0.3
+MUTATION_RATE = 0.2
 GENERATIONS = 50
 
 #I. Iniciamos pobacion random
@@ -248,7 +249,12 @@ for generation in range(GENERATIONS):
         if len(newPopulation.individuals) < POPULATION_SIZE:
             newPopulation.individuals.append(child2)
     
-    
+
+    #MUTAR INDIVIDUOS
+
+
+
+    #Nueva gen...
     newPopulation.evaluateAll()
     currentPopulation = newPopulation
     
@@ -279,6 +285,7 @@ if hasattr(globalBestIndividual, 'components'):
     print(f"\nPenalizacion variedad: {globalBestIndividual.components.get('varietyPenalty', 0):.4f}")
     print(f"\nPenalizacion misma clase: {globalBestIndividual.components.get('sameClassPenalty', 0):.4f}")
 
+
 #drawFitnessEvolution()
-drawIndividual(globalBestIndividual, model, title="Top Individuo")
-drawDecisionBoundary(globalBestIndividual, model, limits=LIMITS, title="Top Individuo")
+#drawIndividual(globalBestIndividual, model, title="Top Individuo")
+#drawDecisionBoundary(globalBestIndividual, model, limits=LIMITS, title="Top Individuo")

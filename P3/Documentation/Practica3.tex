@@ -1,0 +1,219 @@
+\documentclass{article}
+
+\usepackage{csvsimple}
+\usepackage{adjustbox}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{setspace}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+
+% Define colors for syntax highlighting
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configure listings style
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\makeatletter
+\renewcommand{\maketitle}{%
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+
+{\Huge\bfseries Práctica 3\par}
+\vspace{0.5cm}
+{\Large\bfseries Metaheurísticas\par}
+\vspace{2cm}
+
+
+\includegraphics[width=0.3\textwidth]{images/Logo_UCO.png}\par
+\vspace{1.5cm}
+
+
+{\Large\bfseries
+Juan Antonio Mellado Arenas\\
+Nicolás Sánchez Álvarez\\
+Antonio Jesús Merlo Morales\\
+Sergio Palacios López\\
+Sergio García Atanasio
+\par}
+
+\vfill
+
+
+{\large\bfseries Universidad de Córdoba\par}
+
+\end{titlepage}
+}
+\makeatother
+
+\title{Práctica 3}
+\author{Juan Antonio Mellado Arenas \\ Nicolás Sánchez Álvarez \\ Antonio Jesús Merlo Morales \\ Sergio Palacios López \\ Sergio García Atanasio}
+
+\begin{document}
+
+
+\maketitle
+
+\renewcommand{\contentsname}{Índice}
+\setcounter{tocdepth}{2} % 1 = secciones, 2 = subsecciones, 3 = subsubsecciones
+\tableofcontents
+
+\newpage
+
+\begin{spacing}{1.3}
+  
+\section{Introducción}
+Documento sobre la realización de la tercera práctica de Metaheurísticas.
+Para esta, se ha implementado un algoritmo genético que resuelva el problema planteado
+por el profesor. Cualquier documentación adicional, así como los códigos fuente
+se encuentran en 
+\href{https://github.com/dextbrawl/Metaheuristicas}{el repositorio de la asignatura}.
+
+
+\section{Enunciado de la práctica}
+Dados dos modelos $A$ y $B$ de clasificación que actúan a modo de caja negra, 
+se pide explorar el espacio de entrada de estos. El objetivo es, en última instancia,
+llegar a aproximar su frontera de decisión (ya que comprender estas regiones es fundamental
+en numerosos contextos). Para resolver el problema hay total
+libertad, no obstante la metaheurística implementada ha de ser capaz de:
+
+\begin{itemize}
+  \item Encontrar pares de puntos que pertenezcan a clases diferentes.
+  \item Minimizar la distancia entre dichos puntos.
+  \item Hallar la dispersión entre todos los puntos.
+\end{itemize}
+
+Decir que tán sólo hay dos tipos de puntos (un punto puede pertenecer al tipo 1 o al 2) y que 
+el espacio será el plano $R2$.
+
+Para la resolución de este problema se ha implementado un algoritmo genético. Cada punto
+de este método basado en poblaciones se indica en su respectiva sección.
+
+
+
+
+
+\section{Representación y Función Objetivo}
+\subsection{Representación}
+Para representar este problema, hay que entender que la solución final será una región de la aplicación $R2$,
+por lo que vendrá dada por una expresión (un polinomio por ejemplo) o bien la tendremos que esbozar e interpolar
+para unos puntos dados.
+
+Así pues, las dos representaciones posibles son la expresión matemática que esboza la frontera, o bien un conjunto
+de puntos (un par de números enteros $x$ e $y$).
+
+Para el algoritmo genético, un individuo es un conjunto de pares de puntos del espacio en dos dimensiones. Se ha implementado
+la clase Individual, con parámetros esenciales como el número de puntos del individuo (ha de ser par),
+los límites del espacio de búsqueda (posteriormente detallados), emparejamiento, valor de fitnes, las clase
+a la que pertenece cada punto. Por último los puntos de almacenan en una matriz de nx2 donde cada fila es un punto,
+a efectos prácticos es como una lista de puntos en orden ya que así la recorreremos. Con esto, si el tamaño
+de los individuos es de 20, tendremos una lista de 20 puntos que están emparejados entre sí.
+
+\begin{lstlisting}[language=Python, caption=Constructor de la clase Individuo]
+  class Individual:
+    def __init__(self, numPoints: int = 20, 
+                limits: Tuple[float, float] = (-2.0, -2.0),
+                model: modelo.BlackBoxModel = None):
+        self.numPoints = numPoints
+        self.limits = limits
+        self.model = model
+        
+        self.points = np.random.uniform(limits[0], limits[1], (numPoints, 2))
+        self.classes = None
+        self.fitness = None
+        self.pairs = []
+        self.components = {}
+\end{lstlisting}
+
+\textbf{Nota:} Components son los componentes que se usarán para calcular el fitness, ya que depende la disposición
+de todos los puntos del individuo (dispersión, tipos de puntos...), esto se detalla a continuación.
+
+\subsection{Función objetivo}
+Para poder evaluar en que medida un individuo (conjunto de puntos) soluciona el problema,
+entran varias cuestiones en juego.
+
+\begin{itemize}
+  \item \textbf{Distancia media de los puntos de los pares:} Los puntos se emparejan,
+  y asumimos que un par de puntos es mejor si la distancia entre sus dos puntos es mínima.
+  Para el individuo se aplica la distancia euclidiana en el plano en cada par de puntos, y la media
+  resulta en este componente.
+  \item \textbf{Dispersión:} O distancia entre los pares del individuo. Para calcular este componente de la función objetivo,
+  se halla la distancia mínima entre todos los pares. Si por ejemplo tuviéramos cuatro puntos (dos pares), si están cerca
+  significa que al menos un punto de un par está cerca de al menos un punto del otro par, por eso se hallan las distancias 
+  entre puntos de diferentes pares y se obtiene la más pequeña de todas. Buscamos que la dispersión sea máxima. 
+  \item \textbf{Variedad:} Naturalmente, de nada sirve obtener puntos del mismo tipo, por lo que se contea cuántos puntos son
+  de cada tipo. En adición, se mide para cada par si ambos puntos son del mismo tipo o no. Por ejemplo si trabajamos con 10 puntos
+  y hay 5 de cada tipo, el componente de variedad será perfecto, pero si al emparejar esos puntos no se emparejan tal que cada uno esté
+  con el del tipo opuesto (esto ocurrirá en muchos individuos), se añade un componente de misma clase, que evalúa cuantos pares hay
+  con dos puntos distintos respecto del total, siendo en este caso 5 pares, y según si haya más o menos se penalizará más al individuo o menos.
+\end{itemize}
+
+Una vez imbricados todos estos valores, la función de fitness se calcula multiplicando cada componente por un 
+valor de peso (para ponderar e ir controlando que queremos recompensar más o menos del individuo). Con estos valores
+tán sólo queda sumar la distancia entre puntos de un par (cuánto menos mejor), sumar las penalizaciones de variedad
+y pares del mismo tipo (si es 0 porque hay equilibrio no suma nada, y si es mas es peor, luego se busca minimizar también),
+y por último, se resta la dispersión, ya que a más dispersión resta mucho la función de fitnes y mimiza también.
+
+
+\section{Espacio de Búsqueda}
+Explicar lo de que R2 es infinito y que hemos hecho??
+
+
+\section{Población inicial}
+La generación de la población inicial es aleatoria, fomentando una relación diversidad coste
+razonbale.
+
+DE AQUI NO SE QUE MAS COMENTAR
+
+
+\section{Selección padres}
+
+\section{Cruces entre individuos}
+
+\section{Mutación de individuos}
+
+\section{Reemplazo}
+
+
+
+
+
+\section{Consideraciones extra}
+
+
+
+
+\section{Análisis resultados}
+
+\section{Conclusión}
+
+\end{spacing}
+\end{document}
