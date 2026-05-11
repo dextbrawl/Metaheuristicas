@@ -95,7 +95,7 @@ Documento sobre la realización de la tercera práctica de Metaheurísticas.
 Para esta, se ha implementado un algoritmo genético que resuelva el problema planteado
 por el profesor. Cualquier documentación adicional, así como los códigos fuente
 se encuentran en 
-\href{https://github.com/dextbrawl/Metaheuristicas}{el repositorio de la asignatura}.
+\href{https://github.com/dextbrawl/Metaheuristicas}{el repositorio de la asignatura}.\\
 
 
 \section{Enunciado de la práctica}
@@ -111,12 +111,13 @@ libertad, no obstante la metaheurística implementada ha de ser capaz de:
   \item Hallar la dispersión entre todos los puntos.
 \end{itemize}
 
-Decir que tán sólo hay dos tipos de puntos (un punto puede pertenecer al tipo 1 o al 2) y que 
-el espacio será el plano $R2$.
+En este caso, hay únicamente dos tipos de puntos (un punto puede pertenecer a la clase 1 o a la clase 2) y
+el espacio sobre el que trabajaremos será el plano $R2$.
 
-Para la resolución de este problema se ha implementado un algoritmo genético. Cada punto
-de este método basado en poblaciones se indica en su respectiva sección.
-
+Para la resolución de este problema se ha implementado un algoritmo genético, pues se ha llegado 
+al consenso de que es la opción más factible para la resolución de este problema, tanto 
+por la facilidad de implementación del método como los buenos resultados que suelen ofrecer
+este tipo de algoritmos. Cada punto de este método basado en poblaciones se indica en su respectiva sección.\\
 
 
 
@@ -128,14 +129,15 @@ por lo que vendrá dada por una expresión (un polinomio por ejemplo) o bien la 
 para unos puntos dados.
 
 Así pues, las dos representaciones posibles son la expresión matemática que esboza la frontera, o bien un conjunto
-de puntos (un par de números enteros $x$ e $y$).
+de puntos (un par de números enteros $x$ e $y$) que puedan determinarnos de una manera aproximada la frontera que forma
+el modelo resultante.
 
-Para el algoritmo genético, un individuo es un conjunto de pares de puntos del espacio en dos dimensiones. Se ha implementado
-la clase Individual, con parámetros esenciales como el número de puntos del individuo (ha de ser par),
-los límites del espacio de búsqueda (posteriormente detallados), emparejamiento, valor de fitnes, las clase
-a la que pertenece cada punto. Por último los puntos de almacenan en una matriz de nx2 donde cada fila es un punto,
-a efectos prácticos es como una lista de puntos en orden ya que así la recorreremos. Con esto, si el tamaño
-de los individuos es de 20, tendremos una lista de 20 puntos que están emparejados entre sí.
+Para la realización de nuestro algoritmo genético, representaremos un individuo como un conjunto de pares de puntos del espacio en dos dimensiones.
+Para ello, se ha implementado la clase Individual, con parámetros esenciales como el número de puntos del individuo (ha de ser par),
+los límites del espacio de búsqueda (posteriormente detallados), emparejamiento, valor de fitness y la clase
+a la que pertenece cada punto. Por último los puntos se almacenan en una matriz de nx2 donde cada fila representa un punto,
+a efectos prácticos es como una lista de puntos en orden ya que así la recorreremos. Dicho esto, si el tamaño
+de los individuos es de 20, tendremos una lista de 20 puntos que están emparejados entre sí.\\
 
 \begin{lstlisting}[language=Python, caption=Constructor de la clase Individuo]
   class Individual:
@@ -157,72 +159,103 @@ de los individuos es de 20, tendremos una lista de 20 puntos que están empareja
 de todos los puntos del individuo (dispersión, tipos de puntos...), esto se detalla a continuación.
 
 \subsection{Función objetivo}
-Para poder evaluar en que medida un individuo (conjunto de puntos) soluciona el problema,
-entran varias cuestiones en juego.
+Para poder evaluar en qué medida un individuo (conjunto de puntos) soluciona el problema,
+tendremos que tener en cuenta las siguientes características que un individuo puede tener.
 
 \begin{itemize}
   \item \textbf{Distancia media de los puntos de los pares:} Los puntos se emparejan,
-  y asumimos que un par de puntos es mejor si la distancia entre sus dos puntos es mínima.
-  Para el individuo se aplica la distancia euclidiana en el plano en cada par de puntos, y la media
+  y asumimos que un par de puntos es mejor si la distancia entre sus dos puntos es mínima. Esto es porque, si la distancia
+  entre una pareja de puntos es pequeña, el error a la hora de estimar la frontera es mucho menor.
+  Para evaluar el individuo, se aplica la distancia euclidiana en el plano en cada par de puntos, y la media
   resulta en este componente.
   \item \textbf{Dispersión:} O distancia entre los pares del individuo. Para calcular este componente de la función objetivo,
   se halla la distancia mínima entre todos los pares. Si por ejemplo tuviéramos cuatro puntos (dos pares), si están cerca
   significa que al menos un punto de un par está cerca de al menos un punto del otro par, por eso se hallan las distancias 
-  entre puntos de diferentes pares y se obtiene la más pequeña de todas. Buscamos que la dispersión sea máxima. 
-  \item \textbf{Variedad:} Naturalmente, de nada sirve obtener puntos del mismo tipo, por lo que se contea cuántos puntos son
-  de cada tipo. En adición, se mide para cada par si ambos puntos son del mismo tipo o no. Por ejemplo si trabajamos con 10 puntos
+  entre puntos de diferentes pares y se obtiene la más pequeña de todas. Buscamos que la dispersión sea máxima, ya que queremos 
+  la mayor variedad de parejas de puntos para hacer la mejor estimación posible con ellos. 
+  \item \textbf{Variedad:} Naturalmente, de nada sirve obtener puntos en los que todos sean del mismo tipo, por lo que primeramente se comprueba cuántos puntos
+  hay de cada clase. En adición, se mide para cada par si ambos puntos son del mismo tipo o no. Por ejemplo si trabajamos con 10 puntos
   y hay 5 de cada tipo, el componente de variedad será perfecto, pero si al emparejar esos puntos no se emparejan tal que cada uno esté
   con el del tipo opuesto (esto ocurrirá en muchos individuos), se añade un componente de misma clase, que evalúa cuantos pares hay
   con dos puntos distintos respecto del total, siendo en este caso 5 pares, y según si haya más o menos se penalizará más al individuo o menos.
 \end{itemize}
 
-Una vez imbricados todos estos valores, la función de fitness se calcula multiplicando cada componente por un 
-valor de peso (para ponderar e ir controlando que queremos recompensar más o menos del individuo). Con estos valores
+Una vez indicados todos estos valores, la función de fitness se calcula multiplicando cada componente por un 
+valor de peso (para controlar cuáles de éstas características son más relevantes). Con estos valores
 tán sólo queda sumar la distancia entre puntos de un par (cuánto menos mejor), sumar las penalizaciones de variedad
-y pares del mismo tipo (si es 0 porque hay equilibrio no suma nada, y si es mas es peor, luego se busca minimizar también),
-y por último, se resta la dispersión, ya que a más dispersión resta mucho la función de fitnes y mimiza también.
+y pares del mismo tipo (si es 0 porque hay equilibrio no suma nada, y si es más, se suma),
+y por último, se resta la dispersión. Por lo tanto, nuestro objetivo será minimizar la función de fitness, ya que
+la distancia interpunto queremos que sea 0 (la sumamos) y la intrapunto queremos que sea la máxima posible (la restamos)\\
 
 
 \section{Espacio de Búsqueda}
-Explicar lo de que R2 es infinito y que hemos hecho??
+El problema principal que nos encontramos en este apartado es que el tamaño del conjunto
+R2 es infinito, entonces aunque quisiéramos, no podríamos hacer una búsqueda exhaustiva. 
 
+La idea general será, por lo tanto, ir probando espacios de diferentes límites y tamaños hasta
+encontrar al menos un punto que pertenezca a otra clase con respecto a los demás puntos. Además,
+también hay que considerar que la frontera pueda formar una curva cerrada, así que ampliaremos
+el espacio en aquellos casos que no se sepa del todo si la frontera será cerrada o abierta.
+
+En nuestro caso particular, hemos tenido la suerte que no ha habido que probar muchos espacios de búsqueda en el modelo B,
+pues podemos obtener puntos de diferente clase en un espacio delimitado por [-1.0, 1.0] en ambos ejes.
+Por el contrario, para el modelo A hemos tenido que ir aumentando poco a poco el espacio de búsqueda hasta encontrar uno que 
+se ajuste al tamaño real de la frontera, por ejemplo vemos que si dejamos el espacio de búsqueda fijo, la frontera
+no queda cerrada correctamente.\\
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=1\linewidth]{images/Espacio_Ejemplo_B.png}
+  \caption{Puntos de un individuo en intervalo [-1.0, 1.0] para el Modelo B}
+\end{figure}
+
+\textbf{Nota:} Esto se comprueba en el resultado final del algoritmo genético, pero el procedimiento
+de este será explicado igualmente.\\
 
 \section{Población inicial}
 
-El comienzo del algoritmo genético es, la creación de una población inicial sobre la que iterar el resto de las etapas
-de este. Para el algoritmo se ha implementado una generación de población
+El primer paso para realizar el algoritmo genético consiste en la creación de una población inicial que modificaremos después de 
+varias generaciones y obtener mejores individuos. Para el algoritmo se ha implementado una generación de población
 inicial estocástica. Esta consiste en crear individuos aleatorios, dentro del espacio de búsqueda para que 
 los individuos tengan sentido en la representación del problema. Esta estrategia es la de menos coste
-y complejidad, y ofrece precisamente un balance entre diversidad y complejidad. Al final resultarán individuos
-con genes aleatorios. La principal debilidad de este método es que al no haber un control de los individuos resultantes,
+y complejidad, y ofrece precisamente un balance entre diversidad y coste computacional.\\
+
+La principal debilidad de este método es que al no haber un control de los individuos resultantes,
 cabe la posibilidad de que surgan dentro de un individuo muchos puntos parecidos, y dentro de la población a su vez muchos
-individuos parecidos. Esto se abordará posteriormente con algunas técnicas que influirán más en la diversidad del algoritmo.
-Además, al estar en el plano, las probabilidades de que esto suceda son algo menores que para otro tipo de problema,
-y en general se obtienen buenos resultados.
+individuos parecidos. Esto, además de ser poco probable que la mayoría de puntos sean similares, se abordará posteriormente 
+con algunas técnicas que influirán más en la diversidad del algoritmo. En general, obtendremos buenos resultados, y si no es el caso
+siempre podemos volver a ejecutar una nueva creación de población si no estamos conformes.
 
 
 
 \section{Selección de padres}
 Para elegir los padres de la población, se sigue la selección por torneo, en la cual se escogen
-algunos individuos, y aquel con mejor fitness (con menor fitness),
+algunos individuos, y aquel con mejor fitness (menor valor de función de fitness),
 es escogido como padre, el proceso se repite y para cada padre se efectúa un torneo. Esta técnica
-es más costosa que seleccionar los padres aleatoriamente, no obstante, por lo general ofrece mejores resultados.
-Se ha definido el tamaño del torneo como 3, ya que si fuese mucho mayor, surgiría presión selectiva e incesto.
+es más costosa que seleccionar los padres aleatoriamente, no obstante, garantizamos que los hijos que se generen sean
+lo mejores posibles para intensificar a la hora de buscar nuestra mejor solución.
 
-Las selecciones para participar en el torneo son con reposición, pudiendo aparecer varias veces el mismo individuo.
+Se ha definido el tamaño del torneo como 3, ya que si fuese mucho mayor, es posible que la presión selectiva sea demasiado elevada
+corriendo el riesgo de que siempre se escojan los mismos padres y por lo tanto haciendo que nuestra población sea muy parecida.
+
+Escogeremos además que las selecciones para participar en el torneo son con reposición, pudiendo aparecer varias veces el mismo individuo.
 
 
 \section{Cruces entre individuos}
-El objetivo del cruce entre individuos es obtener los hijos, que contribuirán a seguir con el algoritmo.
+El objetivo del cruce entre individuos es obtener los hijos, que luego serán los candidatos para el reemplazamiento de la población. 
 Para este caso, se ha implementado un operador de cruce uniforme entre pares. El cruce combina pares de los diferentes
 padres, respetando su estructura. Para cada par de puntos del individuo hijo, se decide aleatoriamente de que padre se obtiene,
 aunque, se garantiza que haya de ambos dos progenitores sí o sí. La combinación de pares contraria al hijo creado resulta en el 
 segundo hijo del cruce. 
 
+Es necesario que se intercambien los pares entre sí, pues si intercambiamos únicamente puntos sin tener en cuenta su contraparte, 
+obtendremos un hijo que no se parece en nada a ninguno de sus padres y además los más probable es que el hijo resultante sea peor que 
+de la otra forma.
+
 Tras cruzar ambos padres, se vuelve a evaluar el individuo, obteniendo las clases de sus puntos y pares y
 con la función objetivo. Se ha escogido este método porque al respetar los pares como indivisibles, se mantiene
-un equilibrio entre la coherencia de cada par de puntos y la dispersión general del individuo. No hay orden en esta 
-representación, por lo que esta estrategia que además no resulta extremadamente costosa ha sido la elegida.
+un equilibrio entre la coherencia de cada par de puntos y la dispersión general del individuo. Otra de las ventajas es que no existe
+un orden implícito en nuestra representación, por lo que esta estrategia no resulta apenas costosa computacionalmente.
 
 \section{Mutación de individuos}
 
