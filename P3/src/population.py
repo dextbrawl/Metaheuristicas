@@ -56,20 +56,23 @@ class Population:
         return winner
     
 
-    def mutation(self,pM,mRate):
+    def mutation(self, pM, mRate, eliteSize=2):
         """
-        pM: probabilidad de mutación de todos los individuos.
-        mRate: ratio de mutación, máximo de varianza de la mutación. 
+        pM: Probabilidad de que un individuo mude (0.0 a 1.0).
+        mRate: Intensidad del cambio en las coordenadas de los puntos.
+        eliteSize: número de individuos al principio de la lista que NO se mutan.
         """
-        
-
-        newIndividuals = []
-
-        for ind in self.individuals:
-            if random.uniform(0,1) < pM:
-                newIndividuals.append(ind.mutate(ind, mRate))
-        
-        self.individuals = newIndividuals
+        for i in range(eliteSize, len(self.individuals)):
+            if random.random() < pM:
+                ind = self.individuals[i]
+                
+                noise = np.random.uniform(-mRate, mRate, size=ind.points.shape)
+                ind.points += noise
+                
+                ind.points = np.clip(ind.points, self.limits[0], self.limits[1])
+                
+                ind.classes = None
+                ind.fitness = None
 
     def crossing(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
         if not parent1.pairs:

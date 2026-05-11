@@ -1,15 +1,19 @@
 from itertools import product
-
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
+import time
+import psutil
+import threading
+import statistics
+import csv
+import os
 
 data = pd.read_csv("../winequality-red.csv", sep=";")
 data["quality"] = (data["quality"] >= 6).astype(int)
 X = data.drop("quality", axis=1)
 y = data["quality"]
-
 
 def grid_search():
     param_grid = {
@@ -30,6 +34,7 @@ def grid_search():
     combinations = list(product(*values))
 
     results = []
+    all_scores = []
     total = len(combinations)
 
     print(f"Total combinations: {total}")
@@ -39,12 +44,16 @@ def grid_search():
         params = dict(zip(keys, combo))
         print(f"[{idx + 1}/{total}] {params}")
 
-        model = RandomForestClassifier(**params, random_state=42)
-        scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
-        mean_score = scores.mean()
+        try:
+            model = RandomForestClassifier(**params, random_state=42)
+            scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
+            mean_score = scores.mean()
 
-        results.append({**params, "score": mean_score})
-        print(f"  -> Score: {mean_score:.4f}")
+            results.append({**params, "score": mean_score})
+            all_scores.append(mean_score)
+            print(f"  -> Score: {mean_score:.4f}")
+        except Exception as e:
+            print(f"  -> Error: {e}")
 
     results.sort(key=lambda x: x["score"], reverse=True)
 
@@ -61,8 +70,77 @@ def grid_search():
     best_params_only = {k: v for k, v in results[0].items() if k != "score"}
     print(best_params_only)
 
-    return best_params_only
+    return best_params_only, all_scores, total
 
 
 if __name__ == "__main__":
-    best = grid_search()
+    
+    keep_monitoring = True
+    cpu_usage = []
+    mem_usage = []
+
+    def monitor():
+        p = psutil.Process()
+        while keep_monitoring:
+            try:
+                cpu_usage.append(p.cpu_percent(interval=0.1))
+                mem_usage.append(p.memory_info().rss / (1024 * 1024))
+            except:
+                break
+
+    monitor_thread = threading.Thread(target=monitor)
+    monitor_thread.start()
+    
+    start_time = time.time()
+    
+    best_params, scores_list, num_combinaciones = grid_search()
+    
+    end_time = time.time()
+    
+    keep_monitoring = False
+    monitor_thread.join()
+
+    tiempo_total = end_time - start_time
+    varianza = statistics.variance(scores_list) if len(scores_list) > 1 else 0
+    desviacion = statistics.stdev(scores_list) if len(scores_list) > 1 else 0
+    media_accuracy = statistics.mean(scores_list) if scores_list else 0
+    max_accuracy = max(scores_list) if scores_list else 0
+    min_accuracy = min(scores_list) if scores_list else 0
+    cpu_media = statistics.mean(cpu_usage) if cpu_usage else 0
+    memoria_mb = max(mem_usage) if mem_usage else 0  # El pico de memoria máxima usada
+
+    archivo_csv = "resultados_estadisticas.csv"
+    existe = os.path.isfile(archivo_csv)
+    
+    with open(archivo_csv, "a", newline="") as f:
+        writer = csv.writer(f)
+        
+        if not existe:
+            writer.writerow([
+                "Algoritmo", 
+                "Varianza", 
+                "Desviacion_Tipica", 
+                "Tiempo_Segundos", 
+                "Num_Combinaciones", 
+                "Media_Accuracy", 
+                "Max_Accuracy", 
+                "Min_Accuracy", 
+                "CPU_Media_%", 
+                "Memoria_MB"
+            ])
+            
+        writer.writerow([
+            "Grid Search", 
+            round(varianza, 6), 
+            round(desviacion, 6), 
+            round(tiempo_total, 2), 
+            num_combinaciones, 
+            round(media_accuracy, 4), 
+            round(max_accuracy, 4), 
+            round(min_accuracy, 4), 
+            round(cpu_media, 2), 
+            round(memoria_mb, 2)
+        ])
+
+    print("\n=======================================================")
+    print(f"[+] Estadísticas exportadas correctamente a '{archivo_csv}'")

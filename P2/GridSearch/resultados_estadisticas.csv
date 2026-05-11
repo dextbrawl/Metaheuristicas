@@ -1,0 +1,2 @@
+Algoritmo,Varianza,Desviacion_Tipica,Tiempo_Segundos,Num_Combinaciones,Media_Accuracy,Max_Accuracy,Min_Accuracy,CPU_Media_%,Memoria_MB
+Grid Search,0.004219,0.064955,12317.82,17496,0.6581,0.7405,0.5347,101.35,178.62

@@ -221,14 +221,15 @@ for generation in range(GENERATIONS):
     # Elite
     sortedIndividuals = sorted(currentPopulation.individuals, key=lambda ind: ind.fitness)
     for i in range(min(ELITE_SIZE, len(sortedIndividuals))):
-        elite = Individual(
-            numPoints=NUM_POINTS,
-            limits=LIMITS,
-            model=model
-        )
-        elite.points = sortedIndividuals[i].points.copy()
-        elite.fitness = sortedIndividuals[i].fitness
-        elite.classes = sortedIndividuals[i].classes.copy() if sortedIndividuals[i].classes is not None else None
+        source = sortedIndividuals[i]
+        elite = Individual(numPoints=NUM_POINTS, limits=LIMITS, model=model)
+        
+        elite.points = source.points.copy()
+        elite.pairs = list(source.pairs)  # ¡ESTO ES CLAVE! Copia las parejas
+        elite.fitness = source.fitness
+        elite.classes = source.classes.copy() if source.classes is not None else None
+        elite.components = source.components.copy()
+        
         newPopulation.individuals.append(elite)
     
     # Cruce
@@ -252,7 +253,7 @@ for generation in range(GENERATIONS):
 
     #MUTAR INDIVIDUOS
 
-
+    newPopulation.mutation(MUTATION_PROB, MUTATION_RATE, eliteSize=ELITE_SIZE)
 
     #Nueva gen...
     newPopulation.evaluateAll()

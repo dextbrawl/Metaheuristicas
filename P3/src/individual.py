@@ -17,6 +17,7 @@ class Individual:
         self.fitness = None
         self.pairs = []
         self.components = {}
+        self.randomPairing()
 
     def getClasses(self, model: modelo.BlackBoxModel) -> np.ndarray:
         self.classes = np.array([model.predict(point) for point in self.points])
@@ -112,7 +113,6 @@ class Individual:
                 + penalizacionMismaClase
         """
         self.getClasses(model)
-        self.randomPairing()
         
         avgDistance = self.averagePairDistance()
         dispersionValue = self.dispersion()
