@@ -5,137 +5,154 @@ import prueba as modelo
 from population import Population
 from individual import Individual
 import copy
-import time
+import os
 
-def run_genetic_algorithm(model, params):
-    pop = Population(
-        size=params['pop_size'],
-        numPoints=20,
-        limits=(-1.0, 1.0),
-        model=model
-    )
+def create_folders(model_name):
+    """Crea la estructura de carpetas para cada modelo"""
+    base_path = f'stats_{model_name}'
+    if not os.path.exists(base_path):
+        os.makedirs(base_path)
+    return base_path
+
+def run_genetic_algorithm_expert(model, params):
+    pop = Population(size=params['pop_size'], numPoints=20, limits=(-1.0, 1.0), model=model)
     pop.initializeRandom()
     pop.evaluateAll()
     
-    best_per_gen = []
-    diversity_per_gen = []
+    stats_history = {
+        'best': [], 'avg': [], 'worst': [], 'std': [],
+        'diversity': [], 'success_rate': []
+    }
     
+    global_best_ind = None
+
     for gen in range(params['generations']):
-        sorted_pop = sorted(pop.individuals, key=lambda x: x.fitness)
-        best_per_gen.append(sorted_pop[0].fitness)
+        current_stats = pop.getStatistics()
+        stats_history['best'].append(current_stats['min'])
+        stats_history['avg'].append(current_stats['avg'])
+        stats_history['worst'].append(current_stats['max'])
+        stats_history['std'].append(current_stats['std'])
         
+        # Diversidad: Distancia al centroide
         all_coords = np.array([ind.points.flatten() for ind in pop.individuals])
-        avg_dist = np.mean(np.std(all_coords, axis=0))
-        diversity_per_gen.append(avg_dist)
+        centroid = np.mean(all_coords, axis=0)
+        dist_to_centroid = np.mean([np.linalg.norm(c - centroid) for c in all_coords])
+        stats_history['diversity'].append(dist_to_centroid)
+
+        sorted_pop = sorted(pop.individuals, key=lambda x: x.fitness)
         
+        if global_best_ind is None or sorted_pop[0].fitness < global_best_ind.fitness:
+            global_best_ind = copy.deepcopy(sorted_pop[0])
+
         new_indivs = []
         for i in range(params['elite_size']):
             source = sorted_pop[i]
             elite = Individual(numPoints=20, limits=(-1.0, 1.0), model=model)
-            elite.points = source.points.copy()
-            elite.pairs = list(source.pairs)
-            elite.fitness = source.fitness
+            elite.points, elite.pairs, elite.fitness = source.points.copy(), list(source.pairs), source.fitness
             elite.classes = source.classes.copy() if source.classes is not None else None
             elite.components = source.components.copy()
             new_indivs.append(elite)
             
         while len(new_indivs) < params['pop_size']:
-            p1 = pop.tournamentSelection(3)
-            p2 = pop.tournamentSelection(3)
-            if np.random.random() < 0.85:
-                c1, c2 = pop.crossing(p1, p2)
-            else:
-                c1 = Individual(numPoints=20, limits=(-1.0, 1.0), model=model)
-                c1.points = p1.points.copy()
-                c2 = Individual(numPoints=20, limits=(-1.0, 1.0), model=model)
-                c2.points = p2.points.copy()
-            new_indivs.append(c1)
-            if len(new_indivs) < params['pop_size']:
-                new_indivs.append(c2)
+            p1, p2 = pop.tournamentSelection(3), pop.tournamentSelection(3)
+            c1, c2 = pop.crossing(p1, p2)
+            new_indivs.extend([c1, c2])
         
-        pop.individuals = new_indivs
+        pop.individuals = new_indivs[:params['pop_size']]
         pop.mutation(params['mut_prob'], params['mut_rate'], eliteSize=params['elite_size'])
         pop.evaluateAll()
         
-    return {
-        'best_history': best_per_gen,
-        'diversity_history': diversity_per_gen,
-        'final_fitness': pop.getStatistics()['min']
-    }
+        improvements = sum(1 for ind in pop.individuals if ind.fitness < current_stats['avg'])
+        stats_history['success_rate'].append(improvements / params['pop_size'])
+        
+    return stats_history, global_best_ind
 
-def plot_parameter_study(param_name, values, base_params, model, iterations=3):
+# --- FUNCIONES DE GRÁFICAS ---
+
+def save_plot(filename, path):
+    plt.savefig(os.path.join(path, filename))
+    plt.close()
+
+def plot_param_convergence(model, param_name, values, base_params, path):
     plt.figure(figsize=(10, 6))
     for val in values:
-        current_params = base_params.copy()
-        current_params[param_name] = val
-        all_runs = [run_genetic_algorithm(model, current_params)['best_history'] for _ in range(iterations)]
-        avg_history = np.mean(all_runs, axis=0)
-        plt.plot(avg_history, label=f"{param_name}={val}")
-    
-    plt.title(f"Evolución del Fitness según {param_name}")
+        p = base_params.copy()
+        p[param_name] = val
+        res, _ = run_genetic_algorithm_expert(model, p)
+        plt.plot(res['best'], label=f"{param_name}={val}")
+    plt.title(f"Convergencia según {param_name}")
     plt.xlabel("Generación")
     plt.ylabel("Mejor Fitness")
     plt.legend()
-    plt.grid(True)
-    plt.savefig(f"study_{param_name}.png")
-    plt.show()
+    plt.grid(True, alpha=0.3)
+    save_plot(f"conv_{param_name}.png", path)
 
-def plot_diversity_study(model, base_params):
-    result = run_genetic_algorithm(model, base_params)
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-    
-    ax1.plot(result['best_history'], 'b-', label="Mejor Fitness")
-    ax1.set_xlabel("Generación")
-    ax1.set_ylabel("Fitness", color='b')
-    
-    ax2 = ax1.twinx()
-    ax2.plot(result['diversity_history'], 'r--', label="Diversidad (Std Dev)")
-    ax2.set_ylabel("Diversidad Genética", color='r')
-    
-    plt.title("Relación Fitness vs Diversidad")
-    plt.grid(True)
-    plt.savefig("diversity_analysis.png")
-    plt.show()
+def plot_summary_stats(results, gens, path):
+    # Evolución Best/Avg
+    plt.figure(figsize=(10, 6))
+    plt.plot(gens, results['best'], label='Mejor', color='blue')
+    plt.plot(gens, results['avg'], label='Promedio', color='green')
+    plt.fill_between(gens, results['best'], results['worst'], alpha=0.1, color='blue')
+    plt.title("Evolución General del Fitness")
+    plt.legend()
+    save_plot("01_evolucion.png", path)
 
-def plot_robustness_boxplot(model, base_params, iterations=15):
-    results = [run_genetic_algorithm(model, base_params)['final_fitness'] for _ in range(iterations)]
-    plt.figure(figsize=(8, 6))
-    plt.boxplot(results)
-    plt.title("Análisis de Robustez (Fitness Final)")
-    plt.ylabel("Fitness")
-    plt.xticks([1], ['Configuración Base'])
-    plt.savefig("robustness_boxplot.png")
-    plt.show()
+    # Diversidad
+    plt.figure(figsize=(10, 6))
+    plt.plot(gens, results['diversity'], color='purple')
+    plt.title("Diversidad Genética (Centroide)")
+    save_plot("02_diversidad.png", path)
 
-def plot_heatmap_params(model, mut_probs, pop_sizes, base_params):
-    grid = np.zeros((len(pop_sizes), len(mut_probs)))
-    for i, ps in enumerate(pop_sizes):
-        for j, mp in enumerate(mut_probs):
-            params = base_params.copy()
-            params['pop_size'] = ps
-            params['mut_prob'] = mp
-            grid[i, j] = run_genetic_algorithm(model, params)['final_fitness']
-            
+    # Tasa de Mejora
+    plt.figure(figsize=(10, 6))
+    plt.bar(gens, results['success_rate'], color='orange', alpha=0.6)
+    plt.title("Eficiencia de Operadores (Success Rate)")
+    save_plot("03_tasa_mejora.png", path)
+
+def plot_final_demo(model, ind, path):
+    res = 150
+    x = np.linspace(-1.0, 1.0, res)
+    y = np.linspace(-1.0, 1.0, res)
+    X, Y = np.meshgrid(x, y)
+    grid = np.c_[X.ravel(), Y.ravel()]
+    Z = np.array([model.predict(p) for p in grid]).reshape(X.shape)
+    
     plt.figure(figsize=(10, 8))
-    sns.heatmap(grid, annot=True, xticklabels=mut_probs, yticklabels=pop_sizes, cmap="YlGnBu")
-    plt.title("Heatmap: Pop Size vs Mutation Prob")
-    plt.xlabel("Mutation Prob")
-    plt.ylabel("Population Size")
-    plt.savefig("heatmap_params.png")
-    plt.show()
+    plt.contourf(X, Y, Z, alpha=0.3, cmap='RdBu')
+    pts = ind.points
+    cls = ind.getClasses(model)
+    for i, j in ind.pairs:
+        plt.plot([pts[i,0], pts[j,0]], [pts[i,1], pts[j,1]], 'k-', alpha=0.2)
+        for idx in [i, j]:
+            plt.scatter(pts[idx,0], pts[idx,1], c='red' if cls[idx]==1 else 'blue', 
+                        marker='s' if cls[idx]==1 else 'o', edgecolors='black', s=80, zorder=5)
+    plt.title(f"Mapeo Final de Frontera (Fitness: {ind.fitness:.4f})")
+    save_plot("05_frontera_final.png", path)
+
+# --- EJECUCIÓN PRINCIPAL ---
 
 if __name__ == "__main__":
-    bb_model = modelo.BlackBoxModel("blackbox_modelB.pkl")
-    
-    base_params = {
-        'pop_size': 50,
-        'mut_prob': 0.3,
-        'mut_rate': 0.2,
-        'elite_size': 2,
-        'generations': 50
-    }
+    modelos_archivos = ["blackbox_modelA.pkl", "blackbox_modelB.pkl"]
+    base_params = {'pop_size': 50, 'mut_prob': 0.3, 'mut_rate': 0.2, 'elite_size': 2, 'generations': 50}
 
-    plot_parameter_study('mut_prob', [0.1, 0.4, 0.8], base_params, bb_model)
-    plot_diversity_study(bb_model, base_params)
-    plot_robustness_boxplot(bb_model, base_params)
-    plot_heatmap_params(bb_model, [0.1, 0.3, 0.6], [20, 50, 100], base_params)
+    for arch in modelos_archivos:
+        name = arch.split('.')[0]
+        print(f"\n>>> INICIANDO ESTUDIO PARA: {name}")
+        path = create_folders(name)
+        bb_model = modelo.BlackBoxModel(arch)
+        
+        # 1. Estudio de convergencia de parámetros (pM y mRate)
+        print(f"[{name}] Estudiando parámetros de mutación...")
+        plot_param_convergence(bb_model, 'mut_prob', [0.1, 0.4, 0.7], base_params, path)
+        plot_param_convergence(bb_model, 'mut_rate', [0.05, 0.2, 0.5], base_params, path)
+        
+        # 2. Ejecución para estadísticas detalladas
+        print(f"[{name}] Generando estadísticas detalladas...")
+        results, top_ind = run_genetic_algorithm_expert(bb_model, base_params)
+        plot_summary_stats(results, range(base_params['generations']), path)
+        
+        # 3. Demostración de frontera
+        print(f"[{name}] Generando mapa de frontera final...")
+        plot_final_demo(bb_model, top_ind, path)
+
+    print("\nPROCESO COMPLETADO. Revisa las carpetas 'stats_blackbox_modelA' y 'stats_blackbox_modelB'.")
