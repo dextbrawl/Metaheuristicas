@@ -188,15 +188,41 @@ Explicar lo de que R2 es infinito y que hemos hecho??
 
 
 \section{Población inicial}
-La generación de la población inicial es aleatoria, fomentando una relación diversidad coste
-razonbale.
 
-DE AQUI NO SE QUE MAS COMENTAR
+El comienzo del algoritmo genético es, la creación de una población inicial sobre la que iterar el resto de las etapas
+de este. Para el algoritmo se ha implementado una generación de población
+inicial estocástica. Esta consiste en crear individuos aleatorios, dentro del espacio de búsqueda para que 
+los individuos tengan sentido en la representación del problema. Esta estrategia es la de menos coste
+y complejidad, y ofrece precisamente un balance entre diversidad y complejidad. Al final resultarán individuos
+con genes aleatorios. La principal debilidad de este método es que al no haber un control de los individuos resultantes,
+cabe la posibilidad de que surgan dentro de un individuo muchos puntos parecidos, y dentro de la población a su vez muchos
+individuos parecidos. Esto se abordará posteriormente con algunas técnicas que influirán más en la diversidad del algoritmo.
+Además, al estar en el plano, las probabilidades de que esto suceda son algo menores que para otro tipo de problema,
+y en general se obtienen buenos resultados.
 
 
-\section{Selección padres}
+
+\section{Selección de padres}
+Para elegir los padres de la población, se sigue la selección por torneo, en la cual se escogen
+algunos individuos, y aquel con mejor fitness (con menor fitness),
+es escogido como padre, el proceso se repite y para cada padre se efectúa un torneo. Esta técnica
+es más costosa que seleccionar los padres aleatoriamente, no obstante, por lo general ofrece mejores resultados.
+Se ha definido el tamaño del torneo como 3, ya que si fuese mucho mayor, surgiría presión selectiva e incesto.
+
+Las selecciones para participar en el torneo son con reposición, pudiendo aparecer varias veces el mismo individuo.
+
 
 \section{Cruces entre individuos}
+El objetivo del cruce entre individuos es obtener los hijos, que contribuirán a seguir con el algoritmo.
+Para este caso, se ha implementado un operador de cruce uniforme entre pares. El cruce combina pares de los diferentes
+padres, respetando su estructura. Para cada par de puntos del individuo hijo, se decide aleatoriamente de que padre se obtiene,
+aunque, se garantiza que haya de ambos dos progenitores sí o sí. La combinación de pares contraria al hijo creado resulta en el 
+segundo hijo del cruce. 
+
+Tras cruzar ambos padres, se vuelve a evaluar el individuo, obteniendo las clases de sus puntos y pares y
+con la función objetivo. Se ha escogido este método porque al respetar los pares como indivisibles, se mantiene
+un equilibrio entre la coherencia de cada par de puntos y la dispersión general del individuo. No hay orden en esta 
+representación, por lo que esta estrategia que además no resulta extremadamente costosa ha sido la elegida.
 
 \section{Mutación de individuos}
 
