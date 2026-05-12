@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import prueba as modelo
 from population import Population
 from individual import Individual
+from scipy.spatial import ConvexHull
 
 #FUNCIONES DE MATPLOT HECHAS CON IA CASI ENTERAS :)
 def drawIndividual(individual, model, title="Mejor Individuo"):
@@ -105,6 +106,14 @@ def drawDecisionBoundary(individual, model, limits=(-1.0, 1.0), title="Mejor Ind
     plt.contourf(X, Y, Z, levels=[-0.5, 0.5, 1.5], 
                  colors=['#3498db', '#e74c3c'], alpha=0.3)
     
+    # Dibujar frontera aproximada
+    aprox = individual.getAproximationPoints()
+    
+    # Calcula la envolvente convexa de los puntos medios
+    hull = ConvexHull(aprox)
+    for i in hull.simplices:
+        plt.plot(aprox[i, 0], aprox[i, 1], 'g-', linewidth=2)
+    
     # Dibujar puntos del individuo
     if len(points_class0) > 0:
         plt.scatter(points_class0[:, 0], points_class0[:, 1], 
@@ -166,12 +175,12 @@ def drawFitnessEvolution():
     plt.show()
 
 #Nota: Hay que hacerlo para los dos modelos de la practica
-model = modelo.BlackBoxModel("blackbox_modelA.pkl")
+model = modelo.BlackBoxModel("blackbox_modelB.pkl")
 
 #Parametrillos del algoritmo
 
 POPULATION_SIZE = 50
-NUM_POINTS = 20
+NUM_POINTS = 100
 LIMITS = (-1.0, 1.0)
 ELITE_SIZE = 2
 TOURNAMENT_SIZE = 3
@@ -278,6 +287,7 @@ for generation in range(GENERATIONS):
 print("\nFIN")
 
 print(f"Mejor panchito: {globalBestFitness:.4f}")
+print(globalBestIndividual.points)
 
 if hasattr(globalBestIndividual, 'components'):
     print("\nComponentes del mejor individuo:")

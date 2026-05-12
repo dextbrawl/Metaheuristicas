@@ -168,6 +168,22 @@ class Individual:
         print(f"Penalización por variedad: {self.components.get('varietyPenalty', 0):.4f}")
         print(f"Penalización por misma clase: {self.components.get('sameClassPenalty', 0):.4f}")
         print(f"\nFITNESS TOTAL: {self.fitness:.4f} (menor es mejor)")    
+        
+    def getAproximationPoints(self):
+        """Función para obtener los puntos aproximados de la frontera final mediante el punto medio a partir del individuo"""
+        
+        aprox_points = []
+        
+        for i, j in self.pairs:
+            
+            first_point = self.points[i]
+            second_point = self.points[j]
+            
+            # Los puntos aproximados son (first.x + second.x) / 2 e igual para la componente y
+            aprox_points.append([((first_point[0] + second_point[0]) / 2), ((first_point[1] + second_point[1]) / 2)])
+        
+        return np.array(aprox_points)
+            
 
 def mutate(ind: Individual, mRate):
     """
@@ -186,6 +202,8 @@ def mutate(ind: Individual, mRate):
     retVal.points = newPoints
 
     return retVal
+
+
         
 if __name__ == "__main__":
     model = modelo.BlackBoxModel("blackbox_modelB.pkl")
