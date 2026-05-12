@@ -178,7 +178,7 @@ def evalIndividual(individual, points, contrast_points):
 
     avg_mse = (acc_mse / len(points)) * 1000.0
     avg_contrast = acc_contrast / len(contrast_points)
-    size_penalty = 0.065 * len(individual)
+    size_penalty = 0.07 * len(individual)
 
     final_fitness_val = avg_mse + avg_contrast + size_penalty
 

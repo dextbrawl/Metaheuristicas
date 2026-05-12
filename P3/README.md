@@ -8,3 +8,11 @@ MODELO B
 
 n_points = 15
 th_interp_distance = 0.15
+
+
+MODELO A
+
+n_points = 35
+th_interp_distance = 0.3
+
+Generaciones = 1000
