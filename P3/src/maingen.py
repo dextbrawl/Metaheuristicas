@@ -175,19 +175,19 @@ def drawFitnessEvolution():
     plt.show()
 
 #Nota: Hay que hacerlo para los dos modelos de la practica
-model = modelo.BlackBoxModel("blackbox_modelB.pkl")
+model = modelo.BlackBoxModel("blackbox_modelA.pkl")
 
 #Parametrillos del algoritmo
 
 POPULATION_SIZE = 50
-NUM_POINTS = 100
-LIMITS = (-1.0, 1.0)
+NUM_POINTS = 50
+LIMITS = (-5.0, 5.0)
 ELITE_SIZE = 2
 TOURNAMENT_SIZE = 3
 CROSSOVER_PROB = 0.85
 MUTATION_PROB = 0.3
 MUTATION_RATE = 0.2
-GENERATIONS = 100
+GENERATIONS = 50
 
 #I. Iniciamos pobacion random
 print(f"\nCreando poblacion inicial de {POPULATION_SIZE} individuos...")
@@ -297,6 +297,8 @@ if hasattr(globalBestIndividual, 'components'):
     print(f"\nPenalizacion misma clase: {globalBestIndividual.components.get('sameClassPenalty', 0):.4f}")
 
 
+
 drawFitnessEvolution()
+globalBestIndividual.minpairdistance()
 drawIndividual(globalBestIndividual, model, title="Top Individuo")
 drawDecisionBoundary(globalBestIndividual, model, limits=LIMITS, title="Top Individuo")

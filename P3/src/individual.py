@@ -4,6 +4,16 @@ from typing import List, Tuple, Optional
 import matplotlib.pyplot as plt
 import prueba as modelo
 
+def rectaPares(p1, p2):
+            
+            x1,y1 = p1
+            x2,y2 = p2
+            if x2 != x1:
+                m = (y2-y1)/(x2-x1)  
+            else: 
+                float('inf') 
+            return lambda x: m * (x - x1) + y1
+
 class Individual:
 
     
@@ -24,6 +34,54 @@ class Individual:
     def getClasses(self, model: modelo.BlackBoxModel) -> np.ndarray:
         self.classes = np.array([model.predict(point) for point in self.points])
         return self.classes
+    
+
+    def minpairdistance(self,):
+        
+        for i, j in self.pairs:
+            point_a = self.points[i]
+            class_a = self.model.predict(point_a)
+
+
+            point_b = self.points[j]
+            class_b = self.model.predict(point_b)
+
+
+            recta = rectaPares(point_a,point_b) #y = mx + n
+
+            distance = np.linalg.norm(point_a - point_b)
+
+            step = 0.0002
+
+            #Primero ajustamos x
+
+            point_a = np.array([point_a[0] + step,recta(point_a[0] + step)])
+            newDistance = np.linalg.norm(point_a - point_b)
+            if(newDistance > distance):
+                step = step * (-1)
+
+            while(class_a != class_b):
+                point_a = [point_a[0] + step,recta(point_a[0] + step)]
+                class_a = self.model.predict(point_a)
+            
+            point_a = np.array([point_a[0] - step,recta(point_a[0] - step)])
+
+
+            step = step * - 1
+            point_b = np.array([point_b[0] + step,recta(point_b[0] + step)])
+            newDistance = np.linalg.norm(point_a - point_b)
+            
+            class_a = self.model.predict(point_a)
+            while(class_a != class_b):
+                point_b = [point_b[0] + step,recta(point_b[0] + step)]
+                class_b = self.model.predict(point_b)
+            
+            point_b = np.array([point_b[0] - step,recta(point_b[0] - step)])
+
+
+            self.points[i] = point_a
+            self.points[j] = point_b
+
     
 
     def randomPairing(self):
@@ -234,6 +292,7 @@ if __name__ == "__main__":
 
     myIndividual = Individual(numPoints=20, limits=(-2.0, 2.0), model=model)
     fitnessValue = myIndividual.computeFitness(model)
+    myIndividual.minpairdistance()
     
     print("\n--- PUNTOS GENERADOS ---")
     for i, point in enumerate(myIndividual.points):
