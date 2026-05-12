@@ -195,6 +195,19 @@ class Individual:
         print(f"Penalización por variedad: {self.components.get('varietyPenalty', 0):.4f}")
         print(f"Penalización por misma clase: {self.components.get('sameClassPenalty', 0):.4f}")
         print(f"\nFITNESS TOTAL: {self.fitness:.4f} (menor es mejor)")    
+    
+    def getAproximationPoints(self):
+        
+        aprox_points = []
+        
+        for i, j in self.pairs:
+            
+            point_a = self.points[i]
+            point_b = self.points[j]
+            
+            aprox_points.append([((point_a[0] + point_b[0])/2), ((point_a[1] + point_b[1])/2)])
+            
+        return np.array(aprox_points)
 
 def mutate(ind: Individual, mRate):
     """
