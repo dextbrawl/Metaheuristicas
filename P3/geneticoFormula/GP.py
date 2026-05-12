@@ -21,7 +21,7 @@ class BlackBoxModel:
         return self.model.predict(x)[0]
 
 
-model = BlackBoxModel("../blackbox_modelB.pkl")
+model = BlackBoxModel("../blackbox_modelA.pkl")
 
 print(f"========== MODELO IMPORTADO EXITOSAMENTE ==========")
 
@@ -50,7 +50,7 @@ def getInterPoint():
 
 
 def compareInterDistance(point, cloud):
-    th_interp_distance = 0.15
+    th_interp_distance = 0.3
     for cloud_p in cloud:
         point_dist = math.dist(point, cloud_p)
         if point_dist < th_interp_distance:
@@ -60,7 +60,7 @@ def compareInterDistance(point, cloud):
 
 # Función para obtener la nube de pares de puntos con una distancia umbral entre sí.
 def getCloud():
-    n_points = 25
+    n_points = 35
     cloud = []
     i = 0
     point = getInterPoint()
@@ -70,7 +70,7 @@ def getCloud():
         point = getInterPoint()
         if compareInterDistance(point, cloud):
             cloud.append(point)
-            print(f"PUNTO ENCONTRADDO: {point}")
+            print(f"PUNTO ENCONTRADO {i + 1}: {point}")
             i += 1
     print(f"ESTA ES LA NUBE GENERADA: {cloud}")
     return cloud
@@ -178,7 +178,7 @@ def evalIndividual(individual, points, contrast_points):
 
     avg_mse = (acc_mse / len(points)) * 1000.0
     avg_contrast = acc_contrast / len(contrast_points)
-    size_penalty = 0.01 * len(individual)
+    size_penalty = 0.065 * len(individual)
 
     final_fitness_val = avg_mse + avg_contrast + size_penalty
 
@@ -199,7 +199,7 @@ toolbox.register(
 # Algoritmo evolutivo
 
 population = toolbox.population(n=500)
-algorithms.eaSimple(population, toolbox, cxpb=0.7, mutpb=0.3, ngen=300, verbose=True)
+algorithms.eaSimple(population, toolbox, cxpb=0.7, mutpb=0.3, ngen=1000, verbose=True)
 bestOne = tools.selBest(population, 1)[0]
 
 print("La mejor ecuación encontrada es: ", bestOne)
