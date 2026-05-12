@@ -76,9 +76,9 @@ class Population:
 
     def crossing(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
         if not parent1.pairs:
-            parent1.randomPairing()
+            parent1.smartPairing()
         if not parent2.pairs:
-            parent2.randomPairing()
+            parent2.smartPairing()
         
         child1 = Individual(numPoints=parent1.numPoints, limits=parent1.limits, model=parent1.model)
         child2 = Individual(numPoints=parent1.numPoints, limits=parent1.limits, model=parent1.model)

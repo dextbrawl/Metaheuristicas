@@ -7,7 +7,7 @@ import prueba as modelo
 class Individual:
 
     
-    def __init__(self, numPoints: int = 20, limits: Tuple[float, float] = (-2.0, -2.0), model: modelo.BlackBoxModel = None):
+    def __init__(self, numPoints: int = 20, limits: Tuple[float, float] = (-2.0, 2.0), model: modelo.BlackBoxModel = None):
         self.numPoints = numPoints
         self.limits = limits
         self.model = model
@@ -17,12 +17,15 @@ class Individual:
         self.fitness = None
         self.pairs = []
         self.components = {}
-        self.randomPairing()
-
+        
+        if model is not None:
+            self.getClasses(model)
+            self.smartPairing()
     def getClasses(self, model: modelo.BlackBoxModel) -> np.ndarray:
         self.classes = np.array([model.predict(point) for point in self.points])
         return self.classes
     
+
     def randomPairing(self):
         indices = list(range(self.numPoints))
         random.shuffle(indices)
@@ -31,6 +34,30 @@ class Individual:
         for i in range(0, len(indices), 2):
             if i + 1 < len(indices):
                 self.pairs.append((indices[i], indices[i + 1]))
+        
+        return self.pairs
+
+    def smartPairing(self):
+        if self.classes is None:
+            self.getClasses(self.model)
+        
+        indices_class0 = [i for i, c in enumerate(self.classes) if c == 0]
+        indices_class1 = [i for i, c in enumerate(self.classes) if c == 1]
+        
+        random.shuffle(indices_class0)
+        random.shuffle(indices_class1)
+        
+        self.pairs = []
+        
+        min_len = min(len(indices_class0), len(indices_class1))
+        
+        for k in range(min_len):
+            self.pairs.append((indices_class0[k], indices_class1[k]))
+        
+        remaining = indices_class0[min_len:] + indices_class1[min_len:]
+        
+        for i in range(0, len(remaining) - 1, 2):
+            self.pairs.append((remaining[i], remaining[i + 1]))
         
         return self.pairs
     
@@ -50,7 +77,7 @@ class Individual:
     
     def averagePairDistance(self) -> float:
         if not self.pairs:
-            self.randomPairing()
+            self.smartPairing()
         
         distances = []
         #Distancia euclidiana en los pares (entre un punto de un par y su simetrico u homologo)
@@ -63,7 +90,7 @@ class Individual:
     
     def dispersion(self) -> float:
         if not self.pairs:
-            self.randomPairing()
+            self.smartPairing()
         
         if len(self.pairs) < 2:
             return 0.0
@@ -89,7 +116,7 @@ class Individual:
     
     def sameClassPenalty(self) -> float:
         if not self.pairs:
-            self.randomPairing()
+            self.smartPairing()
         
         #Si en un par son de la misma clase se suma 1 al contador, y se penaliza al individuo contador/numero de pares
         sameClassCount = 0
@@ -105,7 +132,7 @@ class Individual:
                        weightDistance: float = 1.0, #Distancia media de los puntos de los pares
                        weightDispersion: float = 0.5, #Distancia entre pares
                        weightVariety: float = 1.0, #Variedad
-                       weightSameClass: float = 2.0) -> float:
+                       weightSameClass: float = 50.0) -> float:
         """
         Fitness = distanciaPromedio 
                 -dispersion 
@@ -168,22 +195,6 @@ class Individual:
         print(f"Penalización por variedad: {self.components.get('varietyPenalty', 0):.4f}")
         print(f"Penalización por misma clase: {self.components.get('sameClassPenalty', 0):.4f}")
         print(f"\nFITNESS TOTAL: {self.fitness:.4f} (menor es mejor)")    
-        
-    def getAproximationPoints(self):
-        """Función para obtener los puntos aproximados de la frontera final mediante el punto medio a partir del individuo"""
-        
-        aprox_points = []
-        
-        for i, j in self.pairs:
-            
-            first_point = self.points[i]
-            second_point = self.points[j]
-            
-            # Los puntos aproximados son (first.x + second.x) / 2 e igual para la componente y
-            aprox_points.append([((first_point[0] + second_point[0]) / 2), ((first_point[1] + second_point[1]) / 2)])
-        
-        return np.array(aprox_points)
-            
 
 def mutate(ind: Individual, mRate):
     """
@@ -202,8 +213,6 @@ def mutate(ind: Individual, mRate):
     retVal.points = newPoints
 
     return retVal
-
-
         
 if __name__ == "__main__":
     model = modelo.BlackBoxModel("blackbox_modelB.pkl")

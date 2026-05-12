@@ -187,7 +187,7 @@ TOURNAMENT_SIZE = 3
 CROSSOVER_PROB = 0.85
 MUTATION_PROB = 0.3
 MUTATION_RATE = 0.2
-GENERATIONS = 200
+GENERATIONS = 100
 
 #I. Iniciamos pobacion random
 print(f"\nCreando poblacion inicial de {POPULATION_SIZE} individuos...")
