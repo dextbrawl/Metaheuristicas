@@ -15,6 +15,7 @@ def create_folders(model_name):
     return base_path
 
 def run_genetic_algorithm_expert(model, params):
+    # ngen se toma de params['generations'], que ahora será 200
     pop = Population(size=params['pop_size'], numPoints=20, limits=(-1.0, 1.0), model=model)
     pop.initializeRandom()
     pop.evaluateAll()
@@ -50,7 +51,6 @@ def run_genetic_algorithm_expert(model, params):
             elite = Individual(numPoints=20, limits=(-1.0, 1.0), model=model)
             elite.points, elite.pairs, elite.fitness = source.points.copy(), list(source.pairs), source.fitness
             elite.classes = source.classes.copy() if source.classes is not None else None
-            elite.components = source.components.copy()
             new_indivs.append(elite)
             
         while len(new_indivs) < params['pop_size']:
@@ -67,8 +67,6 @@ def run_genetic_algorithm_expert(model, params):
         
     return stats_history, global_best_ind
 
-# --- FUNCIONES DE GRÁFICAS ---
-
 def save_plot(filename, path):
     plt.savefig(os.path.join(path, filename))
     plt.close()
@@ -80,7 +78,7 @@ def plot_param_convergence(model, param_name, values, base_params, path):
         p[param_name] = val
         res, _ = run_genetic_algorithm_expert(model, p)
         plt.plot(res['best'], label=f"{param_name}={val}")
-    plt.title(f"Convergencia según {param_name}")
+    plt.title(f"Convergencia según {param_name} (200 Gens)")
     plt.xlabel("Generación")
     plt.ylabel("Mejor Fitness")
     plt.legend()
@@ -88,22 +86,19 @@ def plot_param_convergence(model, param_name, values, base_params, path):
     save_plot(f"conv_{param_name}.png", path)
 
 def plot_summary_stats(results, gens, path):
-    # Evolución Best/Avg
     plt.figure(figsize=(10, 6))
     plt.plot(gens, results['best'], label='Mejor', color='blue')
     plt.plot(gens, results['avg'], label='Promedio', color='green')
     plt.fill_between(gens, results['best'], results['worst'], alpha=0.1, color='blue')
-    plt.title("Evolución General del Fitness")
+    plt.title("Evolución General del Fitness (200 Gens)")
     plt.legend()
     save_plot("01_evolucion.png", path)
 
-    # Diversidad
     plt.figure(figsize=(10, 6))
     plt.plot(gens, results['diversity'], color='purple')
     plt.title("Diversidad Genética (Centroide)")
     save_plot("02_diversidad.png", path)
 
-    # Tasa de Mejora
     plt.figure(figsize=(10, 6))
     plt.bar(gens, results['success_rate'], color='orange', alpha=0.6)
     plt.title("Eficiencia de Operadores (Success Rate)")
@@ -129,29 +124,32 @@ def plot_final_demo(model, ind, path):
     plt.title(f"Mapeo Final de Frontera (Fitness: {ind.fitness:.4f})")
     save_plot("05_frontera_final.png", path)
 
-# --- EJECUCIÓN PRINCIPAL ---
-
 if __name__ == "__main__":
     modelos_archivos = ["blackbox_modelA.pkl", "blackbox_modelB.pkl"]
-    base_params = {'pop_size': 50, 'mut_prob': 0.3, 'mut_rate': 0.2, 'elite_size': 2, 'generations': 50}
+    
+    # MODIFICACIÓN: Generations aumentada a 200
+    base_params = {
+        'pop_size': 50, 
+        'mut_prob': 0.3, 
+        'mut_rate': 0.2, 
+        'elite_size': 2, 
+        'generations': 200 
+    }
 
     for arch in modelos_archivos:
         name = arch.split('.')[0]
-        print(f"\n>>> INICIANDO ESTUDIO PARA: {name}")
+        print(f"\n>>> INICIANDO ESTUDIO EXTENDIDO (200 GENS) PARA: {name}")
         path = create_folders(name)
         bb_model = modelo.BlackBoxModel(arch)
         
-        # 1. Estudio de convergencia de parámetros (pM y mRate)
         print(f"[{name}] Estudiando parámetros de mutación...")
         plot_param_convergence(bb_model, 'mut_prob', [0.1, 0.4, 0.7], base_params, path)
         plot_param_convergence(bb_model, 'mut_rate', [0.05, 0.2, 0.5], base_params, path)
         
-        # 2. Ejecución para estadísticas detalladas
         print(f"[{name}] Generando estadísticas detalladas...")
         results, top_ind = run_genetic_algorithm_expert(bb_model, base_params)
         plot_summary_stats(results, range(base_params['generations']), path)
         
-        # 3. Demostración de frontera
         print(f"[{name}] Generando mapa de frontera final...")
         plot_final_demo(bb_model, top_ind, path)
 

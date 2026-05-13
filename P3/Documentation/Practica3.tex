@@ -89,17 +89,17 @@ Sergio García Atanasio
 \newpage
 
 \begin{spacing}{1.3}
-  
+
 \section{Introducción}
 Documento sobre la realización de la tercera práctica de Metaheurísticas.
 Para esta, se ha implementado un algoritmo genético que resuelva el problema planteado
 por el profesor. Cualquier documentación adicional, así como los códigos fuente
-se encuentran en 
+se encuentran en
 \href{https://github.com/dextbrawl/Metaheuristicas}{el repositorio de la asignatura}.\\
 
 
 \section{Enunciado de la práctica}
-Dados dos modelos $A$ y $B$ de clasificación que actúan a modo de caja negra, 
+Dados dos modelos $A$ y $B$ de clasificación que actúan a modo de caja negra,
 se pide explorar el espacio de entrada de estos. El objetivo es, en última instancia,
 llegar a aproximar su frontera de decisión (ya que comprender estas regiones es fundamental
 en numerosos contextos). Para resolver el problema hay total
@@ -114,8 +114,8 @@ libertad, no obstante la metaheurística implementada ha de ser capaz de:
 En este caso, hay únicamente dos tipos de puntos (un punto puede pertenecer a la clase 1 o a la clase 2) y
 el espacio sobre el que trabajaremos será el plano $R2$.
 
-Para la resolución de este problema se ha implementado un algoritmo genético, pues se ha llegado 
-al consenso de que es la opción más factible para la resolución de este problema, tanto 
+Para la resolución de este problema se ha implementado un algoritmo genético, pues se ha llegado
+al consenso de que es la opción más factible para la resolución de este problema, tanto
 por la facilidad de implementación del método como los buenos resultados que suelen ofrecer
 este tipo de algoritmos. Cada punto de este método basado en poblaciones se indica en su respectiva sección.\\
 
@@ -158,13 +158,13 @@ de los individuos es de 20, tendremos una lista de 20 puntos que están empareja
 
 \begin{lstlisting}[language=Python, caption=Constructor de la clase Individuo]
   class Individual:
-    def __init__(self, numPoints: int = 20, 
+    def __init__(self, numPoints: int = 20,
                 limits: Tuple[float, float] = (-2.0, -2.0),
                 model: modelo.BlackBoxModel = None):
         self.numPoints = numPoints
         self.limits = limits
         self.model = model
-        
+
         self.points = np.random.uniform(limits[0], limits[1], (numPoints, 2))
         self.classes = None
         self.fitness = None
@@ -192,9 +192,9 @@ tendremos que tener en cuenta las siguientes características que un individuo p
   resulta en este componente.
   \item \textbf{Dispersión:} O distancia entre los pares del individuo. Para calcular este componente de la función objetivo,
   se halla la distancia mínima entre todos los pares. Si por ejemplo tuviéramos cuatro puntos (dos pares), si están cerca
-  significa que al menos un punto de un par está cerca de al menos un punto del otro par, por eso se hallan las distancias 
-  entre puntos de diferentes pares y se obtiene la más pequeña de todas. Buscamos que la dispersión sea máxima, ya que queremos 
-  la mayor variedad de parejas de puntos para hacer la mejor estimación posible con ellos. 
+  significa que al menos un punto de un par está cerca de al menos un punto del otro par, por eso se hallan las distancias
+  entre puntos de diferentes pares y se obtiene la más pequeña de todas. Buscamos que la dispersión sea máxima, ya que queremos
+  la mayor variedad de parejas de puntos para hacer la mejor estimación posible con ellos.
   \item \textbf{Variedad:} Naturalmente, de nada sirve obtener puntos en los que todos sean del mismo tipo, por lo que primeramente se comprueba cuántos puntos
   hay de cada clase. En adición, se mide para cada par si ambos puntos son del mismo tipo o no. Por ejemplo si trabajamos con 10 puntos
   y hay 5 de cada tipo, el componente de variedad será perfecto, pero si al emparejar esos puntos no se emparejan tal que cada uno esté
@@ -202,7 +202,7 @@ tendremos que tener en cuenta las siguientes características que un individuo p
   con dos puntos distintos respecto del total, siendo en este caso 5 pares, y según si haya más o menos se penalizará más al individuo o menos.
 \end{itemize}
 
-Una vez indicados todos estos valores, la función de fitness se calcula multiplicando cada componente por un 
+Una vez indicados todos estos valores, la función de fitness se calcula multiplicando cada componente por un
 valor de peso (para controlar cuáles de éstas características son más relevantes). Con estos valores
 tán sólo queda sumar la distancia entre puntos de un par (cuánto menos mejor), sumar las penalizaciones de variedad
 y pares del mismo tipo (si es 0 porque hay equilibrio no suma nada, y si es más, se suma),
@@ -213,7 +213,7 @@ la distancia interpunto queremos que sea 0 (la sumamos) y la intrapunto queremos
 
 \section{Espacio de Búsqueda}
 El problema principal que nos encontramos en este apartado es que el tamaño del conjunto
-R2 es infinito, entonces aunque quisiéramos, no podríamos hacer una búsqueda exhaustiva. 
+R2 es infinito, entonces aunque quisiéramos, no podríamos hacer una búsqueda exhaustiva.
 
 La idea general será, por lo tanto, ir probando espacios de diferentes límites y tamaños hasta
 encontrar al menos un punto que pertenezca a otra clase con respecto a los demás puntos. Además,
@@ -222,7 +222,7 @@ el espacio en aquellos casos que no se sepa del todo si la frontera será cerrad
 
 En nuestro caso particular, hemos tenido la suerte que no ha habido que probar muchos espacios de búsqueda en el modelo B,
 pues podemos obtener puntos de diferente clase en un espacio delimitado por [-1.0, 1.0] en ambos ejes.
-Por el contrario, para el modelo A hemos tenido que ir aumentando poco a poco el espacio de búsqueda hasta encontrar uno que 
+Por el contrario, para el modelo A hemos tenido que ir aumentando poco a poco el espacio de búsqueda hasta encontrar uno que
 se ajuste al tamaño real de la frontera, por ejemplo vemos que si dejamos el espacio de búsqueda fijo, la frontera
 no queda cerrada correctamente.\\
 
@@ -237,15 +237,15 @@ de este será explicado igualmente.\\
 
 \section{Población inicial}
 
-El primer paso para realizar el algoritmo genético consiste en la creación de una población inicial que modificaremos después de 
+El primer paso para realizar el algoritmo genético consiste en la creación de una población inicial que modificaremos después de
 varias generaciones y obtener mejores individuos. Para el algoritmo se ha implementado una generación de población
-inicial estocástica. Esta consiste en crear individuos aleatorios, dentro del espacio de búsqueda para que 
+inicial estocástica. Esta consiste en crear individuos aleatorios, dentro del espacio de búsqueda para que
 los individuos tengan sentido en la representación del problema. Esta estrategia es la de menos coste
 y complejidad, y ofrece precisamente un balance entre diversidad y coste computacional.\\
 
 La principal debilidad de este método es que al no haber un control de los individuos resultantes,
 cabe la posibilidad de que surgan dentro de un individuo muchos puntos parecidos, y dentro de la población a su vez muchos
-individuos parecidos. Esto, además de ser poco probable que la mayoría de puntos sean similares, se abordará posteriormente 
+individuos parecidos. Esto, además de ser poco probable que la mayoría de puntos sean similares, se abordará posteriormente
 con algunas técnicas que influirán más en la diversidad del algoritmo. En general, obtendremos buenos resultados, y si no es el caso
 siempre podemos volver a ejecutar una nueva creación de población si no estamos conformes.
 
@@ -266,14 +266,14 @@ Escogeremos además que las selecciones para participar en el torneo son con rep
 
 \section{Cruces entre individuos}
 \subsection{Cruces del algoritmo genético}
-El objetivo del cruce entre individuos es obtener los hijos, que luego serán los candidatos para el reemplazamiento de la población. 
+El objetivo del cruce entre individuos es obtener los hijos, que luego serán los candidatos para el reemplazamiento de la población.
 Para este caso, se ha implementado un operador de cruce uniforme entre pares. El cruce combina pares de los diferentes
 padres, respetando su estructura. Para cada par de puntos del individuo hijo, se decide aleatoriamente de que padre se obtiene,
-aunque, se garantiza que haya de ambos dos progenitores sí o sí. La combinación de pares contraria al hijo creado resulta en el 
-segundo hijo del cruce. 
+aunque, se garantiza que haya de ambos dos progenitores sí o sí. La combinación de pares contraria al hijo creado resulta en el
+segundo hijo del cruce.
 
-Es necesario que se intercambien los pares entre sí, pues si intercambiamos únicamente puntos sin tener en cuenta su contraparte, 
-obtendremos un hijo que no se parece en nada a ninguno de sus padres y además los más probable es que el hijo resultante sea peor que 
+Es necesario que se intercambien los pares entre sí, pues si intercambiamos únicamente puntos sin tener en cuenta su contraparte,
+obtendremos un hijo que no se parece en nada a ninguno de sus padres y además los más probable es que el hijo resultante sea peor que
 de la otra forma.
 
 Tras cruzar ambos padres, se vuelve a evaluar el individuo, obteniendo las clases de sus puntos y pares y
@@ -283,7 +283,9 @@ un orden implícito en nuestra representación, por lo que esta estrategia no re
 
 \subsection{Cruces en programación genética}
 
+Al trabajar con estructuras de árboles de sintaxis abstracta (AST) en lugar de representaciones vectoriales clásicas, los operadores de variación deben adaptarse a la naturaleza jerárquica de las soluciones. Para este modelo, se ha empleado el cruce en un punto, implementado a través de la función \texttt{gp.cxOnePoint} de la librería DEAP.
 
+Conceptualmente, este operador selecciona un nodo de corte de forma aleatoria en el árbol del primer progenitor y realiza la misma acción en el árbol del segundo progenitor. A partir de estos dos nodos, el algoritmo intercambia los subárboles (o ramas) completos entre ambos padres. El resultado de este proceso son dos nuevos individuos descendientes que heredan e integran diferentes fragmentos de las expresiones matemáticas originales, permitiendo explorar nuevas combinaciones y formas geométricas en la frontera de decisión sin destruir la validez sintáctica de la ecuación.
 \section{Mutación de individuos}
 \subsection{Mutación del algoritmo genético}
 
@@ -295,7 +297,7 @@ diversidad y traer puntos nuevos que mejoren las generaciones.
 No obstante, este operador de mutación, es poco agresivo, ya que por la índole del problema
 la diversidad está garantizada, y porque se ha implementado un segundo operador que cumple otra función más.
 
-Cada un número de generaciones, el individuo con mejor fitness pasa por un proceso de 
+Cada un número de generaciones, el individuo con mejor fitness pasa por un proceso de
 reducción de distancia para sus pares de puntos. Este operador recorre todos los puntos del individuo
 hallando la recta que forma ese par de puntos, y juntando ambos en el plano de R2. De esta manera
 los pares de puntos se encontrarán en la frontera de decisión, permitiendo casi intuir la forma que esta tendrá,
@@ -304,23 +306,78 @@ y posteriormente incluyendo esos pares en la población.
 Este operador es muy agresivo, complejo y costoso, pero permite obtener soluciones de altísima calidad.
 
 \subsection{Mutación en programación genética}
+Para la mutación se han implementado \textbf{2 tipos}:
+\begin{itemize}
+	\item \textbf{Mutación Uniforme}: Este tipo de mutación, se selecciona \textbf{un nodo al azar} del individuo a mutar desde a partir del cual hasta el final del árbol será el \textbf{subarbol escogido}. Una vez con ello, se genera un subarbol completamente \textbf{aleatorio} de una profundidad entre 0 y 2, el cual se \textbf{sustituirá} por el seleccionado en el Padre a mutar. Esta configuración
+	da lugar tanto a la posibilidad de que se "elimine" el subarbol seleccionado (al insertar un subarbol de profundidad 0), como la seguridad de que al sustituir por un subarbol de profundidad $\geq$ 0, no vamos a aumentar demasiado la complejidad del mismo, pero sí aportarle una muy buena \textbf{diversidad}.
+	\item \textbf{Mutación de contracción (poda)}: Con este tipo de mutación, además de aumentar la diversidad, \textbf{disminuimos drásticamente la complejidad} y la profundidad de los individuos \textbf{demasiado grandes}. En este caso, al igual que en el anterior, busca un nodo de forma \textbf{aleatoria} en el padre a mutar, pero con la \textbf{restricción de que este sea una función} (multiplicación, suma, resta...),
+	no un terminal (como x o un número). Una vez escogido dicho nodo, selecciona al azar uno de sus hijos, una vez hecho esto, elimina todo el bloque del padre y lo cambia por el hijo seleccionado. Esto provoca que si ese nodo tenía una gran cantidad de hijos, siendo estos además de una alta complejidad, los elimine haciendo que la complejidad del individuo disminuya inmensamente.
+\end{itemize}
 
+Finalmente, la escogida para usar posteriormente en la obtención de las métricas y el uso del algoritmo en general, fue la mutación uniforme, ya que aporta una gran diversidad que ayuda enormemente a la obtención de mejores individuos y la mejora de las soluciones. Además, obvservamos que la mutación de poda
+se comportaba de forma muy agresiva, reduciendo demasiado la complejidad de los individuos, haciendo que obtuviesemos de forma demasiado frecuente funciones como líneas rectas y similar.
 \section{Reemplazo}
-
-
-
+\subsection{Reemplazo en el algortimo genético}
+El reemplazo de individuos en este algoritmo utiliza un modelo de Elitismo de la siguiente forma:
+\begin{itemize}
+  \item \textbf{Fase de Elitismo:} Antes de comenzar a generar nueva descendencia, se ordena la población actual de mejor a peor según su \textit{fitness}. Los individuos
+  más aptos, cuya cantidad está definida por el parámetro \texttt{ELITE\_SIZE} (valor: 2),
+  se copian directamente a la nueva generación. Estos individuos pasan intactos, asegurando que la mejor solución del algoritmo nunca se pierda por culpa
+  de un cruce o mutación desfavorable.
+  \item \textbf{Cruce y selección:}  Una vez que los mejores están elegidos tenemos que rellenar los 48 huecos restantes, para hacerlo escogemos a tres individuos al azar,
+  los dos mejores tendrán la posiblidad de cruzarse \texttt{CROSSOVER\_PROB} (valor: 0.85) una vez hayan sido cruzados o clonados se van metiendo en la nueva generación hasta ocupar los huecos
+  \item \textbf{Transición final:} Cuando la nueva población está completamente llena guardamos y pasamos a mutar, fase en la que solo se elegiran a los individuos nuevos, dejando intactos
+  a los de la élite.
+\end{itemize}
 
 
 \section{Consideraciones extra}
 
-
-
-
-\section{Análisis resultados}
+\section{Análisis de resultados}
 \subsection{Algoritmo genético}
-\subsection{Programación genética}
-
-\section{Conclusión}
-
+\subsubsection{Evolución del fitness}
+Al observar la gráfica de la evolución general para el modelo A podemos apreciar como el algoritmo encuentra rápidamente buenas soluciones llegando a un estancamiento sobre la 30 generación, el fitness final es 0.67, mientras que el fitness promedio de la población es aproximadamente 2.
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/01_evolucion.png}
+\end{center}
+Por otro lado el modelo B podemos apreciar que comienza con una peor población general pero al llegar a la generación 23 converge llegando a un fitness mínimo de 0.9
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/01_evolucion.png}
+\end{center}
+\subsubsection{Diversidad genética}
+Para el modelo A la gráfica muestra que la distancia promedio de los individuos al centroide fluctúa constantemente. Tras una pequeña caída inicial ya que se descartan los soluciones iniciales peores, la curva sube y baja de forma periódica en lugar de caer hacia cero lo que demuestra que la población nunca llega a colapsar.
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/02_diversidad.png}
+\end{center}
+Para el modelo B podemos ver como se mantiene siempre alta y variante. Esto confirma que la población no colapsa en clones idénticos; los operadores de cruce y mutación logran inyectar continuamente nuevo material genético.
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/02_diversidad.png}
+\end{center}
+\subsubsection{Probabilidad y tasa de mutación}
+El estudo de la mutación se divide en dos parámetros, la probabilidad de mutación mut\_prob por la cual podemos apreciar como para el modelo A tenemos cuanto mayor probabilidad de mutación obtemos mejores resultados en el fitness para valores de mut\_rate bajos (0.2)
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/conv_mut_prob.png}
+\end{center}
+Sin embargo para el modelo B la relación es menos distante, pese a esto ganaría mayor probabilidad de mutación para valores de mut\_rate bajos
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/conv_mut_prob.png}
+\end{center}
+Por otro lado tenemos la intensidad con la que se modifican sus genes el mut\_rate lo que hace que se diferencien más entre generaciones apreciando un claro vencedor del valor 0.05 a lo largo de las generaciones para el modelo A
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/conv_mut_rate.png}
+\end{center}
+Y de la misma forma para el modelo B
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/conv_mut_rate.png}
+\end{center}
+\subsubsection{Análisis de la frontera}
+Por último respecto al estudio del algoritmo genético observamos como quedarían las fronteras, tanto para el modelo A
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/05_frontera_final.png}
+\end{center}
+Como para el modelo B
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/05_frontera_final.png}
+\end{center}
 \end{spacing}
 \end{document}
