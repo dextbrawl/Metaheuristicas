@@ -175,19 +175,19 @@ def drawFitnessEvolution():
     plt.show()
 
 #Nota: Hay que hacerlo para los dos modelos de la practica
-model = modelo.BlackBoxModel("blackbox_modelB.pkl")
+model = modelo.BlackBoxModel("blackbox_modelA.pkl")
 
 #Parametrillos del algoritmo
 
 POPULATION_SIZE = 50
 NUM_POINTS = 100
-LIMITS = (-2.0, 2.0)
+LIMITS = (-4.0, 4.0)
 ELITE_SIZE = 2
 TOURNAMENT_SIZE = 3
 CROSSOVER_PROB = 0.85
 MUTATION_PROB = 0.3
 MUTATION_RATE = 0.2
-GENERATIONS = 50
+GENERATIONS = 200
 
 #I. Iniciamos pobacion random
 print(f"\nCreando poblacion inicial de {POPULATION_SIZE} individuos...")
