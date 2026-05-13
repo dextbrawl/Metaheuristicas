@@ -306,7 +306,23 @@ Este operador es muy agresivo, complejo y costoso, pero permite obtener solucion
 \subsection{Mutación en programación genética}
 
 \section{Reemplazo}
+\subsection{Reemplazo en el algortimo genético}
+El reemplazo de individuos en este algoritmo utiliza un modelo de Elitismo de la siguiente forma:
+\begin{itemize}
+  \item \textbf{Fase de Elitismo:} Antes de comenzar a generar nueva descendencia, se ordena la población actual de mejor a peor según su \textit{fitness}. Los individuos 
+  más aptos, cuya cantidad está definida por el parámetro \texttt{ELITE\_SIZE} (valor: 2), 
+  se copian directamente a la nueva generación. Estos individuos pasan intactos, asegurando que la mejor solución del algoritmo nunca se pierda por culpa 
+  de un cruce o mutación desfavorable.
+  \item \textbf{Cruce y selección:}  Una vez que los mejores están elegidos tenemos que rellenar los 48 huecos restantes, para hacerlo escogemos a tres individuos al azar, 
+  los dos mejores tendrán la posiblidad de cruzarse \texttt{CROSSOVER\_PROB} (valor: 0.85)
+  \item \textbf{Transición final:} Naturalmente, de nada sirve obtener puntos en los que todos sean del mismo tipo, por lo que primeramente se comprueba cuántos puntos
+  hay de cada clase. En adición, se mide para cada par si ambos puntos son del mismo tipo o no. Por ejemplo si trabajamos con 10 puntos
+  y hay 5 de cada tipo, el componente de variedad será perfecto, pero si al emparejar esos puntos no se emparejan tal que cada uno esté
+  con el del tipo opuesto (esto ocurrirá en muchos individuos), se añade un componente de misma clase, que evalúa cuantos pares hay
+  con dos puntos distintos respecto del total, siendo en este caso 5 pares, y según si haya más o menos se penalizará más al individuo o menos.
+\end{itemize}
 
+\subsection{Reemplazo en el algortimo genético}
 
 
 
