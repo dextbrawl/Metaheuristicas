@@ -10,7 +10,6 @@ ARCHIVO_SALIDA = "resultados.csv"
 print(f"Ejecutando {ARCHIVO_GP}...")
 inicio = time.time()
 
-# El flag "-u" fuerza a Python a imprimir la salida estándar sin buffer
 proceso = subprocess.Popen(
     ["python", "-u", ARCHIVO_GP], 
     stdout=subprocess.PIPE, 
@@ -19,8 +18,8 @@ proceso = subprocess.Popen(
 )
 
 fitness = None
+desviacion = None
 
-# Leer y mostrar línea por línea en la consola
 for linea in proceso.stdout:
     sys.stdout.write(linea)
     sys.stdout.flush()
@@ -30,22 +29,28 @@ for linea in proceso.stdout:
             fitness = float(linea.strip().split("FITNESS_FINAL:")[1])
         except ValueError:
             pass
+            
+    if "STD_FINAL:" in linea:
+        try:
+            desviacion = float(linea.strip().split("STD_FINAL:")[1])
+        except ValueError:
+            pass
 
 proceso.wait()
 tiempo_total = time.time() - inicio
 
 print("\n" + "="*40)
 
-if fitness is not None:
+if fitness is not None and desviacion is not None:
     archivo_existe = os.path.isfile(ARCHIVO_SALIDA)
     
     with open(ARCHIVO_SALIDA, mode='a', newline='') as file:
         writer = csv.writer(file)
         if not archivo_existe:
-            writer.writerow(["Tiempo_s", "Fitness"])
-        writer.writerow([tiempo_total, fitness])
+            writer.writerow(["Tiempo_s", "Fitness", "Desviacion"])
+        writer.writerow([tiempo_total, fitness, desviacion])
         
-    print(f"Proceso finalizado. Tiempo: {tiempo_total:.2f}s | Fitness: {fitness:.4f}")
+    print(f"Proceso finalizado. Tiempo: {tiempo_total:.2f}s | Fitness: {fitness:.4f} | Desv: {desviacion:.4f}")
     print(f"Dato guardado en {ARCHIVO_SALIDA}")
 else:
-    print("ERROR: No se encontró el texto 'FITNESS_FINAL:' en la salida estándar.")
+    print("ERROR: No se encontró FITNESS_FINAL o STD_FINAL en la salida.")
