@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 
 
 class BlackBoxModel:
-    # Considerar blackbox_modelA y blackbox_modelB
     def __init__(self, path="blackbox_model.pkl"):
         self.model = joblib.load(path)
 
@@ -21,12 +20,11 @@ class BlackBoxModel:
         return self.model.predict(x)[0]
 
 
-model = BlackBoxModel("../blackbox_modelA.pkl")
+model = BlackBoxModel("../src/blackbox_modelA.pkl")
 
 print(f"========== MODELO IMPORTADO EXITOSAMENTE ==========")
 
 
-# Función para obtener un par de puntos distanciado
 def getInterPoint():
     th_intrap_distance = 0.4
     valid = False
@@ -58,7 +56,6 @@ def compareInterDistance(point, cloud):
     return True
 
 
-# Función para obtener la nube de pares de puntos con una distancia umbral entre sí.
 def getCloud():
     n_points = 35
     cloud = []
@@ -76,7 +73,6 @@ def getCloud():
     return cloud
 
 
-# Definimos una división segura para evitar la división por 0
 def secureDiv(left, right):
     try:
         return left / right
@@ -84,33 +80,27 @@ def secureDiv(left, right):
         return 1.0
 
 
-# Definimos el conjunto de primitivas
-pset = gp.PrimitiveSet("MAIN", 2)  # 2 argumentos, 'x' e 'y'
+pset = gp.PrimitiveSet("MAIN", 2)
 pset.renameArguments(ARG0="x", ARG1="y")
 pset.addPrimitive(operator.add, 2)
 # pset.addPrimitive(secureDiv, 2)
 pset.addPrimitive(operator.sub, 2)
 pset.addPrimitive(operator.mul, 2)
 
-# Generamos constantes para los nodos hojas de los árboles
 pset.addEphemeralConstant("rand101", functools.partial(rnd.uniform, -10, 10))
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
 
 toolbox = base.Toolbox()
-# genera árboles con profundidad entre 1 y 5
 toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=3)
 toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-# Convertimos de un arbol genético a función ejecutable
 toolbox.register("compile", gp.compile, pset=pset)
 
-# Definimos los operadores genéticos para los árboles
-toolbox.register("mate", gp.cxOnePoint)  # Cruza intercambiando ramas
+toolbox.register("mate", gp.cxOnePoint)
 toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
-# Mutación uniforme, muta creando una rama nueva
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 # toolbox.register("mutate", gp.mutShrink)
 toolbox.register("select", tools.selTournament, tournsize=3)
@@ -185,26 +175,28 @@ def evalIndividual(individual, points, contrast_points):
     return (final_fitness_val,)
 
 
-# variable donde estarán los puntos obtenidos para la regresión simbólica
 points = getCloud()
 
 contrast_points = getDynamicContrastPoints(points)
 print(f"Estos son los puntos generados: {points}")
 print(f"Estos son los puntos de contraste: {contrast_points}")
-# Registramos la función de evaluación
 toolbox.register(
     "evaluate", evalIndividual, points=points, contrast_points=contrast_points
 )
 
-# Algoritmo evolutivo
+stats = tools.Statistics(lambda ind: ind.fitness.values)
+stats.register("min", np.min)
+stats.register("avg", np.mean)
+stats.register("max", np.max)
 
 population = toolbox.population(n=500)
-algorithms.eaSimple(population, toolbox, cxpb=0.7, mutpb=0.3, ngen=1000, verbose=True)
+population, logbook = algorithms.eaSimple(
+    population, toolbox, cxpb=0.7, mutpb=0.3, ngen=1000, stats=stats, verbose=True
+)
 bestOne = tools.selBest(population, 1)[0]
 
 print("La mejor ecuación encontrada es: ", bestOne)
 
-# Visualizamos la mejor solución
 func = toolbox.compile(expr=bestOne)
 x_val = np.linspace(-5, 5, 400)
 y_val = np.linspace(-5, 5, 400)
@@ -213,10 +205,8 @@ Z = np.zeros_like(X)
 for i in range(X.shape[0]):
     for j in range(X.shape[1]):
         try:
-            # Capturamos el valor Z
             Z[i, j] = func(X[i, j], Y[i, j])
         except (ZeroDivisionError, OverflowError):
-            # Si en este píxel la ecuación explota, lo marcamos como no válido
             Z[i, j] = np.nan
 
 plt.figure(figsize=(8, 8))
