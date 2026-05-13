@@ -175,13 +175,13 @@ def drawFitnessEvolution():
     plt.show()
 
 #Nota: Hay que hacerlo para los dos modelos de la practica
-model = modelo.BlackBoxModel("blackbox_modelA.pkl")
+model = modelo.BlackBoxModel("blackbox_modelB.pkl")
 
 #Parametrillos del algoritmo
 
 POPULATION_SIZE = 50
 NUM_POINTS = 50
-LIMITS = (-5.0, 5.0)
+LIMITS = (-1.0, 1.0)
 ELITE_SIZE = 2
 TOURNAMENT_SIZE = 3
 CROSSOVER_PROB = 0.85
@@ -299,6 +299,6 @@ if hasattr(globalBestIndividual, 'components'):
 
 
 drawFitnessEvolution()
-globalBestIndividual.minpairdistance()
 drawIndividual(globalBestIndividual, model, title="Top Individuo")
+globalBestIndividual.minpairdistance()
 drawDecisionBoundary(globalBestIndividual, model, limits=LIMITS, title="Top Individuo")

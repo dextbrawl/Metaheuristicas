@@ -263,7 +263,11 @@ class Individual:
             point_a = self.points[i]
             point_b = self.points[j]
             
-            aprox_points.append([((point_a[0] + point_b[0])/2), ((point_a[1] + point_b[1])/2)])
+            class_point_a = self.model.predict(point_a)
+            class_point_b = self.model.predict(point_b)
+            
+            if(class_point_a != class_point_b):
+                aprox_points.append([((point_a[0] + point_b[0])/2), ((point_a[1] + point_b[1])/2)])
             
         return np.array(aprox_points)
 
