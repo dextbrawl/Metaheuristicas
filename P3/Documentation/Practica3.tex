@@ -88,7 +88,7 @@ Sergio García Atanasio
 
 \newpage
 
-\begin{spacing}{1.3}
+\begin{spacing}{1.4}
 
 \section{Introducción}
 Documento sobre la realización de la tercera práctica de Metaheurísticas.
@@ -149,12 +149,24 @@ el modelo resultante.
 
 \subsubsection{Representación algoritmo genético}
 
-Para la realización de nuestro algoritmo genético, representaremos un individuo como un conjunto de pares de puntos del espacio en dos dimensiones.
-Para ello, se ha implementado la clase Individual, con parámetros esenciales como el número de puntos del individuo (ha de ser par),
-los límites del espacio de búsqueda (posteriormente detallados), emparejamiento, valor de fitness y la clase
+Para la realización de nuestro algoritmo genético, representaremos un individuo como un conjunto de pares de puntos del espacio en dos dimensiones, 
+de un tamaño indefinido, pero que fijaremos nosotros previamente antes de comenzar nuestro algoritmo genético.
+Una representación visual abstracta puede ser la siguiente:
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=0.35\linewidth]{images/Representacion_Genetico.png}
+\end{figure}
+
+Además, para la implementación del inviduo (no es la representación), se ha creado la clase Individual, con parámetros esenciales
+como el número de puntos del individuo (ha de ser par), los límites del espacio de búsqueda (posteriormente detallados), emparejamiento, valor de fitness y la clase
 a la que pertenece cada punto. Por último los puntos se almacenan en una matriz de nx2 donde cada fila representa un punto,
 a efectos prácticos es como una lista de puntos en orden ya que así la recorreremos. Dicho esto, si el tamaño
-de los individuos es de 20, tendremos una lista de 20 puntos que están emparejados entre sí.\\
+de los individuos es de 20, tendremos una lista de 20 puntos que están emparejados entre sí.
+
+El vector "pairs" indica la posición de cada punto en el vector de puntos. Es decir, un elemento del vector de pares 
+podría ser (4, 8), que indica que los puntos asociados a ese par son: (points[4], points[8])
+\\
 
 \begin{lstlisting}[language=Python, caption=Constructor de la clase Individuo]
   class Individual:
@@ -236,18 +248,28 @@ no queda cerrada correctamente.\\
 de este será explicado igualmente.\\
 
 \section{Población inicial}
-
+\subsection{Algoritmo Genético}
 El primer paso para realizar el algoritmo genético consiste en la creación de una población inicial que modificaremos después de
 varias generaciones y obtener mejores individuos. Para el algoritmo se ha implementado una generación de población
 inicial estocástica. Esta consiste en crear individuos aleatorios, dentro del espacio de búsqueda para que
 los individuos tengan sentido en la representación del problema. Esta estrategia es la de menos coste
-y complejidad, y ofrece precisamente un balance entre diversidad y coste computacional.\\
+y complejidad, y ofrece precisamente un balance entre diversidad y coste computacional.
 
 La principal debilidad de este método es que al no haber un control de los individuos resultantes,
 cabe la posibilidad de que surgan dentro de un individuo muchos puntos parecidos, y dentro de la población a su vez muchos
 individuos parecidos. Esto, además de ser poco probable que la mayoría de puntos sean similares, se abordará posteriormente
-con algunas técnicas que influirán más en la diversidad del algoritmo. En general, obtendremos buenos resultados, y si no es el caso
-siempre podemos volver a ejecutar una nueva creación de población si no estamos conformes.
+con algunas técnicas que influirán más en la diversidad del algoritmo. 
+
+Un matiz que se ha tenido en cuenta es que, a la hora de emparejar los puntos aleatorios que se han generado al crear el individuo,
+se preferirá de primera mano emparejar aquellos puntos que pertenezcan a una clase diferente, y el resto de puntos que sea de la misma clase emparejarlos aleatoriamente entre sí.
+De esta forma, ya empezamos de primera mano con individuos que tienen un fitness más aceptable que si se emparejasen todos los puntos de manera 
+aleatoria, con muy poco coste computacional añadido.
+
+En general, aplicando estos principios, obtendremos unos resultados constatemente buenos entre ejecuciones.
+
+\subsection{Programación Genética}
+
+[COMPLETAR AQUÍ]
 
 
 
@@ -332,6 +354,33 @@ El reemplazo de individuos en este algoritmo utiliza un modelo de Elitismo de la
 
 
 \section{Consideraciones extra}
+\subsection{Consideraciones Algoritmo Genético}
+
+Es posible que algunas de estas consideraciones hayan sido mencionadas en otros apartados, pero recapitulando,
+estas son los cambios más relevantes frente a una metodología tradicional en un algoritmo genético:
+
+\begin{itemize}
+  \item \textbf{Minimización de la distancia entre puntos de un mismo par:} Se tuvo en cuenta finalmente ya que
+  al algoritmo le costaba mucho trabajo encontrar puntos aleatoriamente que estuviesen cerca entre sí, por lo que 
+  se introdució este procedimiento para que la aproximación de la frontera sea lo más fiel a la original posible.
+  
+  Para ello, se genera una recta entre ambos puntos que pertenecen a su mismo par. Una vez obtenida la recta a través 
+  de la pendiente, podemos aplicar una búsqueda local para cada punto, que encuentre el punto más cercano a su contrario 
+  y que pueda pertenecer a su clase original (que no cambie de clase). Después, se repite el mismo proceso para el otro punto,
+  pero en dirección contraria. De esta forma, se obtienen los puntos lo más cercanos de uno al otro cuya separación es la frontera. 
+
+  El único inconveniente es que no funciona para puntos de la misma clase, por ello luego no son relevantes para realizar la estimación,
+  aunque idealmente el mejor individuo tendría todos los pares con puntos de diferente clase. 
+
+  Este método será usado cada 5 generaciones sobre el mejor individuo, ya que es una operación costosa para realizarla sobre todos los individuos
+  de la población.
+
+  \item \textbf{Generación de la frontera estimada:} La frontera estimada es calculada mediante el punto medio generado entre los puntos 
+  pertenecientes a un mismo par. El único requisito de estos puntos fronterizos ficticios es que tienen que ser generador por un par con puntos
+  de diferente clase, ya que de otra forma no es lo suficientemente representativo como para formar parte de la solución final. 
+
+  Una vez obtenidos, se dibuja la frontera uniendo los puntos que sean más cercanos entre ellos para intentar formar una forma cerrada.
+\end{itemize}
 
 \section{Análisis de resultados}
 \subsection{Algoritmo genético}
@@ -371,13 +420,17 @@ Y de la misma forma para el modelo B
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/conv_mut_rate.png}
 \end{center}
 \subsubsection{Análisis de la frontera}
-Por último respecto al estudio del algoritmo genético observamos como quedarían las fronteras, tanto para el modelo A
+Por último respecto al estudio del algoritmo genético observamos como quedarían las fronteras, tanto para el modelo A\\
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/05_frontera_final.png}
+  \includegraphics[width=0.70\textwidth]{images/stats_blackbox_modelA/05_frontera_final.png}
 \end{center}
-Como para el modelo B
+Como para el modelo B\\
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/05_frontera_final.png}
+  \includegraphics[width=0.70\textwidth]{images/stats_blackbox_modelB/05_frontera_final.png}
+
+  \textbf{Nota:} Aunque parezca que sólo haya puntos de clase 1 en la frontera estimada, realmente
+  son una pareja de puntos pero con la clase 1 prácticamente superpuesta sobre la clase 2. Entre ambos puntos
+  existe un punto medio que conforma la frontera, pero no se ve en el gráfico.
 \end{center}
 \end{spacing}
 \end{document}
