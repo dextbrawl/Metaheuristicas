@@ -6,6 +6,23 @@ from individual import Individual
 from scipy.spatial import ConvexHull
 
 #FUNCIONES DE MATPLOT HECHAS CON IA CASI ENTERAS :)
+
+def findNearest(points, currentPoint):
+    """
+    Dado un conjunto de puntos y un punto, haya el punto con menor distancia euclidiana al actual (currentPoint)
+    """
+
+    minDist = 4000
+    
+    retVal = currentPoint
+
+    for p in points:
+        dist = np.linalg.norm(currentPoint - p)
+        if dist < minDist and dist > 0:
+            minDist = dist
+            retVal = p
+    return retVal
+
 def drawIndividual(individual, model, title="Mejor Individuo"):
     """
     Dibuja los puntos de un individuo en R2 coloreados por clase
@@ -50,7 +67,7 @@ def drawIndividual(individual, model, title="Mejor Individuo"):
         for i, j in individual.pairs:
             x_coords = [individual.points[i][0], individual.points[j][0]]
             y_coords = [individual.points[i][1], individual.points[j][1]]
-            plt.plot(x_coords, y_coords, 'gray', alpha=0.5, linewidth=1, linestyle='--')
+            #plt.plot(x_coords, y_coords, 'gray', alpha=0.5, linewidth=1, linestyle='--')
     
     plt.xlabel('Eje X', fontsize=12)
     plt.ylabel('Eje Y', fontsize=12)
@@ -108,11 +125,14 @@ def drawDecisionBoundary(individual, model, limits=(-1.0, 1.0), title="Mejor Ind
     
     # Dibujar frontera aproximada
     aprox = individual.getAproximationPoints()
-    
-    # Calcula la envolvente convexa de los puntos medios
-    hull = ConvexHull(aprox)
-    for i in hull.simplices:
-        plt.plot(aprox[i, 0], aprox[i, 1], 'g-', linewidth=2)
+    if len(aprox) >= 3:
+        centroid = np.mean(aprox, axis=0)
+        angles = np.arctan2(aprox[:,1] - centroid[1], aprox[:,0] - centroid[0])
+        sorted_idx = np.argsort(angles)
+        ordered = aprox[sorted_idx]
+        # Close the polygon
+        ordered = np.vstack([ordered, ordered[0]])
+        plt.plot(ordered[:,0], ordered[:,1], 'g-', linewidth=2, label='Aprox. boundary')
     
     # Dibujar puntos del individuo
     if len(points_class0) > 0:
@@ -175,19 +195,19 @@ def drawFitnessEvolution():
     plt.show()
 
 #Nota: Hay que hacerlo para los dos modelos de la practica
-model = modelo.BlackBoxModel("blackbox_modelB.pkl")
+model = modelo.BlackBoxModel("blackbox_modelA.pkl")
 
 #Parametrillos del algoritmo
 
 POPULATION_SIZE = 50
 NUM_POINTS = 100
-LIMITS = (-2.0, 2.0)
+LIMITS = (-4.0, 4.0)
 ELITE_SIZE = 2
 TOURNAMENT_SIZE = 3
 CROSSOVER_PROB = 0.85
 MUTATION_PROB = 0.3
 MUTATION_RATE = 0.2
-GENERATIONS = 50
+GENERATIONS = 150
 
 #I. Iniciamos pobacion random
 print(f"\nCreando poblacion inicial de {POPULATION_SIZE} individuos...")
@@ -263,10 +283,6 @@ for generation in range(GENERATIONS):
 
     newPopulation.mutation(MUTATION_PROB, MUTATION_RATE, eliteSize=ELITE_SIZE)
 
-    if generation % 5 == 0:
-        print(f"Mejorando elite (Gen {generation})...")
-        best_of_gen = currentPopulation.getBest()
-        best_of_gen.minpairdistance() 
     
 
     #Nueva gen...
@@ -306,6 +322,6 @@ if hasattr(globalBestIndividual, 'components'):
 
 
 drawFitnessEvolution()
-drawIndividual(globalBestIndividual, model, title="Top Individuo")
 globalBestIndividual.minpairdistance()
+drawIndividual(globalBestIndividual, model, title="Top Individuo")
 drawDecisionBoundary(globalBestIndividual, model, limits=LIMITS, title="Top Individuo")
