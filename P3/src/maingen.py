@@ -181,7 +181,7 @@ model = modelo.BlackBoxModel("blackbox_modelB.pkl")
 
 POPULATION_SIZE = 50
 NUM_POINTS = 50
-LIMITS = (-1.0, 1.0)
+LIMITS = (-5.0, 5.0)
 ELITE_SIZE = 2
 TOURNAMENT_SIZE = 3
 CROSSOVER_PROB = 0.85
@@ -239,7 +239,6 @@ for generation in range(GENERATIONS):
         elite.classes = source.classes.copy() if source.classes is not None else None
         elite.components = source.components.copy()
         
-        newPopulation.individuals.append(elite)
     
     # Cruce
     while len(newPopulation.individuals) < POPULATION_SIZE:
@@ -264,9 +263,17 @@ for generation in range(GENERATIONS):
 
     newPopulation.mutation(MUTATION_PROB, MUTATION_RATE, eliteSize=ELITE_SIZE)
 
+    if generation % 5 == 0:
+        print(f"Mejorando elite (Gen {generation})...")
+        best_of_gen = currentPopulation.getBest()
+        best_of_gen.minpairdistance() 
+    
+
     #Nueva gen...
     newPopulation.evaluateAll()
     currentPopulation = newPopulation
+
+    
     
     stats = currentPopulation.getStatistics()
     bestHistory.append(stats['min'])

@@ -190,7 +190,7 @@ class Individual:
                        weightDistance: float = 1.0, #Distancia media de los puntos de los pares
                        weightDispersion: float = 0.5, #Distancia entre pares
                        weightVariety: float = 1.0, #Variedad
-                       weightSameClass: float = 50.0) -> float:
+                       weightSameClass: float = 100.0) -> float:
         """
         Fitness = distanciaPromedio 
                 -dispersion 

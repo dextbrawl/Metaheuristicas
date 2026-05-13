@@ -119,7 +119,22 @@ al consenso de que es la opción más factible para la resolución de este probl
 por la facilidad de implementación del método como los buenos resultados que suelen ofrecer
 este tipo de algoritmos. Cada punto de este método basado en poblaciones se indica en su respectiva sección.\\
 
+\section{Enfoques del problema}
+Para este problema, nuestro grupo ha optado por dos líneas princpales de trabajo,
+esto ha supuesto dividir toda la práctica en dos. El primer enfoque ha consistido en resolver
+el problema haciendo uso de un algoritmo genético híbrido, considerando un conjunto de puntos
+como un individuo, para, tras obtener varios puntos de ambas clases, poder esbozar la frontera
+de decisión.
 
+El segundo enfoque, consiste en la utilización de programación genética y el uso de árboles
+para hallar una expresión matemática tal que, graficada, represente la frontera de decisión del modelo.
+
+Asi pues, el objetivo de la práctica, ha cambiado a no sólo resolver el problema propuesto por el profesor
+sino además hacerlo de dos maneras distintas, y, en última instancia compararlas, y hallar conclusiones
+de ambas metodologías.
+
+\textbf{Nota:} Para cada sección del documento, se detalla el proceso seguido en ambas dos
+estrategias para abordar la práctica.
 
 
 \section{Representación y Función Objetivo}
@@ -131,6 +146,8 @@ para unos puntos dados.
 Así pues, las dos representaciones posibles son la expresión matemática que esboza la frontera, o bien un conjunto
 de puntos (un par de números enteros $x$ e $y$) que puedan determinarnos de una manera aproximada la frontera que forma
 el modelo resultante.
+
+\subsubsection{Representación algoritmo genético}
 
 Para la realización de nuestro algoritmo genético, representaremos un individuo como un conjunto de pares de puntos del espacio en dos dimensiones.
 Para ello, se ha implementado la clase Individual, con parámetros esenciales como el número de puntos del individuo (ha de ser par),
@@ -158,7 +175,12 @@ de los individuos es de 20, tendremos una lista de 20 puntos que están empareja
 \textbf{Nota:} Components son los componentes que se usarán para calcular el fitness, ya que depende la disposición
 de todos los puntos del individuo (dispersión, tipos de puntos...), esto se detalla a continuación.
 
+\subsubsection{Representación programación genética}
+arboles supongo?
+
+
 \subsection{Función objetivo}
+\subsubsection{Función objetivo algoritmo genético}
 Para poder evaluar en qué medida un individuo (conjunto de puntos) soluciona el problema,
 tendremos que tener en cuenta las siguientes características que un individuo puede tener.
 
@@ -187,6 +209,7 @@ y pares del mismo tipo (si es 0 porque hay equilibrio no suma nada, y si es más
 y por último, se resta la dispersión. Por lo tanto, nuestro objetivo será minimizar la función de fitness, ya que
 la distancia interpunto queremos que sea 0 (la sumamos) y la intrapunto queremos que sea la máxima posible (la restamos)\\
 
+\subsubsection{Función objetivo programación genética}
 
 \section{Espacio de Búsqueda}
 El problema principal que nos encontramos en este apartado es que el tamaño del conjunto
@@ -242,6 +265,7 @@ Escogeremos además que las selecciones para participar en el torneo son con rep
 
 
 \section{Cruces entre individuos}
+\subsection{Cruces del algoritmo genético}
 El objetivo del cruce entre individuos es obtener los hijos, que luego serán los candidatos para el reemplazamiento de la población. 
 Para este caso, se ha implementado un operador de cruce uniforme entre pares. El cruce combina pares de los diferentes
 padres, respetando su estructura. Para cada par de puntos del individuo hijo, se decide aleatoriamente de que padre se obtiene,
@@ -257,7 +281,29 @@ con la función objetivo. Se ha escogido este método porque al respetar los par
 un equilibrio entre la coherencia de cada par de puntos y la dispersión general del individuo. Otra de las ventajas es que no existe
 un orden implícito en nuestra representación, por lo que esta estrategia no resulta apenas costosa computacionalmente.
 
+\subsection{Cruces en programación genética}
+
+
 \section{Mutación de individuos}
+\subsection{Mutación del algoritmo genético}
+
+Antes de proseguir en el algoritmo, algunos individuos mutan bajo un operador
+que selecciona ciertos individuos, y altera genes de este (en este caso altera puntos). Para cada mutación,
+el operador modifica levemente valores en un eje, o en ambos, de puntos de ese individuo. Esto se hace para promover más
+diversidad y traer puntos nuevos que mejoren las generaciones.
+
+No obstante, este operador de mutación, es poco agresivo, ya que por la índole del problema
+la diversidad está garantizada, y porque se ha implementado un segundo operador que cumple otra función más.
+
+Cada un número de generaciones, el individuo con mejor fitness pasa por un proceso de 
+reducción de distancia para sus pares de puntos. Este operador recorre todos los puntos del individuo
+hallando la recta que forma ese par de puntos, y juntando ambos en el plano de R2. De esta manera
+los pares de puntos se encontrarán en la frontera de decisión, permitiendo casi intuir la forma que esta tendrá,
+y posteriormente incluyendo esos pares en la población.
+
+Este operador es muy agresivo, complejo y costoso, pero permite obtener soluciones de altísima calidad.
+
+\subsection{Mutación en programación genética}
 
 \section{Reemplazo}
 
@@ -271,6 +317,8 @@ un orden implícito en nuestra representación, por lo que esta estrategia no re
 
 
 \section{Análisis resultados}
+\subsection{Algoritmo genético}
+\subsection{Programación genética}
 
 \section{Conclusión}
 
