@@ -532,10 +532,7 @@ A continuación se enumeran las consideraciones más relevantes adoptadas en la 
     A diferencia del algoritmo genético (Sección 11.1), en la programación genética no se copian automáticamente los mejores individuos a la siguiente generación. En su lugar, se emplea un \texttt{HallOfFame} de tamaño 1 que almacena la mejor expresión encontrada a lo largo de toda la ejecución, pero no la reintroduce en la población. Esto permite una mayor exploración al evitar la presión selectiva excesiva, aunque se sacrifica la convergencia asegurada. Al final, la ecuación final se recupera del \texttt{HallOfFame}.
 
         \item \textbf{Transformación de la ecuación final a formato legible}:  
-    Mediante la librería \texttt{sympy} se simplifica la expresión del mejor individuo y se traduce a una ecuación igualada a cero, lista para ser utilizada en herramientas externas como GeoGebra. Un ejemplo de ello se muestra en el archivo \texttt{bestBecuation.txt}, donde se traduce una expresión compleja a la forma:
-    \[
-    -3.64997\,x^6 y^2 - 0.437395\,x^2 - 0.437395\,y^2 + 0.201545 = 0
-    \]
+    Mediante la librería \texttt{sympy} se simplifica la expresión del mejor individuo y se traduce a una ecuación igualada a cero, lista para ser utilizada en herramientas externas como GeoGebra. 
 \end{itemize}
 
 \section{Análisis de resultados}
