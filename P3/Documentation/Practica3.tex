@@ -725,4 +725,27 @@ Cuya ecuación matemática es: -3.64997189209125*x**6*y**2 - 0.437395728989247*x
 \end{figure}
 
 \textbf{Conclusión:} La regresión simbólica demuestra ser eficaz para traducir cajas negras a ecuaciones explícitas. Mientras el Modelo A requiere mayor esfuerzo para capturar la apertura parabólica, el Modelo B se beneficia de un espacio restringido para cerrar la geometría del círculo con alta fidelidad.
+
+\section{Conclusiones finales}
+
+La realización de esta práctica ha permitido abordar el problema de aproximación de fronteras de decisión de modelos caja negra desde dos perspectivas complementarias: un algoritmo genético híbrido basado en nubes de puntos y un enfoque de programación genética que busca expresiones simbólicas explícitas. A continuación se resumen las principales conclusiones extraídas.
+
+\subsection{Comparativa de los dos enfoques}
+
+\begin{itemize}
+    \item \textbf{Interpretabilidad de la solución}: La programación genética ofrece una ventaja clara al generar una ecuación matemática (por ejemplo, $-3.65\,x^6y^2 - 0.437\,x^2 - 0.437\,y^2 + 0.202 = 0$ para el modelo A o una circunferencia para el modelo B). Esta representación es directamente utilizable en herramientas analíticas. Por el contrario, el algoritmo genético proporciona únicamente una nube de puntos que debe ser interpolada o dibujada, lo que introduce incertidumbre en la forma exacta de la frontera.
+
+    \item \textbf{Complejidad computacional}: El algoritmo genético resultó más eficiente en tiempo por generación, ya que trabaja con vectores de puntos y operadores simples. La programación genética, especialmente con 500 individuos y 1000 generaciones, presenta un coste mayor debido a la manipulación de árboles y la evaluación numérica de expresiones. Los tiempos medios para el modelo B fueron de 88 segundos en GP frente a tiempos inferiores en el AG (no especificados pero cualitativamente más rápidos).
+
+    \item \textbf{Capacidad de generalización}: La programación genética, al producir una función continua, extrapola la frontera más allá de los puntos de bisección. Esto es especialmente valioso para el modelo A (parábola abierta), donde la expresión obtenida describe correctamente el comportamiento asintótico. El algoritmo genético solo proporciona información en los puntos muestreados.
+
+    \item \textbf{Robustez y estabilidad}: El algoritmo genético con elitismo (copia de los dos mejores) garantiza que la mejor solución no se pierde, resultando en convergencias más suaves. En programación genética, la ausencia de elitismo en el reemplazo (solo \texttt{HallOfFame}) provoca fluctuaciones en el fitness medio, aunque la memoria externa recupera la mejor ecuación al final. La desviación típica en GP es muy elevada (del orden de millones en el modelo A), indicando alta sensibilidad a la inicialización y a la mutación.
+\end{itemize}
+
+\subsection{Valoración global}
+
+Ambas metaheurísticas han demostrado ser eficaces para explorar el espacio de entrada de los modelos caja negra y aproximar sus fronteras de decisión. El algoritmo genético destaca por su simplicidad y rapidez, siendo adecuado cuando solo se necesita un esbozo visual de la frontera. La programación genética, más costosa computacionalmente, proporciona una ecuación explícita que puede ser analizada, simplificada y reutilizada en otros contextos, lo que la hace superior cuando se requiere un modelo matemático formal. En adición, la programación genética es un método de resolución muy sofisticado y elegante matemáticamente, por lo que nos ha complacido aprovechar esta oportunidad para utilizarla en un problema práctico.\\
+
+En definitiva, la práctica ha cumplido con creces los objetivos planteados: no solo se ha resuelto el problema de aproximación de fronteras, sino que se ha hecho mediante dos enfoques distintos, permitiendo una comparación rigurosa y extrayendo conclusiones valiosas sobre sus respectivas fortaleza.
+
 \end{document}
