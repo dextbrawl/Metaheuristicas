@@ -188,7 +188,7 @@ Una representación visual abstracta puede ser la siguiente:
   \includegraphics[width=0.35\linewidth]{images/Representacion_Genetico.png}
 \end{figure}
 
-Además, para la implementación del inviduo (no es la representación), se ha creado la clase Individual, con parámetros esenciales
+Además, para la implementación del inviduo (no la representación), se ha creado la clase Individual, con parámetros esenciales
 como el número de puntos del individuo (ha de ser par), los límites del espacio de búsqueda (posteriormente detallados), emparejamiento, valor de fitness y la clase
 a la que pertenece cada punto. Por último los puntos se almacenan en una matriz de nx2 donde cada fila representa un punto,
 a efectos prácticos es como una lista de puntos en orden ya que así la recorreremos. Dicho esto, si el tamaño
@@ -630,6 +630,26 @@ Para el Modelo A, el algoritmo debe capturar una frontera con apertura infinita.
     \label{fig:stdA}
 \end{figure}
 
+Los mejores resultados obtenidos para el modelo A han sido los siguientes:\\
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.70\textwidth]{../geneticoFormula/MEJOR_FRONTERA_A.png}
+  \caption{Mejor resultado para el modelo A.}
+  \label{fig:best1A}
+\end{figure}
+
+Fórmula resultante: -0.061874953007699*x - 0.00806673328368657*y**2*(x**2 - 1) + 0.061874953007699*y + 0.0309374765038495*(x - y)*(x**2 + x + y**2 - y - 2.4499020748082) + 0.0568069935364975 = 0\\
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.70\textwidth]{../geneticoFormula/SEGUNDA_MEJOR_A.png}
+  \caption{Segundo mejor resultado, modelo A.}
+  \label{fig:best2A}
+\end{figure}
+
+Fórmula resultante: y*(-0.00505838700016572*y*(y - 3.3993194652119)*((x - 0.61905338281046)*(x + 5.79400934338234) - 1) + 0.0761807252643547*y + 0.00505838700016572*(x - y)*(x**2*(x + 0.799062897109842) + x - y) - 0.229986763250881) = 0\\
+
 \subsubsection{Análisis del Modelo B}
 
 En el Modelo B, el espacio de búsqueda se restringió al rango $[-1, 1]$ con 15 puntos de bisección para capturar una geometría cerrada:
@@ -659,6 +679,24 @@ En el Modelo B, el espacio de búsqueda se restringió al rango $[-1, 1]$ con 15
     \includegraphics[width=0.70\textwidth]{images/StatsModeloB/grafica_03_desviacion.png}
     \caption{Desviación típica (Escala Logarítmica) - Modelo B.}
     \label{fig:stdB}
+\end{figure}
+
+Los mejores resultados del modelo B que han sido obtenidos son:\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{../geneticoFormula/MEJOR_FRONTERA_B.png}
+    \caption{Mejor resultado, modelo B}
+    \label{fig:best1B}
+\end{figure}
+
+Cuya ecuación matemática es: -3.64997189209125*x**6*y**2 - 0.437395728989247*x**2 - 0.437395728989247*y**2 + 0.201545512658916 = 0
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{../geneticoFormula/BEST_B_FRONTIER_2.png}
+    \caption{Segundo mejor resultado, modelo B}
+    \label{fig:best2B}
 \end{figure}
 
 \textbf{Conclusión:} La regresión simbólica demuestra ser eficaz para traducir cajas negras a ecuaciones explícitas. Mientras el Modelo A requiere mayor esfuerzo para capturar la apertura parabólica, el Modelo B se beneficia de un espacio restringido para cerrar la geometría del círculo con alta fidelidad.
