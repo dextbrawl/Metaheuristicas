@@ -180,7 +180,7 @@ el modelo resultante.
 \subsubsection{Representación algoritmo genético}
 
 Para la realización de nuestro algoritmo genético, representaremos un individuo como un conjunto de pares de puntos del espacio en dos dimensiones, 
-de un tamaño indefinido, pero que fijaremos nosotros previamente antes de comenzar nuestro algoritmo genético.
+cuyo tamaño es un hiperparámetro del algoritmo, luego lo fijaremos nosotros previamente antes de comenzar nuestro algoritmo genético.
 Una representación visual abstracta puede ser la siguiente:
 
 \begin{figure}[htb]
@@ -196,6 +196,9 @@ de los individuos es de 20, tendremos una lista de 20 puntos que están empareja
 
 El vector "pairs" indica la posición de cada punto en el vector de puntos. Es decir, un elemento del vector de pares 
 podría ser (4, 8), que indica que los puntos asociados a ese par son: (points[4], points[8])
+
+\textbf{Nota:} La clase Individual es como se ha implementado en python, no la representación
+del problema persé.
 \\
 
 \begin{lstlisting}[language=Python, caption=Constructor de la clase Individuo]
@@ -219,7 +222,7 @@ de todos los puntos del individuo (dispersión, tipos de puntos...), esto se det
 
 \subsubsection{Representación programación genética}
 
-La representación del individuo en el algoritmo de programación genética se ha utilazado un AST de profundidad variable. Los operadores (o nodos intermedios) posibles son \textbf{suma, resta y producto} (\texttt{add(),sub(),mul()}). Los números (reales en $[-5,5]$) o variables $x$ e $y$ se alojan en las hojas.\\
+La representación del individuo en el algoritmo de programación genética se ha utilizado un AST de profundidad variable. Los operadores (o nodos intermedios) posibles son \textbf{suma, resta y producto} (\texttt{add(),sub(),mul()}). Los números (reales en $[-5,5]$) o variables $x$ e $y$ se alojan en las hojas.\\
 
 La solución última se representa como la expresión de una curva y se obtiene recorriendo el árbol de forma infija, e igualando la expresión resultante a 0.\\
 
@@ -287,7 +290,7 @@ y por último, se resta la dispersión. Por lo tanto, nuestro objetivo será min
 la distancia interpunto queremos que sea 0 (la sumamos) y la intrapunto queremos que sea la máxima posible (la restamos)
 
 Además, se intentará minimizar directamente la distancia que hay entre dos puntos de un mismo par, que será explicado más adelante
-en la sección 11.1, por lo que pondremos mayor peso principalmente a que dos puntos sean de diferente clase y a la dispersión entre
+en la sección pertinente, por lo que pondremos mayor peso principalmente a que dos puntos sean de diferente clase y a la dispersión entre
 pares. \\
 
 \subsubsection{Función objetivo programación genética}
@@ -393,6 +396,8 @@ corriendo el riesgo de que siempre se escojan los mismos padres y por lo tanto h
 
 Escogeremos además que las selecciones para participar en el torneo son con reposición, pudiendo aparecer varias veces el mismo individuo.
 
+\textbf{Nota:} Esta estrategia de selección se ha aplicado tanto para la programación genética
+como para el algoritmo genético.
 
 \section{Cruces entre individuos}
 \subsection{Cruces del algoritmo genético}
