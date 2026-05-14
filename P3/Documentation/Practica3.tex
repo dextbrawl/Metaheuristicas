@@ -12,6 +12,36 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
+\usepackage{tikz}
+\usetikzlibrary{trees,arrows.meta}
+\usepackage{hyperref}
+
+\tikzset{
+  astnode/.style={
+    draw,
+    thick,
+    align=center,
+    font=\large,
+    minimum width=1.05cm,
+    minimum height=1.05cm
+  },
+  operator/.style={
+    astnode,
+    circle,
+    fill=blue!12
+  },
+  operand/.style={
+    astnode,
+    rectangle,
+    rounded corners=3pt,
+    fill=green!12
+  },
+  astedge/.style={
+    draw,
+    thick,
+    -{Stealth[length=2mm,width=1.6mm]}
+  }
+}
 
 % Define colors for syntax highlighting
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -188,7 +218,42 @@ podría ser (4, 8), que indica que los puntos asociados a ese par son: (points[4
 de todos los puntos del individuo (dispersión, tipos de puntos...), esto se detalla a continuación.
 
 \subsubsection{Representación programación genética}
-arboles supongo?
+
+La representación del individuo en el algoritmo de programación genética se ha utilazado un AST de profundidad variable. Los operadores (o nodos intermedios) posibles son \textbf{suma, resta y producto} (\texttt{add(),sub(),mul()}). Los números (reales en $[-5,5]$) o variables $x$ e $y$ se alojan en las hojas.\\
+
+La solución última se representa como la expresión de una curva y se obtiene recorriendo el árbol de forma infija, e igualando la expresión resultante a 0.\\
+
+Un individuo que represente la expresión $x*x+y*y-3+5$ se puede visualizar de esta forma: 
+
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}[
+  level distance=1.55cm,
+  edge from parent/.style={astedge},
+  level 1/.style={sibling distance=4.9cm},
+  level 2/.style={sibling distance=3.7cm},
+  level 3/.style={sibling distance=2.95cm},
+  level 4/.style={sibling distance=1.6cm}
+]
+
+\node[operator] (rootPlus) {$+$}
+  child { node[operator] (minus) {$-$}
+    child { node[operator] (sum) {$+$}
+      child { node[operator] (multiplyLeft) {$\times$}
+        child { node[operand] (xLeft) {$x$} }
+        child { node[operand] (xRight) {$x$} }
+      }
+      child { node[operator] (multiplyRight) {$\times$}
+        child { node[operand] (yLeft) {$y$} }
+        child { node[operand] (yRight) {$y$} }
+      }
+    }
+    child { node[operand] (three) {$3$} }
+  }
+  child { node[operand] (five) {$5$} };
+
+\end{tikzpicture}
+\end{center}
 
 
 \subsection{Función objetivo}
@@ -222,6 +287,34 @@ y por último, se resta la dispersión. Por lo tanto, nuestro objetivo será min
 la distancia interpunto queremos que sea 0 (la sumamos) y la intrapunto queremos que sea la máxima posible (la restamos)\\
 
 \subsubsection{Función objetivo programación genética}
+
+Para la regresión simbólica, la función objetivo evalúa cómo de cerca la expresión matemática representada por un individuo (árbol AST) se aproxima a la frontera de decisión del modelo caja negra. Se definen los siguientes componentes:
+
+\begin{itemize}
+    \item \textbf{Puntos de bisección}: Se genera una nube de puntos que pertenecen a la frontera real. Cada punto se obtiene promediando dos puntos de clase distinta separados por una distancia intrapar menor a un umbral (0.15 para el modelo B, 0.4 para el modelo A). Estos puntos representan la verdad fundamental que la expresión debe aproximar.
+    
+    \item \textbf{Puntos de contraste dinámicos}: Para evitar que la función se anule en regiones alejadas de la frontera, se añaden puntos de contraste calculados a partir de la extensión de la nube de bisección. Normalmente se toman cuatro puntos en las esquinas del rectángulo que engloba la nube más un margen del 20\%, y un punto central. Se exige que en estos puntos el valor absoluto de la función sea significativamente distinto de cero.
+    
+    \item \textbf{Penalización por tamaño}: Para favorecer expresiones parsimoniosas, se añade un término proporcional al número de nodos del árbol (penalización de 0.07 por nodo).
+\end{itemize}
+
+La función de fitness se define como:
+
+\[
+\text{fitness} = 1000 \cdot \frac{1}{N_p} \sum_{(x,y) \in P} f(x,y)^2 \;+\; \frac{1}{N_c} \sum_{(x_c,y_c) \in C} \frac{1}{f(x_c,y_c)^2} \;+\; 0.07 \cdot |\text{individuo}|
+\]
+
+donde $P$ es el conjunto de puntos de bisección, $C$ el conjunto de puntos de contraste, $f$ la función expresada por el árbol, y $|\text{individuo}|$ el número de nodos del árbol.
+
+Se penalizan con $\infty$ aquellos individuos que:
+\begin{itemize}
+    \item No contengan las variables $x$ e $y$ en su expresión.
+    \item Generen desbordamiento numérico o divisiones por cero durante la evaluación.
+    \item Produzcan un rango de salida demasiado pequeño (casi constante).
+    \item En algún punto de contraste el valor absoluto sea menor a 0.1.
+\end{itemize}
+
+El objetivo es minimizar este fitness, de modo que la expresión se aproxime a cero sobre la frontera real y se aleje de cero en el resto del espacio, todo ello con la máxima simplicidad estructural.
 
 \section{Espacio de Búsqueda}
 El problema principal que nos encontramos en este apartado es que el tamaño del conjunto
@@ -269,9 +362,20 @@ En general, aplicando estos principios, obtendremos unos resultados constatement
 
 \subsection{Programación Genética}
 
-[COMPLETAR AQUÍ]
+Para la programación genética, la población inicial se genera de forma completamente aleatoria siguiendo un enfoque de crecimiento controlado (equivalente al método \textit{ramped half-and-half} simplificado). Se crean un total de \textbf{500 individuos}, cada uno de los cuales es un árbol de sintaxis abstracta (AST) que representa una expresión matemática. La profundidad de cada árbol se elige aleatoriamente entre \textbf{1 y 3} (ambos inclusive), lo que garantiza expresiones inicialmente sencillas pero con diversidad estructural.
 
+Los nodos internos se seleccionan del conjunto de operadores $\{ \text{suma}, \text{resta}, \text{multiplicación} \}$ (\texttt{add}, \texttt{sub}, \texttt{mul}), mientras que las hojas pueden ser:
+\begin{itemize}
+    \item La variable independiente $x$,
+    \item La variable independiente $y$,
+    \item Constantes numéricas reales generadas aleatoriamente en el rango $[-5, 5]$.
+\end{itemize}
 
+La generación se realiza mediante el método de ``crecimiento completo'' para profundidades inferiores a la máxima, y ``crecimiento parcial'' en el último nivel para asegurar que todos los árboles sean sintácticamente válidos y tengan hojas en sus ramas terminales.
+
+No se aplica ninguna poda ni corrección inicial sobre los individuos, pues se busca preservar la máxima diversidad en la primera generación. La única restricción es que la raíz del árbol sea siempre un operador (no un terminal), para evitar expresiones triviales como una única constante o variable.
+
+Esta estrategia de inicialización es de bajo coste computacional y permite explorar un amplio abanico de formas funcionales desde las primeras generaciones, complementando la posterior selección, cruce y mutación descritas en secciones posteriores.
 
 \section{Selección de padres}
 Para elegir los padres de la población, se sigue la selección por torneo, en la cual se escogen
