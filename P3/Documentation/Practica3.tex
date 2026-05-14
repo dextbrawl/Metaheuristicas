@@ -456,6 +456,26 @@ El reemplazo de individuos en este algoritmo utiliza un modelo de Elitismo de la
   a los de la élite.
 \end{itemize}
 
+\subsection{Reemplazo en programación genética}
+
+En la programación genética implementada para este problema, el reemplazo de individuos sigue un modelo \textbf{generacional} sin elitismo explícito, gestionado mediante la función \texttt{eaSimple} de la librería DEAP. El proceso se describe a continuación:
+
+\begin{itemize}
+    \item \textbf{Tamaño de población constante}: Se mantienen 500 individuos por generación.
+    \item \textbf{Generación de descendencia}: En cada generación, se crea un conjunto de hijos a partir de la población actual. Para ello:
+    \begin{itemize}
+        \item Se seleccionan padres mediante torneo (tamaño 3) con reposición.
+        \item Se aplica cruce en un punto (\texttt{cxOnePoint}) con probabilidad \texttt{cxpb = 0.7}.
+        \item Se aplica mutación uniforme (\texttt{mutUniform}) con probabilidad \texttt{mutpb = 0.3}.
+        \item El número total de hijos generados es igual al tamaño de la población (500), por lo que cada nueva generación se compone íntegramente de descendientes.
+    \end{itemize}
+    \item \textbf{Pérdida de los padres}: Los individuos de la generación anterior desaparecen completamente, a menos que sean seleccionados como padres y sus variantes pasen a la siguiente generación. \textbf{No se copia ningún individuo directamente} (sin elitismo).
+    \item \textbf{Hall of Fame}: Para no perder la mejor solución encontrada durante toda la ejecución, se utiliza un \texttt{HallOfFame} de tamaño 1. Este almacena el mejor individuo global, pero \textbf{no lo reintroduce automáticamente} en la población. Al final del algoritmo, se recupera de él la mejor ecuación.
+\end{itemize}
+
+Este enfoque generacional simple favorece la exploración del espacio de búsqueda, evitando la convergencia prematura. Sin embargo, puede provocar la pérdida temporal de buenas soluciones si no generan descendencia exitosa. Para mitigarlo, el \texttt{HallOfFame} actúa como una memoria externa que garantiza que la mejor expresión matemática encontrada no se descarte al final del proceso.
+
+A modo de comparación, el algoritmo genético híbrido explicado anteriormente emplea un reemplazo con elitismo fuerte (copia directa de los dos mejores individuos), lo que intensifica la explotación de las mejores soluciones. En la programación genética, se prioriza la diversidad frente a la presión selectiva, dado que las expresiones simbólicas pueden beneficiarse de una mayor variabilidad estructural.
 
 \section{Consideraciones extra}
 \subsection{Consideraciones Algoritmo Genético}
@@ -484,6 +504,34 @@ estas son los cambios más relevantes frente a una metodología tradicional en u
   de diferente clase, ya que de otra forma no es lo suficientemente representativo como para formar parte de la solución final. 
 
   Una vez obtenidos, se dibuja la frontera uniendo los puntos que sean más cercanos entre ellos para intentar formar una forma cerrada.
+\end{itemize}
+
+\subsection{Consideraciones en programación genética}
+
+A continuación se enumeran las consideraciones más relevantes adoptadas en la implementación de la programación genética, que se apartan de un enfoque estándar para adaptarse a las particularidades del problema de aproximación de fronteras de decisión.
+
+\begin{itemize}
+       \item \textbf{Manejo de individuos inviables}:  
+    Se asigna un fitness $\infty$ a aquellos individuos que:
+    \begin{itemize}
+        \item No contengan las variables $x$ e $y$ en su representación en cadena.
+        \item Durante la evaluación provoquen desbordamiento numérico (\texttt{OverflowError}) o división por cero.
+        \item Produzcan un rango de salida (máximo - mínimo) inferior a $10^{-5}$ (función prácticamente constante).
+        \item En algún punto de contraste se cumpla $|f(x_c, y_c)| < 0.1$.
+    \end{itemize}
+    Esta estrategia filtra expresiones no válidas sin detener la evolución.
+
+    \item \textbf{Penalización por complejidad estructural}:  
+    Para favorecer la parsimonia (expresiones más simples y legibles), se añade al fitness un término de $0.07 \cdot \text{(número de nodos del árbol)}$. Este valor se ajustó empíricamente para que no domine sobre los errores de aproximación pero sí penalice árboles excesivamente grandes.
+
+    \item \textbf{Uso de \texttt{Hall of Fame} sin elitismo en el reemplazo}:  
+    A diferencia del algoritmo genético (Sección 11.1), en la programación genética no se copian automáticamente los mejores individuos a la siguiente generación. En su lugar, se emplea un \texttt{HallOfFame} de tamaño 1 que almacena la mejor expresión encontrada a lo largo de toda la ejecución, pero no la reintroduce en la población. Esto permite una mayor exploración al evitar la presión selectiva excesiva, aunque se sacrifica la convergencia asegurada. Al final, la ecuación final se recupera del \texttt{HallOfFame}.
+
+        \item \textbf{Transformación de la ecuación final a formato legible}:  
+    Mediante la librería \texttt{sympy} se simplifica la expresión del mejor individuo y se traduce a una ecuación igualada a cero, lista para ser utilizada en herramientas externas como GeoGebra. Un ejemplo de ello se muestra en el archivo \texttt{bestBecuation.txt}, donde se traduce una expresión compleja a la forma:
+    \[
+    -3.64997\,x^6 y^2 - 0.437395\,x^2 - 0.437395\,y^2 + 0.201545 = 0
+    \]
 \end{itemize}
 
 \section{Análisis de resultados}
