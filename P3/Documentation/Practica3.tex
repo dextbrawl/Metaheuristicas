@@ -385,11 +385,11 @@ estas son los cambios más relevantes frente a una metodología tradicional en u
 \section{Análisis de resultados}
 \subsection{Algoritmo genético}
 \subsubsection{Evolución del fitness}
-Al observar la gráfica de la evolución general para el modelo A podemos apreciar como el algoritmo encuentra rápidamente buenas soluciones llegando a un estancamiento sobre la 30 generación, el fitness final es 0.67, mientras que el fitness promedio de la población es aproximadamente 2.
+Al observar la gráfica de la evolución general para el modelo A con un poco de esfuerzo podemos apreciar como el algoritmo encuentra rápidamente buenas soluciones y se estanca, el fitness final es 0.67, mientras que el fitness promedio de la población es aproximadamente 11.
 \begin{center}
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/01_evolucion.png}
 \end{center}
-Por otro lado el modelo B podemos apreciar que comienza con una peor población general pero al llegar a la generación 23 converge llegando a un fitness mínimo de 0.9
+Por otro lado el modelo B podemos apreciar que comienza con una peor población general pero al llegar a la generación pero también converge llegando a un fitness mínimo de 0.9
 \begin{center}
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/01_evolucion.png}
 \end{center}
@@ -403,7 +403,7 @@ Para el modelo B podemos ver como se mantiene siempre alta y variante. Esto conf
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/02_diversidad.png}
 \end{center}
 \subsubsection{Probabilidad y tasa de mutación}
-El estudo de la mutación se divide en dos parámetros, la probabilidad de mutación mut\_prob por la cual podemos apreciar como para el modelo A tenemos cuanto mayor probabilidad de mutación obtemos mejores resultados en el fitness para valores de mut\_rate bajos (0.2)
+El estudo de la mutación se divide en dos parámetros, la probabilidad de mutación mut\_prob, por la cual podemos apreciar como para el modelo un valor de 0.1 consigue el mejor fitness para valores de mut\_rate bajos (0.2)
 \begin{center}
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/conv_mut_prob.png}
 \end{center}
@@ -415,7 +415,7 @@ Por otro lado tenemos la intensidad con la que se modifican sus genes el mut\_ra
 \begin{center}
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/conv_mut_rate.png}
 \end{center}
-Y de la misma forma para el modelo B
+Y del valor 0.5 para el modelo B
 \begin{center}
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/conv_mut_rate.png}
 \end{center}
@@ -433,4 +433,71 @@ Como para el modelo B\\
   existe un punto medio que conforma la frontera, pero no se ve en el gráfico.
 \end{center}
 \end{spacing}
+\subsection{Regresión simbólica}
+
+El análisis de la programación genética aplicada a la identificación de las fronteras de decisión revela comportamientos distintos según la complejidad geométrica de cada modelo de caja negra:
+
+\subsubsection{Análisis del Modelo A (Parábola)}
+
+Para el Modelo A, el algoritmo debe capturar una frontera con apertura infinita. Los resultados muestran las siguientes tendencias:
+
+\begin{itemize}
+    \item \textbf{Eficiencia Temporal:} Los tiempos de ejecución (ver Fig. \ref{fig:tiemposA}) se mantienen estables, reflejando la carga computacional de evaluar 35 puntos de bisección a lo largo de 1000 generaciones.
+    \item \textbf{Convergencia de Fitness:} Se observa una reducción drástica del error en las primeras etapas (ver Fig. \ref{fig:fitnessA}), logrando una aproximación precisa de la curva parabólica gracias al uso del \textit{Hall of Fame}.
+    \item \textbf{Estabilidad Numérica:} La desviación típica (ver Fig. \ref{fig:stdA}) presenta picos puntuales debido a la naturaleza polinomial de las ecuaciones, donde pequeñas variaciones en los coeficientes pueden disparar el error antes de ser filtradas por la selección natural.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/StatsModeloA/grafica_01_tiempos.png}
+    \caption{Distribución de tiempos de ejecución - Modelo A.}
+    \label{fig:tiemposA}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/StatsModeloA/grafica_02_fitness.png}
+    \caption{Evolución del mejor fitness por lanzamiento - Modelo A.}
+    \label{fig:fitnessA}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/StatsModeloA/grafica_03_desviacion.png}
+    \caption{Desviación típica de la población - Modelo A.}
+    \label{fig:stdA}
+\end{figure}
+
+\subsubsection{Análisis del Modelo B (Círculo)}
+
+En el Modelo B, el espacio de búsqueda se restringió al rango $[-1, 1]$ con 15 puntos de bisección para capturar una geometría cerrada:
+
+\begin{itemize}
+    \item \textbf{Muestreo y Precisión:} La reducción del área de búsqueda permite que el algoritmo perfile la frontera circular con mayor fidelidad en menos tiempo (ver Fig. \ref{fig:tiemposB}).
+    \item \textbf{Estabilidad del Fitness:} El fitness medio (ver Fig. \ref{fig:fitnessB}) tiende a ser más bajo y estable que en el modelo anterior, minimizando las "explosiones numéricas" gracias al rango acotado de las coordenadas.
+    \item \textbf{Exploración Activa:} La desviación típica final (ver Fig. \ref{fig:stdB}) muestra una población que mantiene capacidad de exploración activa, evitando la convergencia prematura en un único punto del círculo.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/StatsModeloB/grafica_01_tiempos.png}
+    \caption{Distribución de tiempos de ejecución - Modelo B.}
+    \label{fig:tiemposB}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/StatsModeloB/grafica_02_fitness.png}
+    \caption{Evolución del mejor fitness por lanzamiento - Modelo B.}
+    \label{fig:fitnessB}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/StatsModeloB/grafica_03_desviacion.png}
+    \caption{Desviación típica (Escala Logarítmica) - Modelo B.}
+    \label{fig:stdB}
+\end{figure}
+
+\textbf{Conclusión:} La regresión simbólica demuestra ser eficaz para traducir cajas negras a ecuaciones explícitas. Mientras el Modelo A requiere mayor esfuerzo para capturar la apertura parabólica, el Modelo B se beneficia de un espacio restringido para cerrar la geometría del círculo con alta fidelidad.
 \end{document}
