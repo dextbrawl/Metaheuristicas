@@ -259,6 +259,7 @@ for generation in range(GENERATIONS):
         elite.classes = source.classes.copy() if source.classes is not None else None
         elite.components = source.components.copy()
         
+        newPopulation.individuals.append(elite)
     
     # Cruce
     while len(newPopulation.individuals) < POPULATION_SIZE:
