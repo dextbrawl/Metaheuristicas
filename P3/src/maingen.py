@@ -125,14 +125,28 @@ def drawDecisionBoundary(individual, model, limits=(-1.0, 1.0), title="Mejor Ind
     
     # Dibujar frontera aproximada
     aprox = individual.getAproximationPoints()
-    if len(aprox) >= 3:
-        centroid = np.mean(aprox, axis=0)
-        angles = np.arctan2(aprox[:,1] - centroid[1], aprox[:,0] - centroid[0])
-        sorted_idx = np.argsort(angles)
-        ordered = aprox[sorted_idx]
-        # Close the polygon
+    if len(aprox) >= 2:
+        # Nearest-neighbor path: conecta cada punto con el más cercano no visitado
+        remaining = list(range(len(aprox)))
+        
+        # Empezar desde el punto más a la izquierda (más estable como punto de inicio)
+        start_idx = np.argmin(aprox[:, 0])
+        ordered_indices = [start_idx]
+        remaining.remove(start_idx)
+        
+        while remaining:
+            current = aprox[ordered_indices[-1]]
+            nearest_idx = min(remaining, key=lambda i: np.linalg.norm(aprox[i] - current))
+            ordered_indices.append(nearest_idx)
+            remaining.remove(nearest_idx)
+        
+        ordered = aprox[ordered_indices]
+        
+
         ordered = np.vstack([ordered, ordered[0]])
-        plt.plot(ordered[:,0], ordered[:,1], 'g-', linewidth=2, label='Aprox. boundary')
+        
+        plt.plot(ordered[:, 0], ordered[:, 1], 'g-', linewidth=2, label='Aprox. boundary')
+        plt.scatter(aprox[:, 0], aprox[:, 1], c='green', s=30, zorder=4, alpha=0.6)
     
     # Dibujar puntos del individuo
     if len(points_class0) > 0:

@@ -284,7 +284,11 @@ valor de peso (para controlar cuáles de éstas características son más releva
 tán sólo queda sumar la distancia entre puntos de un par (cuánto menos mejor), sumar las penalizaciones de variedad
 y pares del mismo tipo (si es 0 porque hay equilibrio no suma nada, y si es más, se suma),
 y por último, se resta la dispersión. Por lo tanto, nuestro objetivo será minimizar la función de fitness, ya que
-la distancia interpunto queremos que sea 0 (la sumamos) y la intrapunto queremos que sea la máxima posible (la restamos)\\
+la distancia interpunto queremos que sea 0 (la sumamos) y la intrapunto queremos que sea la máxima posible (la restamos)
+
+Además, se intentará minimizar directamente la distancia que hay entre dos puntos de un mismo par, que será explicado más adelante
+en la sección 11.1, por lo que pondremos mayor peso principalmente a que dos puntos sean de diferente clase y a la dispersión entre
+pares. \\
 
 \subsubsection{Función objetivo programación genética}
 
@@ -537,13 +541,18 @@ A continuación se enumeran las consideraciones más relevantes adoptadas en la 
 \section{Análisis de resultados}
 \subsection{Algoritmo genético}
 \subsubsection{Evolución del fitness}
-Al observar la gráfica de la evolución general para el modelo A con un poco de esfuerzo podemos apreciar como el algoritmo encuentra rápidamente buenas soluciones y se estanca, el fitness final es 0.67, mientras que el fitness promedio de la población es aproximadamente 11.
+Para la evolución del valor de fitness, hemos tenido en cuenta el valor del mejor de la población, el valor del peor y el valor promedio de toda la población.
+A continuación, se mostrarán los resultados obtenidos para individuos de 100 puntos (50 pares), tamaño de población de 50 individuos y aplicando 200 generaciones
+para el algoritmo.
+
+Observamos que el fitness tarda más tiempo en converger en el modelo A con respecto al modelo B, ya que el espacio de búsqueda es algo mayor y además el modelo 
+A tiene una forma bastante más compleja que el modelo B.\\
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelA/01_evolucion.png}
+  \includegraphics[width=0.55\textwidth]{images/stats_blackbox_modelA/01_evolucion.png}
 \end{center}
-Por otro lado el modelo B podemos apreciar que comienza con una peor población general pero al llegar a la generación pero también converge llegando a un fitness mínimo de 0.9
+En el modelo B, se converge bastante antes, debido a su forma más simple.\\
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/01_evolucion.png}
+  \includegraphics[width=0.55\textwidth]{images/stats_blackbox_modelB/01_evolucion.png}
 \end{center}
 \subsubsection{Diversidad genética}
 Para el modelo A la gráfica muestra que la distancia promedio de los individuos al centroide fluctúa constantemente. Tras una pequeña caída inicial ya que se descartan los soluciones iniciales peores, la curva sube y baja de forma periódica en lugar de caer hacia cero lo que demuestra que la población nunca llega a colapsar.
@@ -572,24 +581,28 @@ Y del valor 0.5 para el modelo B
   \includegraphics[width=0.85\textwidth]{images/stats_blackbox_modelB/conv_mut_rate.png}
 \end{center}
 \subsubsection{Análisis de la frontera}
-Por último respecto al estudio del algoritmo genético observamos como quedarían las fronteras, tanto para el modelo A\\
+Sólo queda comprobar las fronteras resultante por el mejor individuo. Vemos que el modelo A al ser más complejo, es un poco más inexacto que el otro,
+teniendo además algunos pares de puntos que pertenecen a la misma clase, u otros pares de diferente clase que no han sido minimizados correctamente. De todas formas,
+es una aproximación bastante lograda. 
+
+El modelo B al ser más simple, es mucho más parecido al original. Todos los pares de puntos han sido minimizados correctamente. \\
 \begin{center}
-  \includegraphics[width=0.70\textwidth]{images/stats_blackbox_modelA/05_frontera_final.png}
+  \includegraphics[width=0.6\textwidth]{images/stats_blackbox_modelA/05_frontera_final.png}
 \end{center}
-Como para el modelo B\\
+
 \begin{center}
-  \includegraphics[width=0.70\textwidth]{images/stats_blackbox_modelB/05_frontera_final.png}
+  \includegraphics[width=0.6\textwidth]{images/stats_blackbox_modelB/05_frontera_final.png}
 
   \textbf{Nota:} Aunque parezca que sólo haya puntos de clase 1 en la frontera estimada, realmente
   son una pareja de puntos pero con la clase 1 prácticamente superpuesta sobre la clase 2. Entre ambos puntos
-  existe un punto medio que conforma la frontera, pero no se ve en el gráfico.
+  existe un punto medio que conforma la frontera, pero no se aprecia bien en el gráfico.
 \end{center}
 \end{spacing}
 \subsection{Regresión simbólica}
 
 El análisis de la programación genética aplicada a la identificación de las fronteras de decisión revela comportamientos distintos según la complejidad geométrica de cada modelo de caja negra:
 
-\subsubsection{Análisis del Modelo A (Parábola)}
+\subsubsection{Análisis del Modelo A}
 
 Para el Modelo A, el algoritmo debe capturar una frontera con apertura infinita. Los resultados muestran las siguientes tendencias:
 
@@ -620,7 +633,7 @@ Para el Modelo A, el algoritmo debe capturar una frontera con apertura infinita.
     \label{fig:stdA}
 \end{figure}
 
-\subsubsection{Análisis del Modelo B (Círculo)}
+\subsubsection{Análisis del Modelo B}
 
 En el Modelo B, el espacio de búsqueda se restringió al rango $[-1, 1]$ con 15 puntos de bisección para capturar una geometría cerrada:
 
